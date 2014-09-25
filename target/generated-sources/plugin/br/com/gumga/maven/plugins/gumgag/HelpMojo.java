@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Display help information on gumgag-maven-plugin.<br>
- * Call <code>mvn gumgag-maven-plugin:help -Ddetail=true -Dgoal=&lt;goal-name&gt;</code> to display parameter details.
+ * Display help information on gumgag.<br>
+ * Call <code>mvn gumgag:help -Ddetail=true -Dgoal=&lt;goal-name&gt;</code> to display parameter details.
  * @author maven-plugin-tools
  */
 @Mojo( name = "help", requiresProject = false, threadSafe = true )
@@ -58,7 +58,7 @@ public class HelpMojo
     private int indentSize;
 
     // groupId/artifactId/plugin-help.xml
-    private static final String PLUGIN_HELP_PATH = "/META-INF/maven/br.com.gumga/gumgag-maven-plugin/plugin-help.xml";
+    private static final String PLUGIN_HELP_PATH = "/META-INF/maven/br.com.gumga/gumgag/plugin-help.xml";
 
     private Document build()
         throws MojoExecutionException

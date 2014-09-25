@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>br.com.gumga</groupId>
-    <artifactId>gumgag-maven-plugin</artifactId>
+    <artifactId>gumgag</artifactId>
     <version>0.1</version>
     <packaging>maven-plugin</packaging>
     
-    <name>gungag-maven-plugin Maven Plugin</name>
+    <name>gumgag Maven Plugin</name>
 
-    <url>http://www.gumga.com.br/plugin/documentos</url>
+    <url>http://www.gumga.com.br/plugin/gungag</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -35,6 +35,12 @@
             <version>3.2.3</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.hibernate.javax.persistence</groupId>
+            <artifactId>hibernate-jpa-2.1-api</artifactId>
+            <version>1.0.0.Final</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     
     <build>
@@ -44,7 +50,7 @@
                 <artifactId>maven-plugin-plugin</artifactId>
                 <version>3.3</version>
                 <configuration>
-                    <goalPrefix>gumgag-maven-plugin</goalPrefix>
+                    <goalPrefix>gumgag</goalPrefix>
                     <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
                 </configuration>
                 <executions>
