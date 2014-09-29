@@ -47,7 +47,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 @Mojo(name = "diagrama", requiresDependencyResolution = ResolutionScope.RUNTIME)
-public class Entidades extends AbstractMojo {
+public class GeraDiagrama extends AbstractMojo {
 
     private static final String PREFIXO = "-----GUMGA-----";
 

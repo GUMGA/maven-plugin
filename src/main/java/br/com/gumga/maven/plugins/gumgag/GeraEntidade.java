@@ -7,6 +7,7 @@ package br.com.gumga.maven.plugins.gumgag;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Scanner;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -32,6 +33,9 @@ public class GeraEntidade extends AbstractMojo {
     @Parameter(property = "entidade", defaultValue = "nada")
     private String nomeCompletoEntidade;
 
+    @Parameter(property = "atributos", defaultValue = "")
+    private String parametroAtributos;
+
     private File diretorioBase;
 
     @Override
@@ -55,12 +59,64 @@ public class GeraEntidade extends AbstractMojo {
         try {
             FileWriter fw = new FileWriter(arquivoClasse);
             fw.write("package " + nomePacote + ";\n\n");
-            fw.write("public class " + nomeEntidade + " {\n\n");
+            fw.write("import gumga.framework.domain.GumgaModel;\n"
+                    + "import java.io.Serializable;\n"
+                    + "import java.util.*;\n"
+                    + "import javax.persistence.Entity;\n"
+                    + "\n");
+
+            fw.write("@Entity\n");
+            fw.write("public class " + nomeEntidade + " extends GumgaModel<Long> implements Serializable {\n\n");
+
+            escreveAtributos(fw);
+
             fw.write("}\n");
             fw.close();
         } catch (Exception ex) {
             getLog().error(ex);
         }
+    }
+
+    private void escreveAtributos(FileWriter fw) throws Exception {
+        if (parametroAtributos == null || parametroAtributos.isEmpty()) {
+            return;
+        }
+        String atributos[] = parametroAtributos.split(",");
+        declaraAtributos(atributos, fw);
+        declaraGettersESetters(atributos, fw);
+    }
+
+    public void declaraGettersESetters(String[] atributos, FileWriter fw) throws Exception {
+        for (String atributo : atributos) {
+            criaGet(fw, atributo);
+            criaSet(fw, atributo);
+        }
+    }
+
+    public void declaraAtributos(String[] atributos, FileWriter fw) throws IOException {
+        for (String atributo : atributos) {
+            String partes[] = atributo.split(":");
+            fw.write("    private " + partes[1] + " " + partes[0] + ";\n");
+        }
+        fw.write("\n\n");
+    }
+
+    private void criaGet(FileWriter fw, String atributo) throws Exception {
+        String partes[] = atributo.split(":");
+        fw.write(""
+                + "    public " + partes[1] + " get" + Util.primeiraMaiuscula(partes[0]) + "() {\n"
+                + "        return " + partes[0] + ";\n"
+                + "    }\n"
+                + "\n");
+    }
+
+    private void criaSet(FileWriter fw, String atributo) throws Exception {
+        String partes[] = atributo.split(":");
+        fw.write(""
+                + "    public void set" + Util.primeiraMaiuscula(partes[0]) + "(" + partes[1] + " " + partes[0] + ") {\n"
+                + "        this." + partes[0] + " = " + partes[0] + ";\n"
+                + "    }\n"
+                + "\n");
     }
 
 }
