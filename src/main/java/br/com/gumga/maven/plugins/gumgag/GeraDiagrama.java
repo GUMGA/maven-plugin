@@ -366,7 +366,6 @@ public class GeraDiagrama extends AbstractMojo {
         } catch (Exception ex) {
             getLog().error(ex);
         }
-
     }
 
 }

@@ -5,14 +5,21 @@
  */
 package br.com.gumga.maven.plugins.gumgag;
 
+import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author munif
  */
 public class Util {
-    
-    public static String primeiraMaiuscula(String s){
-        return s.substring(0,1).toUpperCase().concat(s.substring(1));
+
+    public static String primeiraMaiuscula(String s) {
+        return s.substring(0, 1).toUpperCase().concat(s.substring(1));
     }
+
     
 }

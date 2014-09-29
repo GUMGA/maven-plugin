@@ -28,15 +28,13 @@ public class GeraEntidade extends AbstractMojo {
     private MavenProject project;
 
     /**
-     * Entidade a ser criada
+     * Entidade
      */
     @Parameter(property = "entidade", defaultValue = "nada")
     private String nomeCompletoEntidade;
 
     @Parameter(property = "atributos", defaultValue = "")
     private String parametroAtributos;
-
-    private File diretorioBase;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -46,7 +44,6 @@ public class GeraEntidade extends AbstractMojo {
             System.out.print("Nome completo da entidade a ser gerada:");
             nomeCompletoEntidade = entrada.next();
         }
-        diretorioBase = project.getBasedir();
         String nomePacote = nomeCompletoEntidade.substring(0, nomeCompletoEntidade.lastIndexOf('.'));
         String nomeEntidade = nomeCompletoEntidade.substring(nomeCompletoEntidade.lastIndexOf('.') + 1);
         String pastaClasse = project.getCompileSourceRoots().get(0) + "/".concat(nomePacote.replaceAll("\\.", "/"));
