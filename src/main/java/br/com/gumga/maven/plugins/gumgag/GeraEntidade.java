@@ -59,6 +59,7 @@ public class GeraEntidade extends AbstractMojo {
             fw.write("import gumga.framework.domain.GumgaModel;\n"
                     + "import java.io.Serializable;\n"
                     + "import java.util.*;\n"
+                    + "import java.math.BigDecimal;\n"
                     + "import javax.persistence.Entity;\n"
                     + "\n");
 
