@@ -142,7 +142,7 @@ public class GeraGateway extends AbstractMojo {
 
     public void declaraAtributos(FileWriter fw, Field[] atributos) throws IOException {
         for (Field atributo : atributos) {
-            if (atributo.getType().getCanonicalName().startsWith("java")) {
+            if (atributo.getType().getCanonicalName().startsWith("java") || atributo.getType().isPrimitive()) {
                 criaAtributo(atributo, fw);
             }
         }
@@ -157,7 +157,7 @@ public class GeraGateway extends AbstractMojo {
 
     private void declaraGettersSetters(FileWriter fw, Field[] atributos) throws Exception {
         for (Field atributo : atributos) {
-            if (atributo.getType().getCanonicalName().startsWith("java")) {
+            if (atributo.getType().getCanonicalName().startsWith("java") || atributo.getType().isPrimitive()) {
                 criaGet(fw, atributo);
                 criaSet(fw, atributo);
             }
@@ -266,9 +266,9 @@ public class GeraGateway extends AbstractMojo {
 
     private void geraCopia(FileWriter fw, Field[] atributos, String destino, String origem) throws IOException {
         for (Field atributo : atributos) {
-            if (atributo.getType().getCanonicalName().startsWith("java")) {
+            if (atributo.getType().getCanonicalName().startsWith("java") || atributo.getType().isPrimitive()) {
                 String nome = Util.primeiraMaiuscula(atributo.getName());
-                fw.write("        " + destino + ".set"+nome+"(" + origem + ".get"+nome+"());\n");
+                fw.write("        " + destino + ".set" + nome + "(" + origem + ".get" + nome + "());\n");
             }
         }
     }
