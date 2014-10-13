@@ -44,6 +44,7 @@ public class GeraPresentation extends AbstractMojo {
 
     private Class classeEntidade;
     private String pastaScripts;
+    private String pastaResources;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -59,6 +60,7 @@ public class GeraPresentation extends AbstractMojo {
             pastaWeb = project.getCompileSourceRoots().get(0) + "/".concat(nomePacoteWeb.replaceAll("\\.", "/"));
             pastaJSP = project.getFile().getParent() + "/src/main/webapp/WEB-INF/views/crud/" + (nomeEntidade.toLowerCase());
             pastaScripts = project.getFile().getParent() + "/src/main/webapp/WEB-INF/static/scripts/app//" + (nomeEntidade.toLowerCase());
+            pastaResources = project.getFile().getParent() + "/src/main/resources/";
 
             getLog().info("Iniciando plugin Gerador de Classes de Apresentação ");
             getLog().info("Gerando para " + nomeEntidade);
@@ -69,6 +71,7 @@ public class GeraPresentation extends AbstractMojo {
             geraApi();
             geraJSPs();
             geraScripts();
+            adicionaAoMenu();
         } catch (Exception ex) {
             getLog().error(ex);
         }
@@ -342,6 +345,21 @@ public class GeraPresentation extends AbstractMojo {
                     + "");
 
             fwList.close();
+
+        } catch (Exception ex) {
+            getLog().error(ex);
+        }
+
+    }
+
+    private void adicionaAoMenu() {
+        try {
+            File arquivoMenu = new File(pastaResources + "/menu.config");
+            System.out.println("---------------------"+arquivoMenu.getAbsolutePath());
+            FileWriter fwMenu = new FileWriter(arquivoMenu, true);
+
+            fwMenu.write("" + nomeEntidade + " { url=\"" + nomeEntidade.toLowerCase() + "\" id=\"" + nomeEntidade.toLowerCase() + "\" }\n");
+            fwMenu.close();
 
         } catch (Exception ex) {
             getLog().error(ex);
