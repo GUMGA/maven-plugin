@@ -36,6 +36,9 @@ public class GeraEntidade extends AbstractMojo {
     @Parameter(property = "atributos", defaultValue = "")
     private String parametroAtributos;
 
+    @Parameter(property = "super", defaultValue = "GumgaModel<Long>")
+    private String superClasse;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
 
@@ -60,11 +63,11 @@ public class GeraEntidade extends AbstractMojo {
                     + "import java.io.Serializable;\n"
                     + "import java.util.*;\n"
                     + "import java.math.BigDecimal;\n"
-                    + "import javax.persistence.Entity;\n"
+                    + "import javax.persistence.*;\n"
                     + "\n");
 
             fw.write("@Entity\n");
-            fw.write("public class " + nomeEntidade + " extends GumgaModel<Long> implements Serializable {\n\n");
+            fw.write("public class " + nomeEntidade + " extends " + superClasse + " implements Serializable {\n\n");
 
             escreveAtributos(fw);
 
@@ -94,6 +97,9 @@ public class GeraEntidade extends AbstractMojo {
     public void declaraAtributos(String[] atributos, FileWriter fw) throws IOException {
         for (String atributo : atributos) {
             String partes[] = atributo.split(":");
+            if (partes.length > 2) {
+                fw.write("    " + partes[2] + "\n");
+            }
             fw.write("    private " + partes[1] + " " + partes[0] + ";\n");
         }
         fw.write("\n\n");

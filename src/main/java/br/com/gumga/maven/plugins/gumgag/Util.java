@@ -6,9 +6,11 @@
 package br.com.gumga.maven.plugins.gumgag;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.maven.project.MavenProject;
 
@@ -20,6 +22,15 @@ public class Util {
 
     public static String primeiraMaiuscula(String s) {
         return s.substring(0, 1).toUpperCase().concat(s.substring(1));
+    }
+    
+    public static List<Field> getTodosAtributos(Class classe){
+        List<Field> aRetornar=new ArrayList<Field>();
+        if (!classe.getSuperclass().equals(Object.class)){
+            aRetornar.addAll(getTodosAtributos(classe.getSuperclass()));
+        }
+        aRetornar.addAll(Arrays.asList(classe.getDeclaredFields()));
+        return aRetornar;
     }
 
     public static ClassLoader getClassLoader(MavenProject project) {

@@ -172,7 +172,7 @@ public class GeraPresentation extends AbstractMojo {
                     + "\n");
 
             boolean primeiro = true;
-            for (Field atributo : classeEntidade.getDeclaredFields()) {
+            for (Field atributo : Util.getTodosAtributos(classeEntidade)) {
 
                 Class<?> type = atributo.getType();
                 String nomeAtributo = atributo.getName();
@@ -214,7 +214,7 @@ public class GeraPresentation extends AbstractMojo {
 
             File arquivoList = new File(pastaJSP + "/list.jsp");
             FileWriter fwList = new FileWriter(arquivoList);
-            Field primeiroAtributo = classeEntidade.getDeclaredFields()[0];
+            Field primeiroAtributo = Util.getTodosAtributos(classeEntidade).get(0);
             String nomeAtributo = primeiroAtributo.getName();
             String etiqueta = Util.primeiraMaiuscula(nomeAtributo);
 
