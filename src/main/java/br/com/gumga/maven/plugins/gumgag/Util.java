@@ -12,6 +12,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.persistence.GeneratedValue;
 import org.apache.maven.project.MavenProject;
 
 /**
@@ -23,11 +24,26 @@ public class Util {
     public static String primeiraMaiuscula(String s) {
         return s.substring(0, 1).toUpperCase().concat(s.substring(1));
     }
-    
-    public static List<Field> getTodosAtributos(Class classe){
-        List<Field> aRetornar=new ArrayList<Field>();
-        if (!classe.getSuperclass().equals(Object.class)){
-            aRetornar.addAll(getTodosAtributos(classe.getSuperclass()));
+
+    public static List<Field> getTodosAtributosMenosIdAutomatico(Class classe) {
+        List<Field> todosAtributos = getTodosAtributos(classe);
+        Field aRemover = null;
+        for (Field f : todosAtributos) {
+            if (f.isAnnotationPresent(GeneratedValue.class)) {
+                aRemover = f;
+                break;
+            }
+        }
+        if (aRemover != null) {
+            todosAtributos.remove(aRemover);
+        }
+        return todosAtributos;
+    }
+
+    public static List<Field> getTodosAtributos(Class classe) throws SecurityException {
+        List<Field> aRetornar = new ArrayList<Field>();
+        if (!classe.getSuperclass().equals(Object.class)) {
+            aRetornar.addAll(getTodosAtributosMenosIdAutomatico(classe.getSuperclass()));
         }
         aRetornar.addAll(Arrays.asList(classe.getDeclaredFields()));
         return aRetornar;
