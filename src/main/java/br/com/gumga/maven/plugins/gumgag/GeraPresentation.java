@@ -7,10 +7,17 @@ package br.com.gumga.maven.plugins.gumgag;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -46,6 +53,8 @@ public class GeraPresentation extends AbstractMojo {
     private String pastaScripts;
     private String pastaResources;
 
+    private List<Class> dependenciasManyToOne;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
 
@@ -67,9 +76,9 @@ public class GeraPresentation extends AbstractMojo {
 
             classeEntidade = Util.getClassLoader(project).loadClass(nomeCompletoEntidade);
 
+            geraJSPs();
             geraWeb();
             geraApi();
-            geraJSPs();
             geraScripts();
             adicionaAoMenu();
         } catch (Exception ex) {
@@ -147,6 +156,8 @@ public class GeraPresentation extends AbstractMojo {
     }
 
     private void geraJSPs() {
+        dependenciasManyToOne = new ArrayList<>();
+
         File f = new File(pastaJSP);
         f.mkdirs();
 
@@ -171,40 +182,7 @@ public class GeraPresentation extends AbstractMojo {
                     + "<g:form>\n"
                     + "\n");
 
-            boolean primeiro = true;
-            for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
-
-                Class<?> type = atributo.getType();
-                String nomeAtributo = atributo.getName();
-                String etiqueta = Util.primeiraMaiuscula(nomeAtributo);
-
-                boolean requerido = true;
-
-                if (Boolean.class.equals(type) || Boolean.TYPE.equals(type)) {
-                    fwForm.write(""
-                            + "    <div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                            + "        <label><input type=\"checkbox\" name=\"" + nomeAtributo + "\" ng-model=\"entity." + nomeAtributo + "\" /> " + etiqueta + "</label>\n"
-                            + "        <gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                            + "    </div>"
-                            + ""
-                    );
-                } else if (BigDecimal.class.equals(type)) {
-                    fwForm.write(""
-                            + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                            + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                            + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + "\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " gumga-number decimal-places=\"2\" />\n"
-                            + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                            + "	</div>\n");
-                } else {
-                    fwForm.write(""
-                            + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                            + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                            + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + "\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
-                            + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                            + "	</div>\n");
-                }
-                primeiro = false;
-            }
+            geraCampos(fwForm);
 
             fwForm.write(""
                     + "	\n"
@@ -245,6 +223,83 @@ public class GeraPresentation extends AbstractMojo {
         }
     }
 
+    public void geraCampos(FileWriter fwForm) throws IOException {
+        boolean primeiro = true;
+        for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
+
+            Class<?> type = atributo.getType();
+            String nomeAtributo = atributo.getName();
+            String etiqueta = Util.primeiraMaiuscula(nomeAtributo);
+
+            boolean requerido = false; // VERIFICAR
+
+            if (atributo.isAnnotationPresent(ManyToOne.class)) {
+                String nomePrimeiroAtributo = Util.primeiroAtributo(type).getName();
+                dependenciasManyToOne.add(type);
+
+                fwForm.write("    <div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
+                        + "        <label class=\"control-label\">" + etiqueta + "</label>\n"
+                        + "\n"
+                        + "        <gumga:select ng-model=\"entity." + nomeAtributo + "\">\n"
+                        + "            <gumga:select:match placeholder=\"Selecione um " + etiqueta + "...\">{{$select.selected." + nomePrimeiroAtributo + "}}</gumga:select:match>\n"
+                        + "            <gumga:select:choices repeat=\"vendor in listaVendor track by $index\" refresh=\"ctrl.refreshListaVendor($select.search)\" refresh-delay=\"0\">\n"
+                        + "                {{vendor." + nomePrimeiroAtributo + "}}\n"
+                        + "            </gumga:select:choices>\n"
+                        + "        </gumga:select>\n"
+                        + "\n"
+                        + "\n"
+                        + "        <gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
+                        + "    </div>\n"
+                        + "");
+
+            } else if (atributo.isAnnotationPresent(OneToOne.class)) {
+                fwForm.write(""
+                        + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
+                        + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
+                        + "		<label class=\"control-label\">" + type + " (OneToOne)</label>\n"
+                        + "	</div>\n");
+
+            } else if (atributo.isAnnotationPresent(OneToMany.class)) {
+                fwForm.write(""
+                        + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
+                        + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
+                        + "		<label class=\"control-label\">" + type + " (OneToMany)</label>\n"
+                        + "	</div>\n");
+
+            } else if (atributo.isAnnotationPresent(ManyToMany.class)) {
+                fwForm.write(""
+                        + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
+                        + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
+                        + "		<label class=\"control-label\">" + type + " (ManyToMany)</label>\n"
+                        + "	</div>\n");
+
+            } else if (Boolean.class.equals(type) || Boolean.TYPE.equals(type)) {
+                fwForm.write(""
+                        + "    <div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
+                        + "        <label><input type=\"checkbox\" name=\"" + nomeAtributo + "\" ng-model=\"entity." + nomeAtributo + "\" /> " + etiqueta + "</label>\n"
+                        + "        <gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
+                        + "    </div>"
+                        + ""
+                );
+            } else if (BigDecimal.class.equals(type)) {
+                fwForm.write(""
+                        + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
+                        + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
+                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + "\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " gumga-number decimal-places=\"2\" />\n"
+                        + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
+                        + "	</div>\n");
+            } else {
+                fwForm.write(""
+                        + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
+                        + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
+                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + "\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
+                        + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
+                        + "	</div>\n");
+            }
+            primeiro = false;
+        }
+    }
+
     private void geraScripts() {
         try {
             File f = new File(pastaScripts);
@@ -261,7 +316,13 @@ public class GeraPresentation extends AbstractMojo {
                     + "	return require('angular')\n"
                     + "		.module('app." + nomeEntidade.toLowerCase() + "', [\"app.base.crud\", 'gumga.components'])\n"
                     + "		\n"
-                    + "		.service('EntityService', require('app/" + nomeEntidade.toLowerCase() + "/service'))\n"
+                    + "		.service('EntityService', require('app/" + nomeEntidade.toLowerCase() + "/service'))\n\n");
+
+            for (Class tipo : dependenciasManyToOne) {
+                fwModule.write(".service(\"" + tipo + "Service\", require('app/" + tipo.getSimpleName().toLowerCase() + "/service'))\n");
+            }
+
+            fwModule.write(""
                     + "		\n"
                     + "		.controller(\"ListController\", require('app/" + nomeEntidade.toLowerCase() + "/controllers/list'))\n"
                     + "		.controller(\"FormController\", require('app/" + nomeEntidade.toLowerCase() + "/controllers/form'));\n"
@@ -305,16 +366,45 @@ public class GeraPresentation extends AbstractMojo {
             fwForm.write(""
                     + "define(function(require) {\n"
                     + "\n"
-                    + "	return require('angular-class').create({\n"
+                    + "	return require('angular-class').create({\n\n");
+
+            for (Class tipo : dependenciasManyToOne) {
+                fwForm.write("$inject: ['" + tipo.getSimpleName() + "Service'],\n");
+            }
+
+            fwForm.write("\n"
                     + "		extends : require('app-commons/controllers/basic-form-controller'),\n"
                     + "		prototype : {\n"
                     + "\n"
                     + "			initialize : function() {\n"
-                    + "				// Inicialização do controller\n"
+                    + "				// Inicialização do controller\n");
+
+            for (Class tipo : dependenciasManyToOne) {
+                fwForm.write("this.$scope.lista" + tipo.getSimpleName() + " = [];\n");
+            }
+
+            fwForm.write("\n"
                     + "			}\n"
                     + "	\n"
                     + "			// Demais métodos do controller\n"
-                    + "\n"
+                    + "\n");
+            for (Class tipo : dependenciasManyToOne) {
+
+                fwForm.write(""
+                        + "            , refreshLista" + tipo.getSimpleName() + ": function (pesquisa) {\n"
+                        + "                var $scope = this.$scope;\n"
+                        + "\n"
+                        + "                if (pesquisa.length == 0) {\n"
+                        + "                    pesquisa = \"%\";\n"
+                        + "                }\n"
+                        + "\n"
+                        + "                this." + tipo.getSimpleName() + "Service.search(pesquisa, ['" + Util.primeiroAtributo(tipo).getName() + "']).then(function (result) {\n"
+                        + "                    $scope.lista" + tipo.getSimpleName() + " = result.values;\n"
+                        + "                });\n"
+                        + "            }");
+            }
+
+            fwForm.write("\n"
                     + "		}\n"
                     + "	});\n"
                     + "});\n"
@@ -355,7 +445,7 @@ public class GeraPresentation extends AbstractMojo {
     private void adicionaAoMenu() {
         try {
             File arquivoMenu = new File(pastaResources + "/menu.config");
-            System.out.println("---------------------"+arquivoMenu.getAbsolutePath());
+            System.out.println("---------------------" + arquivoMenu.getAbsolutePath());
             FileWriter fwMenu = new FileWriter(arquivoMenu, true);
 
             fwMenu.write("" + nomeEntidade + " { url=\"" + nomeEntidade.toLowerCase() + "\" id=\"" + nomeEntidade.toLowerCase() + "\" }\n");

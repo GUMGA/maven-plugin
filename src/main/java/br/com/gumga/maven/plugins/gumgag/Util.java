@@ -71,4 +71,8 @@ public class Util {
         return aRetornar;
     }
 
+    public static Field primeiroAtributo(Class classe) {
+        return getTodosAtributosMenosIdAutomatico(classe).get(0);
+    }
+
 }
