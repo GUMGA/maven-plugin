@@ -234,30 +234,11 @@ public class GeraPresentation extends AbstractMojo {
             boolean requerido = false; // VERIFICAR
 
             if (atributo.isAnnotationPresent(ManyToOne.class)) {
-                String nomePrimeiroAtributo = Util.primeiroAtributo(type).getName();
-                dependenciasManyToOne.add(type);
-
-                fwForm.write("    <div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + "        <label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "\n"
-                        + "        <gumga:select ng-model=\"entity." + nomeAtributo + "\">\n"
-                        + "            <gumga:select:match placeholder=\"Selecione um " + etiqueta + "...\">{{$select.selected." + nomePrimeiroAtributo + "}}</gumga:select:match>\n"
-                        + "            <gumga:select:choices repeat=\"vendor in listaVendor track by $index\" refresh=\"ctrl.refreshListaVendor($select.search)\" refresh-delay=\"0\">\n"
-                        + "                {{vendor." + nomePrimeiroAtributo + "}}\n"
-                        + "            </gumga:select:choices>\n"
-                        + "        </gumga:select>\n"
-                        + "\n"
-                        + "\n"
-                        + "        <gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                        + "    </div>\n"
-                        + "");
+                
+                geraGumgaSelect(type, fwForm, nomeAtributo, etiqueta);
 
             } else if (atributo.isAnnotationPresent(OneToOne.class)) {
-                fwForm.write(""
-                        + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<label class=\"control-label\">" + type + " (OneToOne)</label>\n"
-                        + "	</div>\n");
+                geraGumgaSelect(type, fwForm, nomeAtributo, etiqueta);
 
             } else if (atributo.isAnnotationPresent(OneToMany.class)) {
                 fwForm.write(""
@@ -300,6 +281,27 @@ public class GeraPresentation extends AbstractMojo {
         }
     }
 
+    public void geraGumgaSelect(Class<?> type, FileWriter fwForm, String nomeAtributo, String etiqueta) throws IOException {
+        String nomePrimeiroAtributo = Util.primeiroAtributo(type).getName();
+        dependenciasManyToOne.add(type);
+        
+        fwForm.write("<!--OneToOne -->\n"
+                + "    <div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
+                + "        <label class=\"control-label\">" + etiqueta + "</label>\n"
+                + "\n"
+                + "        <gumga:select ng-model=\"entity." + nomeAtributo + "\">\n"
+                + "            <gumga:select:match placeholder=\"Selecione um " + etiqueta + "...\">{{$select.selected." + nomePrimeiroAtributo + "}}</gumga:select:match>\n"
+                + "            <gumga:select:choices repeat=\"" + nomeAtributo.toLowerCase() + " in lista" + type.getSimpleName() + " track by $index\" refresh=\"ctrl.refreshLista" + type.getSimpleName()  + "($select.search)\" refresh-delay=\"0\">\n"
+                + "                {{" + nomeAtributo.toLowerCase() + "." + nomePrimeiroAtributo + "}}\n"
+                + "            </gumga:select:choices>\n"
+                + "        </gumga:select>\n"
+                + "\n"
+                + "\n"
+                + "        <gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
+                + "    </div>\n"
+                + "");
+    }
+
     private void geraScripts() {
         try {
             File f = new File(pastaScripts);
@@ -319,7 +321,7 @@ public class GeraPresentation extends AbstractMojo {
                     + "		.service('EntityService', require('app/" + nomeEntidade.toLowerCase() + "/service'))\n\n");
 
             for (Class tipo : dependenciasManyToOne) {
-                fwModule.write(".service(\"" + tipo + "Service\", require('app/" + tipo.getSimpleName().toLowerCase() + "/service'))\n");
+                fwModule.write(".service(\"" + tipo.getSimpleName() + "Service\", require('app/" + tipo.getSimpleName().toLowerCase() + "/service'))\n");
             }
 
             fwModule.write(""
@@ -445,10 +447,8 @@ public class GeraPresentation extends AbstractMojo {
     private void adicionaAoMenu() {
         try {
             File arquivoMenu = new File(pastaResources + "/menu.config");
-            System.out.println("---------------------" + arquivoMenu.getAbsolutePath());
             FileWriter fwMenu = new FileWriter(arquivoMenu, true);
-
-            fwMenu.write("" + nomeEntidade + " { url=\"" + nomeEntidade.toLowerCase() + "\" id=\"" + nomeEntidade.toLowerCase() + "\" }\n");
+            fwMenu.write("\n" + nomeEntidade + " { url=\"" + nomeEntidade.toLowerCase() + "\" id=\"" + nomeEntidade.toLowerCase() + "\" }\n");
             fwMenu.close();
 
         } catch (Exception ex) {
