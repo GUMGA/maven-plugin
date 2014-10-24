@@ -133,7 +133,7 @@ public class GeraDiagrama extends AbstractMojo {
                 FileWriter fw = new FileWriter(pacoteDot, false);
                 escreveCabecalho(fw);
                 fw.write("subgraph cluster" + pacote.replaceAll("\\.", "_") + "\n{\n");
-                fw.write("label=\""+pacote+"\";\n");
+                fw.write("label=\"" + pacote + "\";\n");
                 for (Class entidade : pacotes.get(pacote)) {
                     associcaos.addAll(criaClasse(entidade, fw));
                 }
@@ -155,7 +155,7 @@ public class GeraDiagrama extends AbstractMojo {
             escreveCabecalho(fw);
             for (String pacote : pacotes.keySet()) {
                 fw.write("subgraph cluster" + pacote.replaceAll("\\.", "_") + "\n{\n");
-                fw.write("label=\""+pacote+"\";\n");
+                fw.write("label=\"" + pacote + "\";\n");
                 for (Class entidade : pacotes.get(pacote)) {
                     associcaos.addAll(criaClasse(entidade, fw));
                 }
@@ -263,7 +263,11 @@ public class GeraDiagrama extends AbstractMojo {
         List<String> associacoes = new ArrayList<String>();
 
         if (!entidade.getSuperclass().equals(Object.class)) {
-            associacoes.add("edge [ arrowhead = \"empty\" headlabel = \"\" taillabel = \"\"] " + entidade.getSimpleName() + " -> " + entidade.getSuperclass().getSimpleName());
+            if (entidade.getSuperclass().getSimpleName().equals("GumgaModel")) {
+                //COLOCAR apenas uma marca
+            } else {
+                associacoes.add("edge [ arrowhead = \"empty\" headlabel = \"\" taillabel = \"\"] " + entidade.getSimpleName() + " -> " + entidade.getSuperclass().getSimpleName());
+            }
         }
 
         String cor = "";
