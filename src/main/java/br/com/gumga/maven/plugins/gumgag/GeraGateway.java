@@ -229,7 +229,7 @@ public class GeraGateway extends AbstractMojo {
                     + "    public " + nomeEntidade + "DTO from(" + nomeEntidade + " entidade) {\n"
                     + "        " + nomeEntidade + "DTO dto = new " + nomeEntidade + "DTO();\n"
                     + "\n");
-            geraCopia(fw, atributos, "entidade", "dto");
+            geraCopia(fw, atributos, "dto", "entidade");
             fw.write("\n"
                     + "        return dto;\n"
                     + "    }\n"
