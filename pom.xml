@@ -17,6 +17,23 @@
     </properties>
 
     <dependencies>
+        <!-- DEPENDENCIAS do Framework GUMGA    -->
+        <dependency>
+            <groupId>gumga.framework</groupId>
+            <artifactId>gumga-domain</artifactId>
+            <version>0.1</version>
+            <type>jar</type>
+        </dependency>
+        
+        <!-- DEPENDENCIAS OUTRAS  -->
+
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-plugin-api</artifactId>
+            <version>3.2.3</version>
+            <type>jar</type>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>
