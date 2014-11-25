@@ -123,7 +123,7 @@ public class GeraEntidade extends AbstractMojo {
             if (partes[1].trim().endsWith("GumgaGeoLocation")) {
                 fw.write("     @Columns(columns = {\n"
                         + "     @Column(name = \"" + partes[0] + "_latitude\"),\n"
-                        + "     @Column(name = \"" + partes[0] + "_longitude)\")\n"
+                        + "     @Column(name = \"" + partes[0] + "_longitude\")\n"
                         + "     })"
                         + "\n");
             }
@@ -132,7 +132,7 @@ public class GeraEntidade extends AbstractMojo {
                         + "     @Column(name = \"" + partes[0] + "_name\"),\n"
                         + "     @Column(name = \"" + partes[0] + "_size\"),\n"
                         + "     @Column(name = \"" + partes[0] + "_type\"),\n"
-                        + "     @Column(name = \"" + partes[0] + "_bytes)\")\n"
+                        + "     @Column(name = \"" + partes[0] + "_bytes\",length = 50*1024*1024)\n"
                         + "     })"
                         + "\n");
             }
