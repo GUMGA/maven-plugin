@@ -59,11 +59,12 @@ public class GeraEntidade extends AbstractMojo {
         try {
             FileWriter fw = new FileWriter(arquivoClasse);
             fw.write("package " + nomePacote + ";\n\n");
-            fw.write("import gumga.framework.domain.GumgaModel;\n"
+            fw.write("import gumga.framework.domain.GumgaModel;\n" //TODO RETIRAR OS IMPORTS DESNECESSÁRIOS
                     + "import java.io.Serializable;\n"
                     + "import java.util.*;\n"
                     + "import java.math.BigDecimal;\n"
                     + "import javax.persistence.*;\n"
+                    + "import org.hibernate.annotations.Columns;\n"
                     + "\n");
 
             fw.write("@Entity\n");
@@ -97,6 +98,44 @@ public class GeraEntidade extends AbstractMojo {
     public void declaraAtributos(String[] atributos, FileWriter fw) throws IOException {
         for (String atributo : atributos) {
             String partes[] = atributo.split(":");
+            if (partes[1].trim().endsWith("GumgaAddress")) {
+                fw.write("     @Columns(columns = {\n"
+                        + "     @Column(name = \"" + partes[0] + "_cep\"),\n"
+                        + "     @Column(name = \"" + partes[0] + "_tipoLogradouro\"),\n"
+                        + "     @Column(name = \"" + partes[0] + "_logradour\"),\n"
+                        + "     @Column(name = \"" + partes[0] + "_numero\"),\n"
+                        + "     @Column(name = \"" + partes[0] + "_complemento\"),\n"
+                        + "     @Column(name = \"" + partes[0] + "_bairro\"),\n"
+                        + "     @Column(name = \"" + partes[0] + "_localidade\"),\n"
+                        + "     @Column(name = \"" + partes[0] + "_uf\"),\n"
+                        + "     @Column(name = \"" + partes[0] + "_pais\")\n"
+                        + "     })"
+                        + "\n");
+            }
+            if (partes[1].trim().endsWith("GumgaTime")) {
+                fw.write("     @Columns(columns = {\n"
+                        + "     @Column(name = \"" + partes[0] + "_hour\"),\n"
+                        + "     @Column(name = \"" + partes[0] + "_minute\"),\n"
+                        + "     @Column(name = \"" + partes[0] + "_second\")\n"
+                        + "     })"
+                        + "\n");
+            }
+            if (partes[1].trim().endsWith("GumgaGeoLocation")) {
+                fw.write("     @Columns(columns = {\n"
+                        + "     @Column(name = \"" + partes[0] + "_latitude\"),\n"
+                        + "     @Column(name = \"" + partes[0] + "_longitude)\")\n"
+                        + "     })"
+                        + "\n");
+            }
+            if (partes[1].trim().endsWith("GumgaFile")||partes[1].trim().endsWith("GumgaImage")) {
+                fw.write("     @Columns(columns = {\n"
+                        + "     @Column(name = \"" + partes[0] + "_name\"),\n"
+                        + "     @Column(name = \"" + partes[0] + "_size\"),\n"
+                        + "     @Column(name = \"" + partes[0] + "_type\"),\n"
+                        + "     @Column(name = \"" + partes[0] + "_bytes)\")\n"
+                        + "     })"
+                        + "\n");
+            }
             if (partes.length > 2) {
                 fw.write("    " + partes[2] + "\n");
             }

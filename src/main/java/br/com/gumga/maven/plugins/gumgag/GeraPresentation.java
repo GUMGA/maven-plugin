@@ -316,12 +316,13 @@ public class GeraPresentation extends AbstractMojo {
                         + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
                         + "	</div>\n");
             } else if (GumgaFile.class.equals(type)) {
+                /*
                 fwForm.write(""
                         + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
                         + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
                         + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
                         + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                        + "	</div>\n");
+                        + "	</div>\n");*/
             } else if (GumgaGeoLocation.class.equals(type)) {
                 fwForm.write(""
                         + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
@@ -345,12 +346,12 @@ public class GeraPresentation extends AbstractMojo {
                         + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
                         + "	</div>\n");
             } else if (GumgaImage.class.equals(type)) {
-                fwForm.write(""
+                /*fwForm.write(""
                         + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
                         + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
                         + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
                         + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                        + "	</div>\n");
+                        + "	</div>\n");*/
             } else if (GumgaMoney.class.equals(type)) {
                 fwForm.write(""
                         + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
