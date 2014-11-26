@@ -282,60 +282,59 @@ public class GeraPresentation extends AbstractMojo {
                         + "	</div>\n");
             } else if (GumgaBoolean.class.equals(type)) {
                 fwForm.write(""
-                        + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
-                        + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                        + "	</div>\n");
+                        + "    <div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
+                        + "        <label><input type=\"checkbox\" name=\"" + nomeAtributo + "\" ng-model=\"entity." + nomeAtributo + ".value\" /> " + etiqueta + "</label>\n"
+                        + "        <gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
+                        + "    </div>\n");
             } else if (GumgaCEP.class.equals(type)) {
                 fwForm.write(""
                         + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
                         + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
+                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\" gumga-mask=\"99999-999\" " + (primeiro ? "autofocus" : "") + " />\n"
                         + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
                         + "	</div>\n");
             } else if (GumgaCNPJ.class.equals(type)) {
                 fwForm.write(""
                         + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
                         + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
+                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\" gumga-mask=\"99.999.999/9999-99\" " + (primeiro ? "autofocus" : "") + " />\n"
                         + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
                         + "	</div>\n");
             } else if (GumgaCPF.class.equals(type)) {
                 fwForm.write(""
                         + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
                         + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
+                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"  gumga-mask=\"999.999.999-99\" " + (primeiro ? "autofocus" : "") + " />\n"
                         + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
                         + "	</div>\n");
             } else if (GumgaEMail.class.equals(type)) {
                 fwForm.write(""
                         + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
                         + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
+                        + "		<input type=\"email\"  name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
                         + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
                         + "	</div>\n");
             } else if (GumgaFile.class.equals(type)) {
                 /*
-                fwForm.write(""
-                        + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
-                        + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                        + "	</div>\n");*/
+                 fwForm.write(""
+                 + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
+                 + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
+                 + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
+                 + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
+                 + "	</div>\n");*/
             } else if (GumgaGeoLocation.class.equals(type)) {
                 fwForm.write(""
                         + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
                         + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".latitude\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".longitude\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
+                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".latitude\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " gumga-number />\n"
+                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".longitude\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " gumga-number />\n"
                         + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
                         + "	</div>\n");
             } else if (GumgaIP4.class.equals(type)) {
                 fwForm.write(""
                         + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
                         + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
+                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\" gumga-mask=\"999.999.999.999\" " + (primeiro ? "autofocus" : "") + " />\n"
                         + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
                         + "	</div>\n");
             } else if (GumgaIP6.class.equals(type)) {
@@ -347,23 +346,24 @@ public class GeraPresentation extends AbstractMojo {
                         + "	</div>\n");
             } else if (GumgaImage.class.equals(type)) {
                 /*fwForm.write(""
-                        + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
-                        + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                        + "	</div>\n");*/
+                 + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
+                 + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
+                 + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
+                 + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
+                 + "	</div>\n");*/
             } else if (GumgaMoney.class.equals(type)) {
                 fwForm.write(""
                         + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
                         + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
+                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + "  gumga-number decimal-places=\"2\"  />\n"
                         + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
+                        + "             <p class=\"help-block\">Valor: {{entity.money.value| currency }}</p>\n"
                         + "	</div>\n");
             } else if (GumgaMultiLineString.class.equals(type)) {
                 fwForm.write(""
                         + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
+                        + "             <label class=\"control-label\">" + etiqueta + "</label><br>\n"
+                        + "             <textarea ng-model=\"entity." + nomeAtributo + ".value\" class=\"form-control\" placeholder=\"Digite " + etiqueta + ".\" rows=\"4\" cols=\"50\" ng-model=\"entity.multiLine.value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " ></textarea>\n"
                         + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
                         + "	</div>\n");
             } else if (GumgaPhoneNumber.class.equals(type)) {
@@ -373,7 +373,7 @@ public class GeraPresentation extends AbstractMojo {
                         + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
                         + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
                         + "	</div>\n");
-
+                
             } else if (GumgaTime.class.equals(type)) {
                 fwForm.write(""
                         + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
