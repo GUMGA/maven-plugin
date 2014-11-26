@@ -102,7 +102,7 @@ public class GeraEntidade extends AbstractMojo {
                 fw.write("     @Columns(columns = {\n"
                         + "     @Column(name = \"" + partes[0] + "_cep\"),\n"
                         + "     @Column(name = \"" + partes[0] + "_tipoLogradouro\"),\n"
-                        + "     @Column(name = \"" + partes[0] + "_logradour\"),\n"
+                        + "     @Column(name = \"" + partes[0] + "_logradouro\"),\n"
                         + "     @Column(name = \"" + partes[0] + "_numero\"),\n"
                         + "     @Column(name = \"" + partes[0] + "_complemento\"),\n"
                         + "     @Column(name = \"" + partes[0] + "_bairro\"),\n"

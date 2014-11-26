@@ -202,6 +202,9 @@ public class GeraPresentation extends AbstractMojo {
                     + "    <jsp:attribute name=\"searchFields\">\n"
                     + "        <gumga:search:field field=\"" + nomeAtributo + "\" label=\"" + etiqueta + "\" selected=\"true\"></gumga:search:field>\n"
                     + "        </jsp:attribute>\n"
+                    + "    <jsp:attribute name=\"advancedFields\">\n"
+                    + "        <gumga:filter:item field=\"" + nomeAtributo + "\" label=\"" + etiqueta + "\"></gumga:filter:item>\n"
+                    + "        </jsp:attribute>"
                     + "\n"
                     + "    <jsp:attribute name=\"gridColumns\">\n"
                     + "        <gumga:column sort-field=\"" + nomeAtributo + "\" label=\"" + etiqueta + "\">{{$value." + nomeAtributo + "}}</gumga:column>\n"
@@ -373,7 +376,7 @@ public class GeraPresentation extends AbstractMojo {
                         + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
                         + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
                         + "	</div>\n");
-                
+
             } else if (GumgaTime.class.equals(type)) {
                 fwForm.write(""
                         + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
