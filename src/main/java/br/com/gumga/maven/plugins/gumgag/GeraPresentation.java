@@ -95,6 +95,7 @@ public class GeraPresentation extends AbstractMojo {
             fw.write(""
                     + "package " + nomePacoteApi + ";\n"
                     + "\n"
+                    + "import  " + nomePacoteBase + ".application.service." + nomeEntidade + "Service;\n"
                     + "import " + nomeCompletoEntidade + ";\n"
                     + "import gumga.framework.application.GumgaService;\n"
                     + "import gumga.framework.presentation.GumgaAPI;\n"
@@ -102,6 +103,7 @@ public class GeraPresentation extends AbstractMojo {
                     + "import org.springframework.beans.factory.annotation.Autowired;\n"
                     + "import org.springframework.web.bind.annotation.RequestMapping;\n"
                     + "import org.springframework.web.bind.annotation.RestController;\n"
+                    + "import org.springframework.web.bind.annotation.PathVariable;\n"
                     + "\n"
                     + "@RestController\n"
                     + "@RequestMapping(\"/api/" + nomeEntidade.toLowerCase() + "\")\n"
@@ -110,7 +112,11 @@ public class GeraPresentation extends AbstractMojo {
                     + "    @Autowired\n"
                     + "    public " + nomeEntidade + "API(GumgaService<" + nomeEntidade + ", Long> service) {\n"
                     + "        super(service);\n"
-                    + "    }\n"
+                    + "    }\n\n");
+
+            sobrecarregaLoad(fw);
+
+            fw.write(""
                     + "\n"
                     + "}"
                     + "\n");
@@ -119,6 +125,22 @@ public class GeraPresentation extends AbstractMojo {
         } catch (Exception ex) {
             getLog().error(ex);
         }
+    }
+
+    private void sobrecarregaLoad(FileWriter fw) throws IOException {
+        List<Field> todosAtributos = Util.getTodosAtributos(classeEntidade);
+        for (Field f : todosAtributos) {
+            if (f.isAnnotationPresent(OneToMany.class) || f.isAnnotationPresent(ManyToMany.class)) {
+                fw.write(""
+                        + "    @Override\n"
+                        + "    public " + nomeEntidade + " load(@PathVariable Long id) {\n"
+                        + "        return ((" + nomeEntidade + "Service)service).load" + nomeEntidade + "Fat(id);\n"
+                        + "    }"
+                        + "");
+                return;
+            }
+        }
+
     }
 
     private void geraWeb() {
@@ -270,19 +292,33 @@ public class GeraPresentation extends AbstractMojo {
                         + "	</div>\n");
             } else if (GumgaAddress.class.equals(type)) {
                 fwForm.write(""
-                        + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".cep\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".tipoLogradouro\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".logradouro\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".numero\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".complemento\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".bairro\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".localidade\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".uf\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".pais\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
-                        + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                        + "	</div>\n");
+                        + ""
+                        + " <%-- CEP --%>\n"
+                        + "    <gumga:accordion close-others=\"true\" >\n"
+                        + "        <gumga:accordion:group heading=\"" + etiqueta + "\" is-open=\"true\">\n"
+                        + "            <div class=\"form-group\" gumga-form-group=\"cep\"> \n"
+                        + "                <input name=\"cep\" size=\"9\" ng-model=\"entity." + nomeAtributo + ".cep\"  gumga-mask=\"99999-999\" required=\"true\"/>\n"
+                        + "                <button class=\"btn btn-xs btn-primary\" ng-click=\"ctrl." + nomeAtributo + "UpdateAddress()\">Procurar Endereço <span class=\"glyphicon glyphicon-search\"></span></button><br><br>\n"
+                        + "\n"
+                        + "                <select  ng-options=\"ps for ps in pais\" ng-model=\"entity." + nomeAtributo + ".pais\" required=\"true\"></select>\n"
+                        + "\n"
+                        + "                <input name=\"descricao\" class=\"form-group-sm\" ng-model=\"entity." + nomeAtributo + ".localidade\" required=\"false\" placeholder=\"Localidade\" />\n"
+                        + "                <select  ng-options=\"uf for uf in allUF track by uf\" ng-model=\"entity." + nomeAtributo + ".uf\" required=\"true\" >\n"
+                        + "                </select>\n"
+                        + "            </div>\n"
+                        + "\n"
+                        + "            <%-- TipoLogradouro/Logradouro/Número//Complemento//Bairro --%>\n"
+                        + "\n"
+                        + "            <div class=\"form-group\" gumga-form-group=\" numero\">\n"
+                        + "                <select required=\"true\" ng-options=\"log for log in allLogradouro\" ng-model=\"entity." + nomeAtributo + ".tipoLogradouro\"></select>\n"
+                        + "                <input name=\"descricao\" size=\"25\" ng-model=\"entity." + nomeAtributo + ".logradouro\"  placeholder=\"Nome do Logradouro\" required=\"false\" />\n"
+                        + "                <input type=\"text\" size=\"6\" ng-model=\"entity." + nomeAtributo + ".numero\" placeholder=\"Número\" autofocus=\"\" required=\"true\"> <br><br>\n"
+                        + "                <input name=\"descricao\" size=\"25\" ng-model=\"entity." + nomeAtributo + ".complemento\" placeholder=\"Complemento\"/>\n"
+                        + "                <input name=\"descricao\" ng-model=\"entity." + nomeAtributo + ".bairro\" required=\"false\" placeholder=\"Bairro\" />\n"
+                        + "            </div>\n"
+                        + "            <a href=\"{{" + nomeAtributo + "enderecoFinal}}\" target=\"_blank\" class=\"btn btn-primary btn-primary\">GOOGLE MAPS <span class=\"glyphicon glyphicon-globe\"></span></a>\n"
+                        + "        </gumga:accordion:group>\n"
+                        + "    </gumga:accordion>\n");
             } else if (GumgaBoolean.class.equals(type)) {
                 fwForm.write(""
                         + "    <div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
@@ -329,8 +365,8 @@ public class GeraPresentation extends AbstractMojo {
                 fwForm.write(""
                         + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
                         + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".latitude\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " gumga-number />\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".longitude\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " gumga-number />\n"
+                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".latitude\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " gumga-number decimal-places=\"8\"/>\n"
+                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".longitude\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " gumga-number decimal-places=\"8\" />\n"
                         + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
                         + "	</div>\n");
             } else if (GumgaIP4.class.equals(type)) {
@@ -507,14 +543,70 @@ public class GeraPresentation extends AbstractMojo {
                     + "			initialize : function() {\n"
                     + "				// Inicialização do controller\n");
 
+            List<Field> atributosAddress = new ArrayList<>();
+            for (Field at : Util.getTodosAtributos(classeEntidade)) {
+                if (at.getType().equals(GumgaAddress.class)) {
+                    atributosAddress.add(at);
+                }
+            }
+
+            if (!atributosAddress.isEmpty()) {
+                fwForm.write(""
+                        + "                this.$scope.entity = this.entity;\n"
+                        + "                this.$scope.allUF = ['AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT', 'PA', 'PB', 'PE', 'PI', 'PR',\n"
+                        + "                    'RJ', 'RN', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO'];\n"
+                        + "\n"
+                        + "                this.$scope.allLogradouro = ['Outros', 'Aeroporto', 'Alameda', 'Área', 'Avenida', 'Campo', 'Chácara', 'Colônia', 'Condomínio', 'Conjunto', 'Distrito',\n"
+                        + "                    'Esplanada', 'Estação', 'Estrada', 'Favela', 'Fazenda', 'Feira', 'Jardim', 'Ladeira', 'Largo', 'Lago', 'Lagoa', 'Loteamento', 'Núcleo', 'Parque', 'Passarela', 'Pátio', 'Praça',\n"
+                        + "                    'Quadra', 'Recanto', 'Residencial', 'Rodovia', 'Rua', 'Setor', 'Sítio', 'Travessa', 'Trevo', 'Trecho', 'Vale', 'Vereda', 'Via', 'Viaduto', 'Viela', 'Via'];\n"
+                        + "                this.$scope.pais = ['Brasil'];\n"
+                        + "\n"
+                        + "                var googleUrl = 'https://www.google.com.br/maps/place/';\n"
+                        + "\n");
+
+                for (Field at : atributosAddress) {
+                    fwForm.write(""
+                            + "                if (this.entity." + at.getName() + "==null){\n"
+                            + "                   this.entity." + at.getName() + "={}\n"
+                            + "                }\n"
+                            + "                 \n"
+                            + "                var " + at.getName() + "url = googleUrl + this.entity." + at.getName() + ".logradouro + ' ' +\n"
+                            + "                        this.entity." + at.getName() + ".numero + ' ' + this.entity." + at.getName() + ".localidade + ' ' + this.entity." + at.getName() + ".uf;\n"
+                            + "                this.$scope." + at.getName() + "enderecoFinal = " + at.getName() + "url;\n\n\n");
+                }
+            }
+            fwForm.write("		},\n"
+                    + "	\n"
+                    + "			// Demais métodos do controller\n");
+
+            if (!atributosAddress.isEmpty()) {
+                for (Field at : atributosAddress) {
+                    fwForm.write(""
+                            + ""
+                            + "            " + at.getName() + "UpdateAddress: function () {\n"
+                            + "                var escopo = this.$scope;\n"
+                            + "                this.$scope.urlWithCep = 'http://cep.republicavirtual.com.br/web_cep.php?cep=' + this.entity." + at.getName() + ".cep + '&formato=jsonp';\n"
+                            + "                this.$http.get(this.$scope.urlWithCep)\n"
+                            + "                        .success(function (data) {\n"
+                            + "                            escopo.entity." + at.getName() + ".localidade = data.cidade;\n"
+                            + "                            escopo.entity." + at.getName() + ".bairro = data.bairro;\n"
+                            + "                            escopo.entity." + at.getName() + ".uf = data.uf;\n"
+                            + "                            escopo.entity." + at.getName() + ".tipoLogradouro = data.tipo_logradouro;\n"
+                            + "                            escopo.entity." + at.getName() + ".logradouro = data.logradouro;\n"
+                            + "                            escopo.entity." + at.getName() + ".pais = 'Brasil';\n"
+                            + "                        })\n"
+                            + "                        \n"
+                            + "            },\n"
+                            + "            \n");
+                }
+            }
+
             for (Class tipo : dependenciasManyToOne) {
                 fwForm.write("this.$scope.lista" + tipo.getSimpleName() + " = [];\n");
             }
 
             fwForm.write("\n"
                     + "			}\n"
-                    + "	\n"
-                    + "			// Demais métodos do controller\n"
                     + "\n");
             for (Class tipo : dependenciasManyToOne) {
 
@@ -533,7 +625,6 @@ public class GeraPresentation extends AbstractMojo {
             }
 
             fwForm.write("\n"
-                    + "		}\n"
                     + "	});\n"
                     + "});\n"
                     + "");

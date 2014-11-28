@@ -7,6 +7,14 @@ package br.com.gumga.maven.plugins.gumgag;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -36,24 +44,31 @@ public class GeraAplicacao extends AbstractMojo {
     private String nomeEntidade;
     private String pastaRepositorios;
     private String pastaServices;
+    private Class<?> classeEntidade;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
 
-        nomePacoteBase = nomeCompletoEntidade.substring(0, nomeCompletoEntidade.lastIndexOf(".domain"));
-        nomeEntidade = nomeCompletoEntidade.substring(nomeCompletoEntidade.lastIndexOf('.') + 1);
+        try {
+            nomePacoteBase = nomeCompletoEntidade.substring(0, nomeCompletoEntidade.lastIndexOf(".domain"));
+            nomeEntidade = nomeCompletoEntidade.substring(nomeCompletoEntidade.lastIndexOf('.') + 1);
 
-        nomePacoteRepositorio = nomePacoteBase + ".application.repository";
-        nomePacoteService = nomePacoteBase + ".application.service";
+            nomePacoteRepositorio = nomePacoteBase + ".application.repository";
+            nomePacoteService = nomePacoteBase + ".application.service";
 
-        pastaRepositorios = project.getCompileSourceRoots().get(0) + "/".concat(nomePacoteRepositorio.replaceAll("\\.", "/"));
-        pastaServices = project.getCompileSourceRoots().get(0) + "/".concat(nomePacoteService.replaceAll("\\.", "/"));
+            pastaRepositorios = project.getCompileSourceRoots().get(0) + "/".concat(nomePacoteRepositorio.replaceAll("\\.", "/"));
+            pastaServices = project.getCompileSourceRoots().get(0) + "/".concat(nomePacoteService.replaceAll("\\.", "/"));
 
-        getLog().info("Iniciando plugin Gerador de Classes de Aplicação ");
-        getLog().info("Gerando para " + nomeEntidade);
+            getLog().info("Iniciando plugin Gerador de Classes de Aplicação ");
+            getLog().info("Gerando para " + nomeEntidade);
 
-        geraRepositorio();
-        geraService();
+            classeEntidade = Util.getClassLoader(project).loadClass(nomeCompletoEntidade);
+
+            geraRepositorio();
+            geraService();
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(GeraAplicacao.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
     }
 
@@ -93,8 +108,10 @@ public class GeraAplicacao extends AbstractMojo {
                     + "\n"
                     + "import org.springframework.beans.factory.annotation.Autowired;\n"
                     + "import org.springframework.stereotype.Service;\n"
+                    + "import javax.transaction.Transactional;\n"
+                    + "import org.hibernate.Hibernate;\n"
                     + "\n"
-                    + "import " + nomePacoteRepositorio +"."+nomeEntidade+"Repository;\n"
+                    + "import " + nomePacoteRepositorio + "." + nomeEntidade + "Repository;\n"
                     + "import " + nomeCompletoEntidade + ";\n"
                     + "\n"
                     + "@Service\n"
@@ -107,7 +124,11 @@ public class GeraAplicacao extends AbstractMojo {
                     + "		super(repository);\n"
                     + "		this.repository = repository;\n"
                     + "	}\n"
-                    + "\n"
+                    + "\n");
+
+            geraLoadFat(fw);
+
+            fw.write(""
                     + "}\n"
                     + "\n");
 
@@ -115,6 +136,30 @@ public class GeraAplicacao extends AbstractMojo {
         } catch (Exception ex) {
             getLog().error(ex);
         }
+    }
+
+    private void geraLoadFat(FileWriter fw) throws IOException {
+        List<Field> todosAtributos = Util.getTodosAtributos(classeEntidade);
+        List<Field> atributosToMany = new ArrayList<>();
+        for (Field f : todosAtributos) {
+            if (f.isAnnotationPresent(OneToMany.class) || f.isAnnotationPresent(ManyToMany.class)) {
+                atributosToMany.add(f);
+            }
+        }
+
+        if (!atributosToMany.isEmpty()) {
+            fw.write("    @Transactional\n"
+                    + "    public " + nomeEntidade + " load" + nomeEntidade + "Fat(Long id) {\n"
+                    + "        " + nomeEntidade + " obj = repository.findOne(id);\n");
+
+            for (Field f : atributosToMany) {
+                fw.write("        Hibernate.initialize(obj.get" + Util.primeiraMaiuscula(f.getName()) + "());\n");
+            }
+
+            fw.write("        return obj;\n"
+                    + "    }\n\n");
+        }
+
     }
 
 }

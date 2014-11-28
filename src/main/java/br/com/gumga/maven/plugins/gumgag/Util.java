@@ -25,6 +25,10 @@ public class Util {
         return s.substring(0, 1).toUpperCase().concat(s.substring(1));
     }
 
+    public static String primeiraMinuscula(String s) {
+        return s.substring(0, 1).toUpperCase().concat(s.substring(1));
+    }
+
     public static List<Field> getTodosAtributosMenosIdAutomatico(Class classe) {
         List<Field> todosAtributos = getTodosAtributos(classe);
         Field aRemover = null;
