@@ -77,68 +77,10 @@ public class GeraPresentation extends AbstractMojo {
 
             geraJSPs();
             geraWeb();
-            geraApi();
             geraScripts();
             adicionaAoMenu();
         } catch (Exception ex) {
             getLog().error(ex);
-        }
-
-    }
-
-    private void geraApi() {
-        File f = new File(pastaApi);
-        f.mkdirs();
-        File arquivoClasse = new File(pastaApi + "/" + nomeEntidade + "API.java");
-        try {
-            FileWriter fw = new FileWriter(arquivoClasse);
-            fw.write(""
-                    + "package " + nomePacoteApi + ";\n"
-                    + "\n"
-                    + "import  " + nomePacoteBase + ".application.service." + nomeEntidade + "Service;\n"
-                    + "import " + nomeCompletoEntidade + ";\n"
-                    + "import gumga.framework.application.GumgaService;\n"
-                    + "import gumga.framework.presentation.GumgaAPI;\n"
-                    + "\n"
-                    + "import org.springframework.beans.factory.annotation.Autowired;\n"
-                    + "import org.springframework.web.bind.annotation.RequestMapping;\n"
-                    + "import org.springframework.web.bind.annotation.RestController;\n"
-                    + "import org.springframework.web.bind.annotation.PathVariable;\n"
-                    + "\n"
-                    + "@RestController\n"
-                    + "@RequestMapping(\"/api/" + nomeEntidade.toLowerCase() + "\")\n"
-                    + "public class " + nomeEntidade + "API extends GumgaAPI<" + nomeEntidade + ", Long> {\n"
-                    + "\n"
-                    + "    @Autowired\n"
-                    + "    public " + nomeEntidade + "API(GumgaService<" + nomeEntidade + ", Long> service) {\n"
-                    + "        super(service);\n"
-                    + "    }\n\n");
-
-            sobrecarregaLoad(fw);
-
-            fw.write(""
-                    + "\n"
-                    + "}"
-                    + "\n");
-
-            fw.close();
-        } catch (Exception ex) {
-            getLog().error(ex);
-        }
-    }
-
-    private void sobrecarregaLoad(FileWriter fw) throws IOException {
-        List<Field> todosAtributos = Util.getTodosAtributos(classeEntidade);
-        for (Field f : todosAtributos) {
-            if (f.isAnnotationPresent(OneToMany.class) || f.isAnnotationPresent(ManyToMany.class)) {
-                fw.write(""
-                        + "    @Override\n"
-                        + "    public " + nomeEntidade + " load(@PathVariable Long id) {\n"
-                        + "        return ((" + nomeEntidade + "Service)service).load" + nomeEntidade + "Fat(id);\n"
-                        + "    }"
-                        + "");
-                return;
-            }
         }
 
     }
@@ -502,12 +444,13 @@ public class GeraPresentation extends AbstractMojo {
             fwService.write(""
                     + "define([\n"
                     + "		'gumga-class',\n"
-                    + "		'gumga/services/basic-crud-service'\n"
-                    + "	], function(GumgaClass, BasicCrudService) {\n"
+                    + "		'gumga/services/basic-crud-service',\n"
+                    + "         'app/locations'\n"
+                    + "	], function(GumgaClass, BasicCrudService,API) {\n"
                     + "\n"
                     + "	\n"
                     + "	function " + nomeEntidade + "Service($http, $q) {\n"
-                    + "		" + nomeEntidade + "Service.super.constructor.call(this, $http, $q, \"api/" + nomeEntidade.toLowerCase() + "\");\n"
+                    + "		" + nomeEntidade + "Service.super.constructor.call(this, $http, $q, API.location+\"" + nomeEntidade.toLowerCase() + "\");\n"
                     + "	}\n"
                     + "\n"
                     + "	return GumgaClass.create({\n"
@@ -575,6 +518,11 @@ public class GeraPresentation extends AbstractMojo {
                             + "                this.$scope." + at.getName() + "enderecoFinal = " + at.getName() + "url;\n\n\n");
                 }
             }
+
+            for (Class tipo : dependenciasManyToOne) {
+                fwForm.write("this.$scope.lista" + tipo.getSimpleName() + " = [];\n");
+            }
+
             fwForm.write("		},\n"
                     + "	\n"
                     + "			// Demais métodos do controller\n");
@@ -599,10 +547,6 @@ public class GeraPresentation extends AbstractMojo {
                             + "            },\n"
                             + "            \n");
                 }
-            }
-
-            for (Class tipo : dependenciasManyToOne) {
-                fwForm.write("this.$scope.lista" + tipo.getSimpleName() + " = [];\n");
             }
 
             fwForm.write("\n"
