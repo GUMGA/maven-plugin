@@ -523,7 +523,7 @@ public class GeraPresentation extends AbstractMojo {
                 fwForm.write("this.$scope.lista" + tipo.getSimpleName() + " = [];\n");
             }
 
-            fwForm.write("		},\n"
+            fwForm.write("		}\n"
                     + "	\n"
                     + "			// Demais métodos do controller\n");
 
@@ -550,7 +550,7 @@ public class GeraPresentation extends AbstractMojo {
             }
 
             fwForm.write("\n"
-                    + "			}\n"
+                    + "			\n"
                     + "\n");
             for (Class tipo : dependenciasManyToOne) {
 
@@ -570,6 +570,7 @@ public class GeraPresentation extends AbstractMojo {
 
             fwForm.write("\n"
                     + "	});\n"
+                    + "}\n"
                     + "});\n"
                     + "");
 
