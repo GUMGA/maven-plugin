@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.persistence.GeneratedValue;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
 /**
@@ -79,4 +80,66 @@ public class Util {
         return getTodosAtributosMenosIdAutomatico(classe).get(0);
     }
 
+    public static void geraGumga(Log log) {
+        log.info(""
+                + "   _____ _    _ __  __  _____          \n"
+                + "  / ____| |  | |  \\/  |/ ____|   /\\    \n"
+                + " | |  __| |  | | \\  / | |  __   /  \\   \n"
+                + " | | |_ | |  | | |\\/| | | |_ | / /\\ \\  \n"
+                + " | |__| | |__| | |  | | |__| |/ ____ \\ \n"
+                + "  \\_____|\\____/|_|  |_|\\_____/_/    \\_\\\n"
+                + "                                       \n"
+                + "                                       \n"
+                + "");
+    }
+
 }
+
+
+
+
+
+/*
+
+mvn archetype:generate -DinteractiveMode=false -DarchetypeGroupId=ex.empresa  -DarchetypeArtifactId=sistema-archetype  -DgroupId=br.com.gumga -DartifactId=exemplodominios -Dversion=0.1
+cd exemplodominios
+mvn clean install
+cd exemplodominios-domain 
+mvn br.com.gumga:gumgag:entidade -Dentidade=br.com.gumga.exemplodominios.domain.model.Teste -Datributos="nome:String,logico:gumga.framework.domain.domains.GumgaBoolean,cep:gumga.framework.domain.domains.GumgaCEP,cnpj:gumga.framework.domain.domains.GumgaCNPJ,cpf:gumga.framework.domain.domains.GumgaCPF,email:gumga.framework.domain.domains.GumgaEMail,ip4:gumga.framework.domain.domains.GumgaIP4,ip6:gumga.framework.domain.domains.GumgaIP6,money:gumga.framework.domain.domains.GumgaMoney,multiLine:gumga.framework.domain.domains.GumgaMultiLineString,telefone:gumga.framework.domain.domains.GumgaPhoneNumber,url:gumga.framework.domain.domains.GumgaURL"
+mvn br.com.gumga:gumgag:entidade -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteAddress -Datributos="residencial:gumga.framework.domain.domains.GumgaAddress,comercial:gumga.framework.domain.domains.GumgaAddress"
+mvn br.com.gumga:gumgag:entidade -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteGeo     -Datributos="location:gumga.framework.domain.domains.GumgaGeoLocation"
+mvn br.com.gumga:gumgag:entidade -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteFile    -Datributos="file:gumga.framework.domain.domains.GumgaFile"
+mvn br.com.gumga:gumgag:entidade -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteImage   -Datributos="image:gumga.framework.domain.domains.GumgaImage"
+mvn br.com.gumga:gumgag:entidade -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteTime    -Datributos="horario:gumga.framework.domain.domains.GumgaTime"
+mvn br.com.gumga:gumgag:entidade -Dentidade=br.com.gumga.exemplodominios.domain.model.Usuario      -Datributos="nome:String"
+mvn br.com.gumga:gumgag:entidade -Dentidade=br.com.gumga.exemplodominios.domain.model.GrupoUsuario -Datributos="nome:String,usuarios:List<Usuario>:@ManyToMany"
+
+mvn clean install
+cd ..
+cd exemplodominios-application
+mvn br.com.gumga:gumgag:aplicacao -Dentidade=br.com.gumga.exemplodominios.domain.model.Teste
+mvn br.com.gumga:gumgag:aplicacao -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteAddress 
+mvn br.com.gumga:gumgag:aplicacao -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteGeo 
+mvn br.com.gumga:gumgag:aplicacao -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteFile 
+mvn br.com.gumga:gumgag:aplicacao -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteImage  
+mvn br.com.gumga:gumgag:aplicacao -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteTime  
+mvn br.com.gumga:gumgag:aplicacao -Dentidade=br.com.gumga.exemplodominios.domain.model.Usuario      
+mvn br.com.gumga:gumgag:aplicacao -Dentidade=br.com.gumga.exemplodominios.domain.model.GrupoUsuario 
+
+cd ..
+cd exemplodominios-presentation
+mvn br.com.gumga:gumgag:apresentacao -Dentidade=br.com.gumga.exemplodominios.domain.model.Teste
+mvn br.com.gumga:gumgag:apresentacao -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteAddress 
+mvn br.com.gumga:gumgag:apresentacao -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteGeo 
+mvn br.com.gumga:gumgag:apresentacao -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteFile
+mvn br.com.gumga:gumgag:apresentacao -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteImage  
+mvn br.com.gumga:gumgag:apresentacao -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteTime  
+mvn br.com.gumga:gumgag:apresentacao -Dentidade=br.com.gumga.exemplodominios.domain.model.Usuario  
+mvn br.com.gumga:gumgag:apresentacao -Dentidade=br.com.gumga.exemplodominios.domain.model.GrupoUsuario  
+cd ..
+mvn clean install
+
+
+
+
+*/

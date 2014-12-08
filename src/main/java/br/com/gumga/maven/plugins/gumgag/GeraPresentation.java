@@ -70,8 +70,11 @@ public class GeraPresentation extends AbstractMojo {
             pastaScripts = project.getFile().getParent() + "/src/main/webapp/WEB-INF/static/scripts/app//" + (nomeEntidade.toLowerCase());
             pastaResources = project.getFile().getParent() + "/src/main/resources/";
 
+            Util.geraGumga(getLog());
             getLog().info("Iniciando plugin Gerador de Classes de Apresentação ");
             getLog().info("Gerando para " + nomeEntidade);
+            
+            
 
             classeEntidade = Util.getClassLoader(project).loadClass(nomeCompletoEntidade);
 
