@@ -316,12 +316,15 @@ public class GeraPresentation extends AbstractMojo {
                  + "	</div>\n");*/
             } else if (GumgaGeoLocation.class.equals(type)) {
                 fwForm.write(""
-                        + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".latitude\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " gumga-number decimal-places=\"8\"/>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".longitude\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " gumga-number decimal-places=\"8\" />\n"
-                        + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                        + "	</div>\n");
+                        + "    <div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
+                        + " 	       <label class=\"control-label\">" + etiqueta + "</label>\n"
+                        + "            <input type=\"text\" name=\"descricao\" ng-model=\"entity." + nomeAtributo + ".latitude\" required=\"true\" min=\"-90\" max=\"90\" " + (primeiro ? "autofocus" : "") + "  gumga-number decimal-places=\"8\" />      \n"
+                        + "            <input type=\"text\" name=\"descricao\" ng-model=\"entity." + nomeAtributo + ".longitude\" required=\"true\" min=\"-180\" max=\"180\" gumga-number decimal-places=\"8\" />     \n"
+                        + "            <a ng-href=\"http://maps.google.com/maps?q={{entity." + nomeAtributo + ".latitude + ',' + entity." + nomeAtributo + ".longitude}}\" target=\"_blank\"> <p class=\"glyphicon glyphicon-globe\"></p> GOOGLE MAPS</a>\n"
+                        + "    </div>"
+                        + ""
+                        + ""
+                        + "");
             } else if (GumgaIP4.class.equals(type)) {
                 fwForm.write(""
                         + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
@@ -368,13 +371,16 @@ public class GeraPresentation extends AbstractMojo {
 
             } else if (GumgaTime.class.equals(type)) {
                 fwForm.write(""
-                        + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".hour\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".minute\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".second\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
-                        + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                        + "	</div>\n");
+                        + "    <div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
+                        + "        <label class=\"control-label\">" + nomeAtributo + ":</label><br>\n"
+                        + "        <input type=\"number\" size=\"20\" ng-model=\"entity." + nomeAtributo + ".hour\" max=\"23\" min=\"0\" required=\"true\"/>\n"
+                        + "        <input type=\"number\" size=\"20\" ng-model=\"entity." + nomeAtributo + ".minute\" max=\"59\" min=\"0\" required=\"true\"/>\n"
+                        + "        <input type=\"number\" size=\"20\" ng-model=\"entity." + nomeAtributo + ".second\" max=\"59\" min=\"0\" required=\"true\"/>\n"
+                        + "        <p class=\"help-block\">" + nomeAtributo + ": {{ entity." + nomeAtributo + ".hour + ':' + entity." + nomeAtributo + ".minute + ':' + entity." + nomeAtributo + ".second }}</p>\n"
+                        + "    </div>"
+                        + ""
+                        + ""
+                        + "");
 
             } else if (GumgaURL.class.equals(type)) {
                 fwForm.write(""
