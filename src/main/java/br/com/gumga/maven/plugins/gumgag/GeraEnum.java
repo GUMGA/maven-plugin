@@ -38,6 +38,7 @@ public class GeraEnum extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        Util.geraGumga(getLog());
 
         if ("nada".equals(nomeEnumCompleto)) {
             Scanner entrada = new Scanner(System.in);
@@ -61,8 +62,8 @@ public class GeraEnum extends AbstractMojo {
                     + " *\n"
                     + " * @author gumgag\n"
                     + " */\n"
-                    + "public enum "+nomeEnum+" {\n\n"
-                    + "    "+valoesPossiveis+"\n\n"
+                    + "public enum " + nomeEnum + " {\n\n"
+                    + "    " + valoesPossiveis + "\n\n"
                     + "}\n");
             fw.close();
         } catch (Exception ex) {

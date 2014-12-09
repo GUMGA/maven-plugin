@@ -69,6 +69,7 @@ public class GeraDiagrama extends AbstractMojo {
     private File pastaClasses;
 
     public void execute() throws MojoExecutionException {
+        Util.geraGumga(getLog());
         if (!pastaClasses.toString().endsWith("classes")) {
             pastaClasses = new File(pastaClasses, "classes");
         }

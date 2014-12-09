@@ -30,6 +30,7 @@ import org.apache.maven.project.MavenProject;
  */
 @Mojo(name = "gateway", requiresDependencyResolution = ResolutionScope.RUNTIME)
 public class GeraGateway extends AbstractMojo {
+    
 
     @Parameter(property = "project", required = true, readonly = true)
     private MavenProject project;
@@ -53,6 +54,7 @@ public class GeraGateway extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        Util.geraGumga(getLog());
 
         nomePacoteBase = nomeCompletoEntidade.substring(0, nomeCompletoEntidade.lastIndexOf(".domain"));
         nomeEntidade = nomeCompletoEntidade.substring(nomeCompletoEntidade.lastIndexOf('.') + 1);

@@ -53,9 +53,11 @@ public class GeraPresentation extends AbstractMojo {
     private String pastaResources;
 
     private List<Class> dependenciasManyToOne;
+    private String pastaControllers;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        Util.geraGumga(getLog());
 
         try {
             nomePacoteBase = nomeCompletoEntidade.substring(0, nomeCompletoEntidade.lastIndexOf(".domain"));
@@ -70,17 +72,23 @@ public class GeraPresentation extends AbstractMojo {
             pastaScripts = project.getFile().getParent() + "/src/main/webapp/WEB-INF/static/scripts/app//" + (nomeEntidade.toLowerCase());
             pastaResources = project.getFile().getParent() + "/src/main/resources/";
 
-            Util.geraGumga(getLog());
             getLog().info("Iniciando plugin Gerador de Classes de Apresentação ");
             getLog().info("Gerando para " + nomeEntidade);
-            
-            
+
+            File f = new File(pastaScripts);
+            f.mkdirs();
+            pastaControllers = pastaScripts + "/controllers";
+            f = new File(pastaControllers);
+            f.mkdirs();
 
             classeEntidade = Util.getClassLoader(project).loadClass(nomeCompletoEntidade);
 
             geraJSPs();
             geraWeb();
-            geraScripts();
+            geraModuleJs();
+            geraServiceJs();
+            geraFormJs();
+            geraListJs();
             adicionaAoMenu();
         } catch (Exception ex) {
             getLog().error(ex);
@@ -261,7 +269,7 @@ public class GeraPresentation extends AbstractMojo {
                         + "                <input name=\"descricao\" size=\"25\" ng-model=\"entity." + nomeAtributo + ".complemento\" placeholder=\"Complemento\"/>\n"
                         + "                <input name=\"descricao\" ng-model=\"entity." + nomeAtributo + ".bairro\" required=\"false\" placeholder=\"Bairro\" />\n"
                         + "            </div>\n"
-                        + "            <a href=\"{{" + nomeAtributo + "enderecoFinal}}\" target=\"_blank\" class=\"btn btn-primary btn-primary\">GOOGLE MAPS <span class=\"glyphicon glyphicon-globe\"></span></a>\n"
+                        + "            <a ng-href=\"https://www.google.com.br/maps/place/{{entity." + nomeAtributo + ".tipoLogradouro + ',' + entity." + nomeAtributo + ".logradouro + ',' + entity." + nomeAtributo + ".numero + ',' + entity." + nomeAtributo + ".localidade}}\" target=\"_blank\" class=\"btn btn-primary btn-primary\">GOOGLE MAPS <span class=\"glyphicon glyphicon-globe\"></span></a>\n"
                         + "        </gumga:accordion:group>\n"
                         + "    </gumga:accordion>\n");
             } else if (GumgaBoolean.class.equals(type)) {
@@ -409,204 +417,184 @@ public class GeraPresentation extends AbstractMojo {
                 + "");
     }
 
-    private void geraScripts() {
-        try {
-            File f = new File(pastaScripts);
-            f.mkdirs();
-            File arquivoModule = new File(pastaScripts + "/module.js");
-            FileWriter fwModule = new FileWriter(arquivoModule);
+    public void geraListJs() throws IOException {
+        File arquivoList = new File(pastaControllers + "/list.js");
+        FileWriter fwList = new FileWriter(arquivoList);
 
-            fwModule.write(""
-                    + "define(function(require) {\n"
-                    + "	\n"
-                    + "	require('gumga-components');\n"
-                    + "	require('app-commons/modules/crud-module').constant('baseTemplateURL', '" + nomeEntidade.toLowerCase() + "');\n"
-                    + "	\n"
-                    + "	return require('angular')\n"
-                    + "		.module('app." + nomeEntidade.toLowerCase() + "', [\"app.base.crud\", 'gumga.components'])\n"
-                    + "		\n"
-                    + "		.service('EntityService', require('app/" + nomeEntidade.toLowerCase() + "/service'))\n\n");
+        fwList.write(""
+                + "define(function(require) {\n"
+                + "\n"
+                + "	return require('angular-class').create({\n"
+                + "		$inject : [],\n"
+                + "		extends : require('app-commons/controllers/basic-list-controller'),\n"
+                + "		prototype : {\n"
+                + "\n"
+                + "			initialize : function() {\n"
+                + "				// Inicialização do controller\n"
+                + "			}\n"
+                + "\n"
+                + "			// Demais métodos do controller\n"
+                + "\n"
+                + "		}\n"
+                + "	});\n"
+                + "});\n"
+                + "");
 
-            for (Class tipo : dependenciasManyToOne) {
-                fwModule.write(".service(\"" + tipo.getSimpleName() + "Service\", require('app/" + tipo.getSimpleName().toLowerCase() + "/service'))\n");
+        fwList.close();
+    }
+
+    public void geraFormJs() throws SecurityException, IOException {
+        File arquivoForm = new File(pastaControllers + "/form.js");
+        FileWriter fwForm = new FileWriter(arquivoForm);
+        List<Field> atributosAddress = new ArrayList<>();
+        for (Field at : Util.getTodosAtributos(classeEntidade)) {
+            if (at.getType().equals(GumgaAddress.class)) {
+                atributosAddress.add(at);
             }
-
-            fwModule.write(""
-                    + "		\n"
-                    + "		.controller(\"ListController\", require('app/" + nomeEntidade.toLowerCase() + "/controllers/list'))\n"
-                    + "		.controller(\"FormController\", require('app/" + nomeEntidade.toLowerCase() + "/controllers/form'));\n"
-                    + "	\n"
-                    + "});\n"
-                    + "");
-
-            fwModule.close();
-
-            File arquivoService = new File(pastaScripts + "/service.js");
-            FileWriter fwService = new FileWriter(arquivoService);
-
-            fwService.write(""
-                    + "define([\n"
-                    + "		'gumga-class',\n"
-                    + "		'gumga/services/basic-crud-service',\n"
-                    + "         'app/locations'\n"
-                    + "	], function(GumgaClass, BasicCrudService,API) {\n"
-                    + "\n"
-                    + "	\n"
-                    + "	function " + nomeEntidade + "Service($http, $q) {\n"
-                    + "		" + nomeEntidade + "Service.super.constructor.call(this, $http, $q, API.location+\"" + nomeEntidade.toLowerCase() + "\");\n"
-                    + "	}\n"
-                    + "\n"
-                    + "	return GumgaClass.create({\n"
-                    + "		constructor : " + nomeEntidade + "Service,\n"
-                    + "		extends : BasicCrudService\n"
-                    + "	});\n"
-                    + "	\n"
-                    + "});\n"
-                    + "");
-
-            fwService.close();
-
-            String pastaControllers = pastaScripts + "/controllers";
-            f = new File(pastaControllers);
-            f.mkdirs();
-
-            File arquivoForm = new File(pastaControllers + "/form.js");
-            FileWriter fwForm = new FileWriter(arquivoForm);
-
-            fwForm.write(""
-                    + "define(function(require) {\n"
-                    + "\n"
-                    + "	return require('angular-class').create({\n\n");
-
-            for (Class tipo : dependenciasManyToOne) {
-                fwForm.write("$inject: ['" + tipo.getSimpleName() + "Service'],\n");
-            }
-
-            fwForm.write("\n"
-                    + "		extends : require('app-commons/controllers/basic-form-controller'),\n"
-                    + "		prototype : {\n"
-                    + "\n"
-                    + "			initialize : function() {\n"
-                    + "				// Inicialização do controller\n");
-
-            List<Field> atributosAddress = new ArrayList<>();
-            for (Field at : Util.getTodosAtributos(classeEntidade)) {
-                if (at.getType().equals(GumgaAddress.class)) {
-                    atributosAddress.add(at);
-                }
-            }
-
-            if (!atributosAddress.isEmpty()) {
-                fwForm.write(""
-                        + "                this.$scope.entity = this.entity;\n"
-                        + "                this.$scope.allUF = ['AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT', 'PA', 'PB', 'PE', 'PI', 'PR',\n"
-                        + "                    'RJ', 'RN', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO'];\n"
-                        + "\n"
-                        + "                this.$scope.allLogradouro = ['Outros', 'Aeroporto', 'Alameda', 'Área', 'Avenida', 'Campo', 'Chácara', 'Colônia', 'Condomínio', 'Conjunto', 'Distrito',\n"
-                        + "                    'Esplanada', 'Estação', 'Estrada', 'Favela', 'Fazenda', 'Feira', 'Jardim', 'Ladeira', 'Largo', 'Lago', 'Lagoa', 'Loteamento', 'Núcleo', 'Parque', 'Passarela', 'Pátio', 'Praça',\n"
-                        + "                    'Quadra', 'Recanto', 'Residencial', 'Rodovia', 'Rua', 'Setor', 'Sítio', 'Travessa', 'Trevo', 'Trecho', 'Vale', 'Vereda', 'Via', 'Viaduto', 'Viela', 'Via'];\n"
-                        + "                this.$scope.pais = ['Brasil'];\n"
-                        + "\n"
-                        + "                var googleUrl = 'https://www.google.com.br/maps/place/';\n"
-                        + "\n");
-
-                for (Field at : atributosAddress) {
-                    fwForm.write(""
-                            + "                if (this.entity." + at.getName() + "==null){\n"
-                            + "                   this.entity." + at.getName() + "={}\n"
-                            + "                }\n"
-                            + "                 \n"
-                            + "                var " + at.getName() + "url = googleUrl + this.entity." + at.getName() + ".logradouro + ' ' +\n"
-                            + "                        this.entity." + at.getName() + ".numero + ' ' + this.entity." + at.getName() + ".localidade + ' ' + this.entity." + at.getName() + ".uf;\n"
-                            + "                this.$scope." + at.getName() + "enderecoFinal = " + at.getName() + "url;\n\n\n");
-                }
-            }
-
-            for (Class tipo : dependenciasManyToOne) {
-                fwForm.write("this.$scope.lista" + tipo.getSimpleName() + " = [];\n");
-            }
-
-            fwForm.write("		}\n"
-                    + "	\n"
-                    + "			// Demais métodos do controller\n");
-
-            if (!atributosAddress.isEmpty()) {
-                for (Field at : atributosAddress) {
-                    fwForm.write(""
-                            + ""
-                            + "            " + at.getName() + "UpdateAddress: function () {\n"
-                            + "                var escopo = this.$scope;\n"
-                            + "                this.$scope.urlWithCep = 'http://cep.republicavirtual.com.br/web_cep.php?cep=' + this.entity." + at.getName() + ".cep + '&formato=jsonp';\n"
-                            + "                this.$http.get(this.$scope.urlWithCep)\n"
-                            + "                        .success(function (data) {\n"
-                            + "                            escopo.entity." + at.getName() + ".localidade = data.cidade;\n"
-                            + "                            escopo.entity." + at.getName() + ".bairro = data.bairro;\n"
-                            + "                            escopo.entity." + at.getName() + ".uf = data.uf;\n"
-                            + "                            escopo.entity." + at.getName() + ".tipoLogradouro = data.tipo_logradouro;\n"
-                            + "                            escopo.entity." + at.getName() + ".logradouro = data.logradouro;\n"
-                            + "                            escopo.entity." + at.getName() + ".pais = 'Brasil';\n"
-                            + "                        })\n"
-                            + "                        \n"
-                            + "            },\n"
-                            + "            \n");
-                }
-            }
-
-            fwForm.write("\n"
-                    + "			\n"
-                    + "\n");
-            for (Class tipo : dependenciasManyToOne) {
-
-                fwForm.write(""
-                        + "            , refreshLista" + tipo.getSimpleName() + ": function (pesquisa) {\n"
-                        + "                var $scope = this.$scope;\n"
-                        + "\n"
-                        + "                if (pesquisa.length == 0) {\n"
-                        + "                    pesquisa = \"%\";\n"
-                        + "                }\n"
-                        + "\n"
-                        + "                this." + tipo.getSimpleName() + "Service.search(pesquisa, ['" + Util.primeiroAtributo(tipo).getName() + "']).then(function (result) {\n"
-                        + "                    $scope.lista" + tipo.getSimpleName() + " = result.values;\n"
-                        + "                });\n"
-                        + "            }");
-            }
-
-            fwForm.write("\n"
-                    + "	});\n"
-                    + "}\n"
-                    + "});\n"
-                    + "");
-
-            fwForm.close();
-
-            File arquivoList = new File(pastaControllers + "/list.js");
-            FileWriter fwList = new FileWriter(arquivoList);
-
-            fwList.write(""
-                    + "define(function(require) {\n"
-                    + "\n"
-                    + "	return require('angular-class').create({\n"
-                    + "		$inject : [],\n"
-                    + "		extends : require('app-commons/controllers/basic-list-controller'),\n"
-                    + "		prototype : {\n"
-                    + "\n"
-                    + "			initialize : function() {\n"
-                    + "				// Inicialização do controller\n"
-                    + "			}\n"
-                    + "\n"
-                    + "			// Demais métodos do controller\n"
-                    + "\n"
-                    + "		}\n"
-                    + "	});\n"
-                    + "});\n"
-                    + "");
-
-            fwList.close();
-
-        } catch (Exception ex) {
-            getLog().error(ex);
         }
 
+        fwForm.write(""
+                + "define(function(require) {\n"
+                + "\n"
+                + "	return require('angular-class').create({\n\n");
+
+        String injetar = "";
+        for (Class tipo : dependenciasManyToOne) {
+            injetar += ("'" + tipo.getSimpleName() + "Service',");
+        }
+        if (!injetar.isEmpty()) {
+            fwForm.write("$inject: [" + injetar + "],");
+
+        }
+
+        fwForm.write("\n"
+                + "		extends : require('app-commons/controllers/basic-form-controller'),\n"
+                + "		prototype : {\n"
+                + "\n"
+                + "			initialize : function() {\n"
+                + "				// Inicialização do controller\n");
+
+        for (Class tipo : dependenciasManyToOne) {
+            fwForm.write("this.$scope.lista" + tipo.getSimpleName() + " = [];\n");
+        }
+
+        if (!atributosAddress.isEmpty()) {
+            fwForm.write(""
+                    + "                this.$scope.entity = this.entity;\n"
+                    + "                this.$scope.allUF = ['AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT', 'PA', 'PB', 'PE', 'PI', 'PR',\n"
+                    + "                    'RJ', 'RN', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO'];\n"
+                    + "\n"
+                    + "                this.$scope.allLogradouro = ['Outros', 'Aeroporto', 'Alameda', 'Área', 'Avenida', 'Campo', 'Chácara', 'Colônia', 'Condomínio', 'Conjunto', 'Distrito',\n"
+                    + "                    'Esplanada', 'Estação', 'Estrada', 'Favela', 'Fazenda', 'Feira', 'Jardim', 'Ladeira', 'Largo', 'Lago', 'Lagoa', 'Loteamento', 'Núcleo', 'Parque', 'Passarela', 'Pátio', 'Praça',\n"
+                    + "                    'Quadra', 'Recanto', 'Residencial', 'Rodovia', 'Rua', 'Setor', 'Sítio', 'Travessa', 'Trevo', 'Trecho', 'Vale', 'Vereda', 'Via', 'Viaduto', 'Viela', 'Via'];\n"
+                    + "                this.$scope.pais = ['Brasil'];\n"
+                    + "\n");
+        }
+        fwForm.write("		},\n"
+                + "	\n"
+                + "			// Demais métodos do controller\n");
+
+        if (!atributosAddress.isEmpty()) {
+            for (Field at : atributosAddress) {
+                fwForm.write(""
+                        + ""
+                        + "            " + at.getName() + "UpdateAddress: function () {\n"
+                        + "                var escopo = this.$scope;\n"
+                        + "                this.$scope.urlWithCep = 'http://cep.republicavirtual.com.br/web_cep.php?cep=' + this.entity." + at.getName() + ".cep + '&formato=jsonp';\n"
+                        + "                this.$http.get(this.$scope.urlWithCep)\n"
+                        + "                        .success(function (data) {\n"
+                        + "                            escopo.entity." + at.getName() + ".localidade = data.cidade;\n"
+                        + "                            escopo.entity." + at.getName() + ".bairro = data.bairro;\n"
+                        + "                            escopo.entity." + at.getName() + ".uf = data.uf;\n"
+                        + "                            escopo.entity." + at.getName() + ".tipoLogradouro = data.tipo_logradouro;\n"
+                        + "                            escopo.entity." + at.getName() + ".logradouro = data.logradouro;\n"
+                        + "                            escopo.entity." + at.getName() + ".pais = 'Brasil';\n"
+                        + "                        })\n"
+                        + "                        \n"
+                        + "            },\n"
+                        + "            \n");
+            }
+        }
+
+        for (Class tipo : dependenciasManyToOne) {
+
+            fwForm.write(""
+                    + "            refreshLista" + tipo.getSimpleName() + ": function (pesquisa) {\n"
+                    + "                var $scope = this.$scope;\n"
+                    + "\n"
+                    + "                if (pesquisa.length == 0) {\n"
+                    + "                    pesquisa = \"%\";\n"
+                    + "                }\n"
+                    + "\n"
+                    + "                this." + tipo.getSimpleName() + "Service.search(pesquisa, ['" + Util.primeiroAtributo(tipo).getName() + "']).then(function (result) {\n"
+                    + "                    $scope.lista" + tipo.getSimpleName() + " = result.values;\n"
+                    + "                });\n"
+                    + "            },\n");
+        }
+        fwForm.write(""
+                + "        }\n"
+                + "    });\n"
+                + "});"
+                + "");
+
+        fwForm.close();
+    }
+
+    public void geraServiceJs() throws IOException {
+        File arquivoService = new File(pastaScripts + "/service.js");
+        FileWriter fwService = new FileWriter(arquivoService);
+
+        fwService.write(""
+                + "define([\n"
+                + "		'gumga-class',\n"
+                + "		'gumga/services/basic-crud-service',\n"
+                + "         'app/locations'\n"
+                + "	], function(GumgaClass, BasicCrudService,API) {\n"
+                + "\n"
+                + "	\n"
+                + "	function " + nomeEntidade + "Service($http, $q) {\n"
+                + "		" + nomeEntidade + "Service.super.constructor.call(this, $http, $q, API.location+\"" + nomeEntidade.toLowerCase() + "\");\n"
+                + "	}\n"
+                + "\n"
+                + "	return GumgaClass.create({\n"
+                + "		constructor : " + nomeEntidade + "Service,\n"
+                + "		extends : BasicCrudService\n"
+                + "	});\n"
+                + "	\n"
+                + "});\n"
+                + "");
+
+        fwService.close();
+    }
+
+    public void geraModuleJs() throws IOException {
+        File arquivoModule = new File(pastaScripts + "/module.js");
+        FileWriter fwModule = new FileWriter(arquivoModule);
+
+        fwModule.write(""
+                + "define(function(require) {\n"
+                + "	\n"
+                + "	require('gumga-components');\n"
+                + "	require('app-commons/modules/crud-module').constant('baseTemplateURL', '" + nomeEntidade.toLowerCase() + "');\n"
+                + "	\n"
+                + "	return require('angular')\n"
+                + "		.module('app." + nomeEntidade.toLowerCase() + "', [\"app.base.crud\", 'gumga.components'])\n"
+                + "		\n"
+                + "		.service('EntityService', require('app/" + nomeEntidade.toLowerCase() + "/service'))\n\n");
+
+        for (Class tipo : dependenciasManyToOne) {
+            fwModule.write(".service(\"" + tipo.getSimpleName() + "Service\", require('app/" + tipo.getSimpleName().toLowerCase() + "/service'))\n");
+        }
+
+        fwModule.write(""
+                + "		\n"
+                + "		.controller(\"ListController\", require('app/" + nomeEntidade.toLowerCase() + "/controllers/list'))\n"
+                + "		.controller(\"FormController\", require('app/" + nomeEntidade.toLowerCase() + "/controllers/form'));\n"
+                + "	\n"
+                + "});\n"
+                + "");
+
+        fwModule.close();
     }
 
     private void adicionaAoMenu() {

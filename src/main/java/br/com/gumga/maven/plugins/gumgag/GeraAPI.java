@@ -44,6 +44,7 @@ public class GeraAPI extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        Util.geraGumga(getLog());
 
         try {
             nomePacoteBase = nomeCompletoEntidade.substring(0, nomeCompletoEntidade.lastIndexOf(".domain"));

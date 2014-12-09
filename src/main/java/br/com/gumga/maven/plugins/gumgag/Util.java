@@ -81,7 +81,7 @@ public class Util {
     }
 
     public static void geraGumga(Log log) {
-        log.info(""
+        log.info("\n"
                 + "   _____ _    _ __  __  _____          \n"
                 + "  / ____| |  | |  \\/  |/ ____|   /\\    \n"
                 + " | |  __| |  | | \\  / | |  __   /  \\   \n"

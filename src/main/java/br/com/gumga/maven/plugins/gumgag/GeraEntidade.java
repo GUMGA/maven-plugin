@@ -41,6 +41,7 @@ public class GeraEntidade extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        Util.geraGumga(getLog());
 
         if ("nada".equals(nomeCompletoEntidade)) {
             Scanner entrada = new Scanner(System.in);
