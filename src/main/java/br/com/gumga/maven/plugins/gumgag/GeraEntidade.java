@@ -127,7 +127,7 @@ public class GeraEntidade extends AbstractMojo {
                         + "     })"
                         + "\n");
             }
-            if (partes[1].trim().endsWith("GumgaFile")||partes[1].trim().endsWith("GumgaImage")) {
+            if (partes[1].trim().endsWith("GumgaFile") || partes[1].trim().endsWith("GumgaImage")) {
                 fw.write("     @Columns(columns = {\n"
                         + "     @Column(name = \"" + partes[0] + "_name\"),\n"
                         + "     @Column(name = \"" + partes[0] + "_size\"),\n"
@@ -151,6 +151,13 @@ public class GeraEntidade extends AbstractMojo {
                 + "        return " + partes[0] + ";\n"
                 + "    }\n"
                 + "\n");
+        if ("boolean".equals(partes[1].trim()) || "Boolean".equals(partes[1].trim())) {
+            fw.write(""
+                    + "    public " + partes[1] + " is" + Util.primeiraMaiuscula(partes[0]) + "() {\n"
+                    + "        return " + partes[0] + ";\n"
+                    + "    }\n"
+                    + "\n");
+        }
     }
 
     private void criaSet(FileWriter fw, String atributo) throws Exception {

@@ -5,18 +5,13 @@
  */
 package br.com.gumga.maven.plugins.gumgag;
 
-import gumga.framework.domain.domains.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -43,16 +38,9 @@ public class GeraAPI extends AbstractMojo {
     private String nomePacoteBase;
     private String nomeEntidade;
     private String nomePacoteApi;
-    private String nomePacoteWeb;
     private String pastaApi;
-    private String pastaWeb;
-    private String pastaJSP;
 
     private Class classeEntidade;
-    private String pastaScripts;
-    private String pastaResources;
-
-    private List<Class> dependenciasManyToOne;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -62,7 +50,6 @@ public class GeraAPI extends AbstractMojo {
             nomeEntidade = nomeCompletoEntidade.substring(nomeCompletoEntidade.lastIndexOf('.') + 1);
 
             nomePacoteApi = nomePacoteBase + ".presentation.api";
-            nomePacoteWeb = nomePacoteBase + ".presentation.web";
 
             pastaApi = project.getCompileSourceRoots().get(0) + "/".concat(nomePacoteApi.replaceAll("\\.", "/"));
 
