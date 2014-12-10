@@ -23,7 +23,7 @@ import org.apache.maven.project.MavenProject;
  */
 @Mojo(name = "entidade", requiresDependencyResolution = ResolutionScope.RUNTIME)
 public class GeraEntidade extends AbstractMojo {
-
+    
     @Parameter(property = "project", required = true, readonly = true)
     private MavenProject project;
 
@@ -32,17 +32,17 @@ public class GeraEntidade extends AbstractMojo {
      */
     @Parameter(property = "entidade", defaultValue = "nada")
     private String nomeCompletoEntidade;
-
+    
     @Parameter(property = "atributos", defaultValue = "")
     private String parametroAtributos;
-
+    
     @Parameter(property = "super", defaultValue = "GumgaModel<Long>")
     private String superClasse;
-
+    
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         Util.geraGumga(getLog());
-
+        
         if ("nada".equals(nomeCompletoEntidade)) {
             Scanner entrada = new Scanner(System.in);
             System.out.print("Nome completo da entidade a ser gerada:");
@@ -51,7 +51,7 @@ public class GeraEntidade extends AbstractMojo {
         String nomePacote = nomeCompletoEntidade.substring(0, nomeCompletoEntidade.lastIndexOf('.'));
         String nomeEntidade = nomeCompletoEntidade.substring(nomeCompletoEntidade.lastIndexOf('.') + 1);
         String pastaClasse = project.getCompileSourceRoots().get(0) + "/".concat(nomePacote.replaceAll("\\.", "/"));
-
+        
         getLog().info("Iniciando plugin Gerador de Entidade GUMGA ");
         getLog().info("Gerando " + nomePacote + "." + nomeEntidade);
         File f = new File(pastaClasse);
@@ -67,19 +67,19 @@ public class GeraEntidade extends AbstractMojo {
                     + "import javax.persistence.*;\n"
                     + "import org.hibernate.annotations.Columns;\n"
                     + "\n");
-
+            
             fw.write("@Entity\n");
             fw.write("public class " + nomeEntidade + " extends " + superClasse + " implements Serializable {\n\n");
-
+            
             escreveAtributos(fw);
-
+            
             fw.write("}\n");
             fw.close();
         } catch (Exception ex) {
             getLog().error(ex);
         }
     }
-
+    
     private void escreveAtributos(FileWriter fw) throws Exception {
         if (parametroAtributos == null || parametroAtributos.isEmpty()) {
             return;
@@ -88,14 +88,14 @@ public class GeraEntidade extends AbstractMojo {
         declaraAtributos(atributos, fw);
         declaraGettersESetters(atributos, fw);
     }
-
+    
     public void declaraGettersESetters(String[] atributos, FileWriter fw) throws Exception {
         for (String atributo : atributos) {
             criaGet(fw, atributo);
             criaSet(fw, atributo);
         }
     }
-
+    
     public void declaraAtributos(String[] atributos, FileWriter fw) throws IOException {
         for (String atributo : atributos) {
             String partes[] = atributo.split(":");
@@ -138,13 +138,17 @@ public class GeraEntidade extends AbstractMojo {
                         + "\n");
             }
             if (partes.length > 2) {
-                fw.write("    " + partes[2] + "\n");
+                fw.write("    " + partes[2]);
+                if (partes[2].trim().equals("@OneToMany")) {
+                    fw.write("(cascade = CascadeType.ALL, orphanRemoval = true)");
+                }
+                fw.write("\n");
             }
             fw.write("    private " + partes[1] + " " + partes[0] + ";\n");
         }
         fw.write("\n\n");
     }
-
+    
     private void criaGet(FileWriter fw, String atributo) throws Exception {
         String partes[] = atributo.split(":");
         fw.write(""
@@ -160,7 +164,7 @@ public class GeraEntidade extends AbstractMojo {
                     + "\n");
         }
     }
-
+    
     private void criaSet(FileWriter fw, String atributo) throws Exception {
         String partes[] = atributo.split(":");
         fw.write(""
@@ -169,5 +173,5 @@ public class GeraEntidade extends AbstractMojo {
                 + "    }\n"
                 + "\n");
     }
-
+    
 }
