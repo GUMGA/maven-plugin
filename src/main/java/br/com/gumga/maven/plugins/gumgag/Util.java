@@ -103,6 +103,10 @@ public class Util {
                 + "");
     }
 
+    public static String etiqueta(Field atributo) {
+        return primeiraMaiuscula(atributo.getName());
+    }
+
 }
 
 /*

@@ -10,8 +10,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -180,7 +178,7 @@ public class GeraPresentation extends AbstractMojo {
                     + "<g:form>\n"
                     + "\n");
 
-            geraCampos(fwForm);
+            geraCampos(classeEntidade, fwForm, "");
 
             fwForm.write(""
                     + "	\n"
@@ -225,255 +223,336 @@ public class GeraPresentation extends AbstractMojo {
         }
     }
 
-    public void geraCampos(FileWriter fwForm) throws IOException {
+    public void geraCampos(Class classe, FileWriter fwForm, String controller) throws IOException {
         boolean primeiro = true;
-        for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
-
-            Class<?> type = atributo.getType();
-            String nomeAtributo = atributo.getName();
-            String etiqueta = Util.primeiraMaiuscula(nomeAtributo);
+        for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classe)) {
             boolean requerido = false; // VERIFICAR
-            fwForm.write("\n\n<!--" + type + "-->\n");
+            fwForm.write("\n\n<!--" + atributo.getType() + "-->\n");
             if (atributo.isAnnotationPresent(ManyToOne.class)) {
-                geraGumgaSelect(type, fwForm, nomeAtributo, etiqueta);
-
+                geraEntradaToOne(fwForm, atributo, requerido, primeiro, controller);
             } else if (atributo.isAnnotationPresent(OneToOne.class)) {
-                geraGumgaSelect(type, fwForm, nomeAtributo, etiqueta);
-
+                geraEntradaToOne(fwForm, atributo, requerido, primeiro, controller);
             } else if (atributo.isAnnotationPresent(OneToMany.class)) {
-
-                geraModal(atributo);
-
-                fwForm.write(""
-                        + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<label class=\"control-label\">" + type + " (OneToMany)</label>\n"
-                        + "	</div>\n");
-
+                geraEntradaOneToMany(fwForm, atributo, requerido, primeiro, controller);
             } else if (atributo.isAnnotationPresent(ManyToMany.class)) {
-                fwForm.write(""
-                        + ""
-                        + "    <div class=\"form-group\">\n"
-                        + "        \n"
-                        + "        <div class=\"row\">\n"
-                        + "            <div class=\"col-md-6\">\n"
-                        + "                <label class=\"control-label\">" + Util.primeiraMaiuscula(atributo.getName()) + " Disponíveis</label>\n"
-                        + "                <input type=\"text\" ng-model=\"filtro\" class=\"form-control\" ng-change=\"ctrl.refresh" + Util.getTipoGenerico(atributo).getSimpleName() + "(filtro)\"/><br>\n"
-                        + "                <ul class=\"list-group\">\n"
-                        + "                    <li class=\"list-group-item\" ng-repeat=\"f in lista" + Util.getTipoGenerico(atributo).getSimpleName() + Util.primeiraMaiuscula(atributo.getName()) + " | filter:filtro  | orderBy: '" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "'\" ng-show=\"!ctrl.contains" + Util.primeiraMaiuscula(atributo.getName()) + "(f)\">\n"
-                        + "                        <button type=\"button\" class=\"btn btn-default btn-lg btn-block\" ng-click=\"ctrl.add" + Util.primeiraMaiuscula(atributo.getName()) + "(f)\" >{{f." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</button>\n"
-                        + "                    </li>\n"
-                        + "                </ul>\n"
-                        + "            </div>\n"
-                        + "\n"
-                        + "            <div class=\"col-md-6\">\n"
-                        + "                <label class=\"control-label\">" + Util.primeiraMaiuscula(atributo.getName()) + "</label>\n"
-                        + "                <input type=\"text\" ng-model=\"filtroEscolhidos\" class=\"form-control\" /> <br>\n"
-                        + "                <ul class=\"list-group\">\n"
-                        + "                    <li class=\"list-group-item\" ng-repeat=\"f in entity." + atributo.getName() + "| filter:filtroEscolhidos | orderBy: '" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "'\">\n"
-                        + "                        <button type=\"button\" class=\"btn btn-default btn-lg btn-block\" ng-click=\"ctrl.remove" + Util.primeiraMaiuscula(atributo.getName()) + "(f)\">{{f." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</button>\n"
-                        + "                    </li>\n"
-                        + "                </ul>\n"
-                        + "            </div>\n"
-                        + "\n"
-                        + "        </div>\n"
-                        + "    </div>"
-                        + ""
-                        + "\n");
-            } else if (Boolean.class.equals(type) || Boolean.TYPE.equals(type)) {
-                fwForm.write(""
-                        + "    <div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + "        <label><input type=\"checkbox\" name=\"" + nomeAtributo + "\" ng-model=\"entity." + nomeAtributo + "\" /> " + etiqueta + "</label>\n"
-                        + "        <gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                        + "    </div>"
-                        + ""
-                );
-            } else if (BigDecimal.class.equals(type)) {
-                fwForm.write(""
-                        + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + "\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " gumga-number decimal-places=\"2\" />\n"
-                        + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                        + "	</div>\n");
-            } else if (GumgaAddress.class.equals(type)) {
-                fwForm.write(""
-                        + ""
-                        + " <%-- CEP --%>\n"
-                        + "    <gumga:accordion close-others=\"true\" >\n"
-                        + "        <gumga:accordion:group heading=\"" + etiqueta + "\" is-open=\"true\">\n"
-                        + "            <div class=\"form-group\" gumga-form-group=\"cep\"> \n"
-                        + "                <input name=\"cep\" size=\"9\" ng-model=\"entity." + nomeAtributo + ".cep\"  gumga-mask=\"99999-999\" required=\"true\"/>\n"
-                        + "                <button class=\"btn btn-xs btn-primary\" ng-click=\"ctrl." + nomeAtributo + "UpdateAddress()\">Procurar Endereço <span class=\"glyphicon glyphicon-search\"></span></button><br><br>\n"
-                        + "\n"
-                        + "                <select  ng-options=\"ps for ps in pais\" ng-model=\"entity." + nomeAtributo + ".pais\" required=\"true\"></select>\n"
-                        + "\n"
-                        + "                <input name=\"descricao\" class=\"form-group-sm\" ng-model=\"entity." + nomeAtributo + ".localidade\" required=\"false\" placeholder=\"Localidade\" />\n"
-                        + "                <select  ng-options=\"uf for uf in allUF track by uf\" ng-model=\"entity." + nomeAtributo + ".uf\" required=\"true\" >\n"
-                        + "                </select>\n"
-                        + "            </div>\n"
-                        + "\n"
-                        + "            <%-- TipoLogradouro/Logradouro/Número//Complemento//Bairro --%>\n"
-                        + "\n"
-                        + "            <div class=\"form-group\" gumga-form-group=\" numero\">\n"
-                        + "                <select required=\"true\" ng-options=\"log for log in allLogradouro\" ng-model=\"entity." + nomeAtributo + ".tipoLogradouro\"></select>\n"
-                        + "                <input name=\"descricao\" size=\"25\" ng-model=\"entity." + nomeAtributo + ".logradouro\"  placeholder=\"Nome do Logradouro\" required=\"false\" />\n"
-                        + "                <input type=\"text\" size=\"6\" ng-model=\"entity." + nomeAtributo + ".numero\" placeholder=\"Número\" autofocus=\"\" required=\"true\"> <br><br>\n"
-                        + "                <input name=\"descricao\" size=\"25\" ng-model=\"entity." + nomeAtributo + ".complemento\" placeholder=\"Complemento\"/>\n"
-                        + "                <input name=\"descricao\" ng-model=\"entity." + nomeAtributo + ".bairro\" required=\"false\" placeholder=\"Bairro\" />\n"
-                        + "            </div>\n"
-                        + "            <a ng-href=\"https://www.google.com.br/maps/place/{{entity." + nomeAtributo + ".tipoLogradouro + ',' + entity." + nomeAtributo + ".logradouro + ',' + entity." + nomeAtributo + ".numero + ',' + entity." + nomeAtributo + ".localidade}}\" target=\"_blank\" class=\"btn btn-primary btn-primary\">GOOGLE MAPS <span class=\"glyphicon glyphicon-globe\"></span></a>\n"
-                        + "        </gumga:accordion:group>\n"
-                        + "    </gumga:accordion>\n");
-            } else if (GumgaBoolean.class.equals(type)) {
-                fwForm.write(""
-                        + "    <div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + "        <label><input type=\"checkbox\" name=\"" + nomeAtributo + "\" ng-model=\"entity." + nomeAtributo + ".value\" /> " + etiqueta + "</label>\n"
-                        + "        <gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                        + "    </div>\n");
-            } else if (GumgaCEP.class.equals(type)) {
-                fwForm.write(""
-                        + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\" gumga-mask=\"99999-999\" " + (primeiro ? "autofocus" : "") + " />\n"
-                        + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                        + "	</div>\n");
-            } else if (GumgaCNPJ.class.equals(type)) {
-                fwForm.write(""
-                        + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\" gumga-mask=\"99.999.999/9999-99\" " + (primeiro ? "autofocus" : "") + " />\n"
-                        + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                        + "	</div>\n");
-            } else if (GumgaCPF.class.equals(type)) {
-                fwForm.write(""
-                        + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"  gumga-mask=\"999.999.999-99\" " + (primeiro ? "autofocus" : "") + " />\n"
-                        + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                        + "	</div>\n");
-            } else if (GumgaEMail.class.equals(type)) {
-                fwForm.write(""
-                        + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input type=\"email\"  name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
-                        + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                        + "	</div>\n");
-            } else if (GumgaFile.class.equals(type)) {
-                /*
-                 fwForm.write(""
-                 + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                 + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                 + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
-                 + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                 + "	</div>\n");*/
-            } else if (GumgaGeoLocation.class.equals(type)) {
-                fwForm.write(""
-                        + "    <div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + " 	       <label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "            <input type=\"text\" name=\"descricao\" ng-model=\"entity." + nomeAtributo + ".latitude\" required=\"true\" min=\"-90\" max=\"90\" " + (primeiro ? "autofocus" : "") + "  gumga-number decimal-places=\"8\" />      \n"
-                        + "            <input type=\"text\" name=\"descricao\" ng-model=\"entity." + nomeAtributo + ".longitude\" required=\"true\" min=\"-180\" max=\"180\" gumga-number decimal-places=\"8\" />     \n"
-                        + "            <a ng-href=\"http://maps.google.com/maps?q={{entity." + nomeAtributo + ".latitude + ',' + entity." + nomeAtributo + ".longitude}}\" target=\"_blank\"> <p class=\"glyphicon glyphicon-globe\"></p> GOOGLE MAPS</a>\n"
-                        + "    </div>"
-                        + ""
-                        + ""
-                        + "");
-            } else if (GumgaIP4.class.equals(type)) {
-                fwForm.write(""
-                        + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\" gumga-mask=\"999.999.999.999\" " + (primeiro ? "autofocus" : "") + " />\n"
-                        + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                        + "	</div>\n");
-            } else if (GumgaIP6.class.equals(type)) {
-                fwForm.write(""
-                        + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
-                        + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                        + "	</div>\n");
-            } else if (GumgaImage.class.equals(type)) {
-                fwForm.write(""
-                        + ""
-                        + "<form name=\"myForm\">\n"
-                        + "  	<fieldset>\n"
-                        + "	    " + nomeAtributo + ": <input ng-file-select=\"\" ng-model=\"picFile\" name=\"file\" accept=\"image/*\" ng-file-change=\"generateThumb(picFile[0], $files)\" required=\"\" type=\"file\">\n"
-                        + "	<button ng-disabled=\"!myForm.$valid\" ng-click=\"uploadPic(picFile)\">Submit</button>\n"
-                        + "  	</fieldset>\n"
-                        + "</form>"
-                        + "");
-
-            } else if (GumgaMoney.class.equals(type)) {
-                fwForm.write(""
-                        + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + "  gumga-number decimal-places=\"2\"  />\n"
-                        + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                        + "             <p class=\"help-block\">Valor: {{entity.money.value| currency }}</p>\n"
-                        + "	</div>\n");
-            } else if (GumgaMultiLineString.class.equals(type)) {
-                fwForm.write(""
-                        + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + "             <label class=\"control-label\">" + etiqueta + "</label><br>\n"
-                        + "             <textarea ng-model=\"entity." + nomeAtributo + ".value\" class=\"form-control\" placeholder=\"Digite " + etiqueta + ".\" rows=\"4\" cols=\"50\" ng-model=\"entity.multiLine.value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " ></textarea>\n"
-                        + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                        + "	</div>\n");
-            } else if (GumgaPhoneNumber.class.equals(type)) {
-                fwForm.write(""
-                        + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
-                        + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                        + "	</div>\n");
-
-            } else if (GumgaTime.class.equals(type)) {
-                fwForm.write(""
-                        + "    <div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + "        <label class=\"control-label\">" + nomeAtributo + ":</label><br>\n"
-                        + "        <input type=\"number\" size=\"20\" ng-model=\"entity." + nomeAtributo + ".hour\" max=\"23\" min=\"0\" required=\"true\"/>\n"
-                        + "        <input type=\"number\" size=\"20\" ng-model=\"entity." + nomeAtributo + ".minute\" max=\"59\" min=\"0\" required=\"true\"/>\n"
-                        + "        <input type=\"number\" size=\"20\" ng-model=\"entity." + nomeAtributo + ".second\" max=\"59\" min=\"0\" required=\"true\"/>\n"
-                        + "        <p class=\"help-block\">" + nomeAtributo + ": {{ entity." + nomeAtributo + ".hour + ':' + entity." + nomeAtributo + ".minute + ':' + entity." + nomeAtributo + ".second }}</p>\n"
-                        + "    </div>"
-                        + ""
-                        + ""
-                        + "");
-
-            } else if (GumgaURL.class.equals(type)) {
-                fwForm.write(""
-                        + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
-                        + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                        + "	</div>\n");
-
+                geraEntradaManyToMany(fwForm, atributo, requerido, primeiro, controller);
+            } else if (Boolean.class.equals(atributo.getType()) || Boolean.TYPE.equals(atributo.getType())) {
+                geraEntradaBoolean(fwForm, atributo, requerido, primeiro, controller);
+            } else if (BigDecimal.class.equals(atributo.getType())) {
+                geraEntradaBigDecimal(fwForm, atributo, requerido, primeiro, controller);
+            } else if (GumgaAddress.class.equals(atributo.getType())) {
+                geraEntradaGumgaAddress(fwForm, atributo, requerido, primeiro, controller);
+            } else if (GumgaBoolean.class.equals(atributo.getType())) {
+                geraEntradaGumgaBoolean(fwForm, atributo, requerido, primeiro, controller);
+            } else if (GumgaCEP.class.equals(atributo.getType())) {
+                geraEntradaGumgaCEP(fwForm, atributo, requerido, primeiro, controller);
+            } else if (GumgaCNPJ.class.equals(atributo.getType())) {
+                geraEntradaGumgaCNPJ(fwForm, atributo, requerido, primeiro, controller);
+            } else if (GumgaCPF.class.equals(atributo.getType())) {
+                geraEntradaGumgaCPF(fwForm, atributo, requerido, primeiro, controller);
+            } else if (GumgaEMail.class.equals(atributo.getType())) {
+                geraEntradaGumgaEmail(fwForm, atributo, requerido, primeiro, controller);
+            } else if (GumgaFile.class.equals(atributo.getType())) {
+                geraEntradaGumgaFile(fwForm, atributo, requerido, primeiro, controller);
+            } else if (GumgaGeoLocation.class.equals(atributo.getType())) {
+                geraEntradaGumgaGeoLocation(fwForm, atributo, requerido, primeiro, controller);
+            } else if (GumgaIP4.class.equals(atributo.getType())) {
+                geraEntradaGumgaIP4(fwForm, atributo, requerido, primeiro, controller);
+            } else if (GumgaIP6.class.equals(atributo.getType())) {
+                geraEntradaGumgaIP6(fwForm, atributo, requerido, primeiro, controller);
+            } else if (GumgaImage.class.equals(atributo.getType())) {
+                geraEntradaGumgaImage(fwForm, atributo, requerido, primeiro, controller);
+            } else if (GumgaMoney.class.equals(atributo.getType())) {
+                geraEntradaGumgaMoney(fwForm, atributo, requerido, primeiro, controller);
+            } else if (GumgaMultiLineString.class.equals(atributo.getType())) {
+                geraEntradaGumgaMultiLine(fwForm, atributo, requerido, primeiro, controller);
+            } else if (GumgaPhoneNumber.class.equals(atributo.getType())) {
+                geraEntradaPhoneNumber(fwForm, atributo, requerido, primeiro, controller);
+            } else if (GumgaTime.class.equals(atributo.getType())) {
+                geraEntradaGumgaTime(fwForm, atributo, requerido, primeiro, controller);
+            } else if (GumgaURL.class.equals(atributo.getType())) {
+                geraEntradaURL(fwForm, atributo, requerido, primeiro, controller);
             } else {
-                fwForm.write(""
-                        + "	<div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                        + "		<label class=\"control-label\">" + etiqueta + "</label>\n"
-                        + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"entity." + nomeAtributo + "\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
-                        + "		<gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
-                        + "	</div>\n");
+                geraEntradaGenerica(fwForm, atributo, requerido, primeiro, controller);
             }
             primeiro = false;
         }
     }
 
-    public void geraGumgaSelect(Class<?> type, FileWriter fwForm, String nomeAtributo, String etiqueta) throws IOException {
-        String nomePrimeiroAtributo = Util.primeiroAtributo(type).getName();
+    public void geraEntradaOneToMany(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) throws IOException {
+        String nomeArquivoModal = geraModalOneToMany(atributo);
 
-        fwForm.write("<!--OneToOne -->\n"
-                + "    <div class=\"form-group\" gumga-form-group=\"" + nomeAtributo + "\">\n"
-                + "        <label class=\"control-label\">" + etiqueta + "</label>\n"
+        fwForm.write(""
+                + ""
+                + "        <gumga:children list=\"entity." + atributo.getName() + "\" modal-template-url=\"" + atributo.getName() + "-modal.html\"  modal-controller=\"" + Util.primeiraMaiuscula(atributo.getName()) + "ModalController as ctrl\">\n"
+                + "            <label class=\"control-label\">" + Util.primeiraMaiuscula(atributo.getName()) + " </label>\n"
+                + "            <button type=\"button\" class=\"btn btn-primary navbar-btn\" ng-click=\"gumgaChildren.openForm({servico:{}})\">\n"
+                + "                <span class=\"glyphicon glyphicon-plus\"></span>\n"
+                + "                Novo\n"
+                + "            </button>\n"
+                + "            <div class=\"list-group\">\n"
+                + "                <a ng-repeat=\"item in gumgaChildren.list\" class=\"list-group-item\" ng-click=\"gumgaChildren.openForm(item)\">\n"
+                + "                    {{item." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}\n"
+                + "                    <button ng-click=\"gumgaChildren.remove(item)\" class=\"btn btn-danger btn-xs pull-right\">\n"
+                + "                        <span class=\"glyphicon glyphicon-remove\"></span>\n"
+                + "                        Remover\n"
+                + "                    </button>\n"
+                + "                </a>\n"
+                + "            </div>\n"
+                + "        </gumga:children>\n"
                 + "\n"
-                + "        <gumga:select ng-model=\"entity." + nomeAtributo + "\">\n"
-                + "            <gumga:select:match placeholder=\"Selecione um " + etiqueta + "...\">{{$select.selected." + nomePrimeiroAtributo + "}}</gumga:select:match>\n"
-                + "            <gumga:select:choices repeat=\"" + nomeAtributo.toLowerCase() + " in lista" + type.getSimpleName() + " track by $index\" refresh=\"ctrl.refreshLista" + type.getSimpleName() + "($select.search)\" refresh-delay=\"0\">\n"
-                + "                {{" + nomeAtributo.toLowerCase() + "." + nomePrimeiroAtributo + "}}\n"
+                + "    <script type=\"text/ng-template\" id=\"" + atributo.getName() + "-modal.html\">\n"
+                + "        <%@ include file=\"" + nomeArquivoModal + "\" %>\n"
+                + "    </script>"
+                + ""
+        );
+    }
+
+    public void geraEntradaManyToMany(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) throws IOException {
+        fwForm.write(""
+                + ""
+                + "    <div class=\"form-group\">\n"
+                + "        \n"
+                + "        <div class=\"row\">\n"
+                + "            <div class=\"col-md-6\">\n"
+                + "                <label class=\"control-label\">" + Util.primeiraMaiuscula(atributo.getName()) + " Disponíveis</label>\n"
+                + "                <input type=\"text\" ng-model=\"filtro\" class=\"form-control\" ng-change=\"ctrl.refresh" + Util.getTipoGenerico(atributo).getSimpleName() + "(filtro)\"/><br>\n"
+                + "                <ul class=\"list-group\">\n"
+                + "                    <li class=\"list-group-item\" ng-repeat=\"f in lista" + Util.getTipoGenerico(atributo).getSimpleName() + Util.primeiraMaiuscula(atributo.getName()) + " | filter:filtro  | orderBy: '" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "'\" ng-show=\"!ctrl.contains" + Util.primeiraMaiuscula(atributo.getName()) + "(f)\">\n"
+                + "                        <button type=\"button\" class=\"btn btn-default btn-lg btn-block\" ng-click=\"ctrl.add" + Util.primeiraMaiuscula(atributo.getName()) + "(f)\" >{{f." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</button>\n"
+                + "                    </li>\n"
+                + "                </ul>\n"
+                + "            </div>\n"
+                + "\n"
+                + "            <div class=\"col-md-6\">\n"
+                + "                <label class=\"control-label\">" + Util.etiqueta(atributo) + "</label>\n"
+                + "                <input type=\"text\" ng-model=\"filtroEscolhidos\" class=\"form-control\" /> <br>\n"
+                + "                <ul class=\"list-group\">\n"
+                + "                    <li class=\"list-group-item\" ng-repeat=\"f in entity." + atributo.getName() + "| filter:filtroEscolhidos | orderBy: '" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "'\">\n"
+                + "                        <button type=\"button\" class=\"btn btn-default btn-lg btn-block\" ng-click=\"ctrl.remove" + Util.primeiraMaiuscula(atributo.getName()) + "(f)\">{{f." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</button>\n"
+                + "                    </li>\n"
+                + "                </ul>\n"
+                + "            </div>\n"
+                + "\n"
+                + "        </div>\n"
+                + "    </div>"
+                + ""
+                + "\n");
+    }
+
+    public void geraEntradaBoolean(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) throws IOException {
+        fwForm.write(""
+                + "    <div class=\"form-group\" gumga-form-group=\"" + Util.etiqueta(atributo) + "\">\n"
+                + "        <label><input type=\"checkbox\" name=\"" + atributo.getName() + "\" ng-model=\"" + controller + "entity." + atributo.getName() + "\" /> " + Util.etiqueta(atributo) + "</label>\n"
+                + "        <gumga:input:errors field=\"" + atributo.getName() + "\"></gumga:input:errors>\n"
+                + "    </div>"
+                + ""
+        );
+    }
+
+    public void geraEntradaBigDecimal(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) throws IOException {
+        fwForm.write(""
+                + "	<div class=\"form-group\" gumga-form-group=\"" + atributo.getName() + "\">\n"
+                + "		<label class=\"control-label\">" + Util.etiqueta(atributo) + "</label>\n"
+                + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"" + controller + "entity." + atributo.getName() + "\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " gumga-number decimal-places=\"2\" />\n"
+                + "		<gumga:input:errors field=\"" + atributo.getName() + "\"></gumga:input:errors>\n"
+                + "	</div>\n");
+    }
+
+    public void geraEntradaGumgaAddress(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) throws IOException {
+        fwForm.write(""
+                + ""
+                + " <%-- CEP --%>\n"
+                + "    <gumga:accordion close-others=\"true\" >\n"
+                + "        <gumga:accordion:group heading=\"" + Util.etiqueta(atributo) + "\" is-open=\"true\">\n"
+                + "            <div class=\"form-group\" gumga-form-group=\"cep\"> \n"
+                + "                <input name=\"cep\" size=\"9\" ng-model=\"" + controller + "entity." + atributo.getName() + ".cep\"  gumga-mask=\"99999-999\" required=\"true\"/>\n"
+                + "                <button class=\"btn btn-xs btn-primary\" ng-click=\"ctrl." + atributo.getName() + "UpdateAddress()\">Procurar Endereço <span class=\"glyphicon glyphicon-search\"></span></button><br><br>\n"
+                + "\n"
+                + "                <select  ng-options=\"ps for ps in pais\" ng-model=\"" + controller + "entity." + atributo.getName() + ".pais\" required=\"true\"></select>\n"
+                + "\n"
+                + "                <input name=\"descricao\" class=\"form-group-sm\" ng-model=\"" + controller + "entity." + atributo.getName() + ".localidade\" required=\"false\" placeholder=\"Localidade\" />\n"
+                + "                <select  ng-options=\"uf for uf in allUF track by uf\" ng-model=\"" + controller + "entity." + atributo.getName() + ".uf\" required=\"true\" >\n"
+                + "                </select>\n"
+                + "            </div>\n"
+                + "\n"
+                + "            <%-- TipoLogradouro/Logradouro/Número//Complemento//Bairro --%>\n"
+                + "\n"
+                + "            <div class=\"form-group\" gumga-form-group=\" numero\">\n"
+                + "                <select required=\"true\" ng-options=\"log for log in allLogradouro\" ng-model=\"" + controller + "entity." + atributo.getName() + ".tipoLogradouro\"></select>\n"
+                + "                <input name=\"descricao\" size=\"25\" ng-model=\"" + controller + "entity." + atributo.getName() + ".logradouro\"  placeholder=\"Nome do Logradouro\" required=\"false\" />\n"
+                + "                <input type=\"text\" size=\"6\" ng-model=\"" + controller + "entity." + atributo.getName() + ".numero\" placeholder=\"Número\" autofocus=\"\" required=\"true\"> <br><br>\n"
+                + "                <input name=\"descricao\" size=\"25\" ng-model=\"" + controller + "entity." + atributo.getName() + ".complemento\" placeholder=\"Complemento\"/>\n"
+                + "                <input name=\"descricao\" ng-model=\"" + controller + "entity." + atributo.getName() + ".bairro\" required=\"false\" placeholder=\"Bairro\" />\n"
+                + "            </div>\n"
+                + "            <a ng-href=\"https://www.google.com.br/maps/place/{{" + controller + "entity." + atributo.getName() + ".tipoLogradouro + ',' + " + controller + "entity." + atributo.getName() + ".logradouro + ',' + " + controller + "entity." + atributo.getName() + ".numero + ',' + " + controller + "entity." + atributo.getName() + ".localidade}}\" target=\"_blank\" class=\"btn btn-primary btn-primary\">GOOGLE MAPS <span class=\"glyphicon glyphicon-globe\"></span></a>\n"
+                + "        </gumga:accordion:group>\n"
+                + "    </gumga:accordion>\n");
+    }
+
+    public void geraEntradaGumgaBoolean(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) throws IOException {
+        fwForm.write(""
+                + "    <div class=\"form-group\" gumga-form-group=\"" + atributo.getName() + "\">\n"
+                + "        <label><input type=\"checkbox\" name=\"" + atributo.getName() + "\" ng-model=\"" + controller + "entity." + atributo.getName() + ".value\" /> " + Util.etiqueta(atributo) + "</label>\n"
+                + "        <gumga:input:errors field=\"" + atributo.getName() + "\"></gumga:input:errors>\n"
+                + "    </div>\n");
+    }
+
+    public void geraEntradaGumgaCEP(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) throws IOException {
+        fwForm.write(""
+                + "	<div class=\"form-group\" gumga-form-group=\"" + atributo.getName() + "\">\n"
+                + "		<label class=\"control-label\">" + Util.etiqueta(atributo) + "</label>\n"
+                + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"" + controller + "entity." + atributo.getName() + ".value\" required=\"" + requerido + "\" gumga-mask=\"99999-999\" " + (primeiro ? "autofocus" : "") + " />\n"
+                + "		<gumga:input:errors field=\"" + atributo.getName() + "\"></gumga:input:errors>\n"
+                + "	</div>\n");
+    }
+
+    public void geraEntradaGumgaCNPJ(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) throws IOException {
+        fwForm.write(""
+                + "	<div class=\"form-group\" gumga-form-group=\"" + atributo.getName() + "\">\n"
+                + "		<label class=\"control-label\">" + Util.etiqueta(atributo) + "</label>\n"
+                + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"" + controller + "entity." + atributo.getName() + ".value\" required=\"" + requerido + "\" gumga-mask=\"99.999.999/9999-99\" " + (primeiro ? "autofocus" : "") + " />\n"
+                + "		<gumga:input:errors field=\"" + atributo.getName() + "\"></gumga:input:errors>\n"
+                + "	</div>\n");
+    }
+
+    public void geraEntradaGumgaCPF(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) throws IOException {
+        fwForm.write(""
+                + "	<div class=\"form-group\" gumga-form-group=\"" + atributo.getName() + "\">\n"
+                + "		<label class=\"control-label\">" + Util.etiqueta(atributo) + "</label>\n"
+                + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"" + controller + "entity." + atributo.getName() + ".value\" required=\"" + requerido + "\"  gumga-mask=\"999.999.999-99\" " + (primeiro ? "autofocus" : "") + " />\n"
+                + "		<gumga:input:errors field=\"" + atributo.getName() + "\"></gumga:input:errors>\n"
+                + "	</div>\n");
+    }
+
+    public void geraEntradaGumgaEmail(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) throws IOException {
+        fwForm.write(""
+                + "	<div class=\"form-group\" gumga-form-group=\"" + atributo.getName() + "\">\n"
+                + "		<label class=\"control-label\">" + Util.etiqueta(atributo) + "</label>\n"
+                + "		<input type=\"email\"  name=\"descricao\" class=\"form-control\" ng-model=\"" + controller + "entity." + atributo.getName() + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
+                + "		<gumga:input:errors field=\"" + atributo.getName() + "\"></gumga:input:errors>\n"
+                + "	</div>\n");
+    }
+
+    public void geraEntradaGumgaGeoLocation(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) throws IOException {
+        fwForm.write(""
+                + "    <div class=\"form-group\" gumga-form-group=\"" + atributo.getName() + "\">\n"
+                + " 	       <label class=\"control-label\">" + Util.etiqueta(atributo) + "</label>\n"
+                + "            <input type=\"text\" name=\"descricao\" ng-model=\"" + controller + "entity." + atributo.getName() + ".latitude\" required=\"true\" min=\"-90\" max=\"90\" " + (primeiro ? "autofocus" : "") + "  gumga-number decimal-places=\"8\" />      \n"
+                + "            <input type=\"text\" name=\"descricao\" ng-model=\"" + controller + "entity." + atributo.getName() + ".longitude\" required=\"true\" min=\"-180\" max=\"180\" gumga-number decimal-places=\"8\" />     \n"
+                + "            <a ng-href=\"http://maps.google.com/maps?q={{entity." + atributo.getName() + ".latitude + ',' + entity." + atributo.getName() + ".longitude}}\" target=\"_blank\"> <p class=\"glyphicon glyphicon-globe\"></p> GOOGLE MAPS</a>\n"
+                + "    </div>"
+                + ""
+                + ""
+                + "");
+    }
+
+    public void geraEntradaGumgaIP4(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) throws IOException {
+        fwForm.write(""
+                + "	<div class=\"form-group\" gumga-form-group=\"" + atributo.getName() + "\">\n"
+                + "		<label class=\"control-label\">" + Util.etiqueta(atributo) + "</label>\n"
+                + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"" + controller + "entity." + atributo.getName() + ".value\" required=\"" + requerido + "\" gumga-mask=\"999.999.999.999\" " + (primeiro ? "autofocus" : "") + " />\n"
+                + "		<gumga:input:errors field=\"" + atributo.getName() + "\"></gumga:input:errors>\n"
+                + "	</div>\n");
+    }
+
+    public void geraEntradaGumgaIP6(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) throws IOException {
+        fwForm.write(""
+                + "	<div class=\"form-group\" gumga-form-group=\"" + atributo.getName() + "\">\n"
+                + "		<label class=\"control-label\">" + Util.etiqueta(atributo) + "</label>\n"
+                + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"" + controller + "entity." + atributo.getName() + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
+                + "		<gumga:input:errors field=\"" + atributo.getName() + "\"></gumga:input:errors>\n"
+                + "	</div>\n");
+    }
+
+    public void geraEntradaGumgaImage(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) throws IOException {
+        fwForm.write(""
+                + ""
+                + "<form name=\"myForm\">\n"
+                + "  	<fieldset>\n"
+                + "	    " + atributo.getName() + ": <input ng-file-select=\"\" ng-model=\"" + controller + "picFile\" name=\"file\" accept=\"image/*\" ng-file-change=\"generateThumb(picFile[0], $files)\" required=\"\" type=\"file\">\n"
+                + "	<button ng-disabled=\"!myForm.$valid\" ng-click=\"uploadPic(picFile)\">Submit</button>\n"
+                + "  	</fieldset>\n"
+                + "</form>"
+                + "");
+    }
+
+    public void geraEntradaGumgaMoney(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) throws IOException {
+        fwForm.write(""
+                + "	<div class=\"form-group\" gumga-form-group=\"" + atributo.getName() + "\">\n"
+                + "		<label class=\"control-label\">" + Util.etiqueta(atributo) + "</label>\n"
+                + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"" + controller + "entity." + atributo.getName() + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + "  gumga-number decimal-places=\"2\"  />\n"
+                + "		<gumga:input:errors field=\"" + atributo.getName() + "\"></gumga:input:errors>\n"
+                + "             <p class=\"help-block\">Valor: {{entity.money.value| currency }}</p>\n"
+                + "	</div>\n");
+    }
+
+    public void geraEntradaGumgaMultiLine(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) throws IOException {
+        fwForm.write(""
+                + "	<div class=\"form-group\" gumga-form-group=\"" + atributo.getName() + "\">\n"
+                + "             <label class=\"control-label\">" + Util.etiqueta(atributo) + "</label><br>\n"
+                + "             <textarea ng-model=\"" + controller + "entity." + atributo.getName() + ".value\" class=\"form-control\" placeholder=\"Digite " + Util.etiqueta(atributo) + ".\" rows=\"4\" cols=\"50\" ng-model=\"entity.multiLine.value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " ></textarea>\n"
+                + "		<gumga:input:errors field=\"" + atributo.getName() + "\"></gumga:input:errors>\n"
+                + "	</div>\n");
+    }
+
+    public void geraEntradaPhoneNumber(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) throws IOException {
+        fwForm.write(""
+                + "	<div class=\"form-group\" gumga-form-group=\"" + atributo.getName() + "\">\n"
+                + "		<label class=\"control-label\">" + Util.etiqueta(atributo) + "</label>\n"
+                + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"" + controller + "entity." + atributo.getName() + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
+                + "		<gumga:input:errors field=\"" + atributo.getName() + "\"></gumga:input:errors>\n"
+                + "	</div>\n");
+    }
+
+    public void geraEntradaGumgaTime(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) throws IOException {
+        fwForm.write(""
+                + "    <div class=\"form-group\" gumga-form-group=\"" + atributo.getName() + "\">\n"
+                + "        <label class=\"control-label\">" + atributo.getName() + ":</label><br>\n"
+                + "        <input type=\"number\" size=\"20\" ng-model=\"" + controller + "entity." + atributo.getName() + ".hour\" max=\"23\" min=\"0\" required=\"true\"/>\n"
+                + "        <input type=\"number\" size=\"20\" ng-model=\"" + controller + "entity." + atributo.getName() + ".minute\" max=\"59\" min=\"0\" required=\"true\"/>\n"
+                + "        <input type=\"number\" size=\"20\" ng-model=\"" + controller + "entity." + atributo.getName() + ".second\" max=\"59\" min=\"0\" required=\"true\"/>\n"
+                + "        <p class=\"help-block\">" + atributo.getName() + ": {{ entity." + atributo.getName() + ".hour + ':' + entity." + atributo.getName() + ".minute + ':' + entity." + atributo.getName() + ".second }}</p>\n"
+                + "    </div>"
+                + ""
+                + ""
+                + "");
+    }
+
+    public void geraEntradaURL(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) throws IOException {
+        fwForm.write(""
+                + "	<div class=\"form-group\" gumga-form-group=\"" + atributo.getName() + "\">\n"
+                + "		<label class=\"control-label\">" + Util.etiqueta(atributo) + "</label>\n"
+                + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"" + controller + "entity." + atributo.getName() + ".value\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
+                + "		<gumga:input:errors field=\"" + atributo.getName() + "\"></gumga:input:errors>\n"
+                + "	</div>\n");
+    }
+
+    public void geraEntradaGenerica(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) throws IOException {
+        fwForm.write(""
+                + "	<div class=\"form-group\" gumga-form-group=\"" + atributo.getName() + "\">\n"
+                + "		<label class=\"control-label\">" + Util.etiqueta(atributo) + "</label>\n"
+                + "		<input name=\"descricao\" class=\"form-control\" ng-model=\"" + controller + "entity." + atributo.getName() + "\" required=\"" + requerido + "\"" + (primeiro ? "autofocus" : "") + " />\n"
+                + "		<gumga:input:errors field=\"" + atributo.getName() + "\"></gumga:input:errors>\n"
+                + "	</div>\n");
+    }
+
+    public void geraEntradaToOne(FileWriter fileWriter, Field atributo, boolean requerido, boolean primeiro, String controller) throws IOException {
+        String nomePrimeiroAtributo = Util.primeiroAtributo(atributo.getType()).getName();
+
+        fileWriter.write("\n"
+                + "    <div class=\"form-group\" gumga-form-group=\"" + atributo.getName() + "\">\n"
+                + "        <label class=\"control-label\">" + Util.etiqueta(atributo) + "</label>\n"
+                + "\n"
+                + "        <gumga:select ng-model=\"" + controller + "entity." + atributo.getName() + "\">\n"
+                + "            <gumga:select:match placeholder=\"Selecione um " + Util.etiqueta(atributo) + "...\">{{$select.selected." + nomePrimeiroAtributo + "}}</gumga:select:match>\n"
+                + "            <gumga:select:choices repeat=\"" + atributo.getName().toLowerCase() + " in lista" + atributo.getType().getSimpleName() + " track by $index\" refresh=\"ctrl.refreshLista" + atributo.getType().getSimpleName() + "($select.search)\" refresh-delay=\"0\">\n"
+                + "                {{" + atributo.getName().toLowerCase() + "." + nomePrimeiroAtributo + "}}\n"
                 + "            </gumga:select:choices>\n"
                 + "        </gumga:select>\n"
                 + "\n"
                 + "\n"
-                + "        <gumga:input:errors field=\"" + nomeAtributo + "\"></gumga:input:errors>\n"
+                + "        <gumga:input:errors field=\"" + atributo.getName() + "\"></gumga:input:errors>\n"
                 + "    </div>\n"
                 + "");
     }
@@ -714,6 +793,13 @@ public class GeraPresentation extends AbstractMojo {
             fwModule.write(".service(\"" + tipo.getSimpleName() + "Service\", require('app/" + tipo.getSimpleName().toLowerCase() + "/service'))\n");
         }
 
+        //.controller("ItemModalController", require("app/venda/controllers/itens_modal"))
+        for (Field f : Util.getTodosAtributos(classeEntidade)) {
+            if (f.isAnnotationPresent(OneToMany.class)) {
+                fwModule.write(".controller(\""+Util.primeiraMaiuscula(f.getName())+"ModalController\", require(\"app/" + classeEntidade.getSimpleName().toLowerCase() + "/controllers/"+f.getName()+"_modal\"))\n");
+            }
+        }
+
         fwModule.write(""
                 + "		\n"
                 + "		.controller(\"ListController\", require('app/" + nomeEntidade.toLowerCase() + "/controllers/list'))\n"
@@ -738,39 +824,58 @@ public class GeraPresentation extends AbstractMojo {
 
     }
 
-    private void geraModal(Field atributo) throws IOException {
-        File arquivoModal = new File(pastaJSP + "/" + atributo.getName() + "_modal.jsp");
-        FileWriter fwBase = new FileWriter(arquivoModal);
-        fwBase.write(""
-                + "<%@ page language=\"java\" contentType=\"text/html; charset=UTF-8\" pageEncoding=\"UTF-8\"%>\n"
-                + "<%@ taglib uri=\"http://java.sun.com/jsp/jstl/core\" prefix=\"c\" %>\n"
-                + "<%@ taglib uri=\"http://gumga.com.br/jsp/tags\" prefix=\"g\" %>\n"
-                + "\n"
-                + "<div class=\"modal-body\">\n"
-                + "    <form name=\"itemForm\" gumga-form-errors gumga-ng-model-errors>\n"
-                + "        <div class=\"form-group\" ng-class=\"{'has-error' : itemForm.valor.$invalid}\">\n"
-                + "            <label class=\"control-label\">Horas</label>\n"
-                + "            <input type=\"text\" class=\"form-control\" name=\"horas\" required=\"true\" placeholder=\"Informe o numero de horas gasto na tarefa...\" ng-model=\"ctrl.entity.horas\" gumga-number gumga-integer>\n"
-                + "        </div>\n"
-                + "        <div class=\"form-group\" ng-class=\"{'has-error' : itemForm.valor.$invalid}\">\n"
-                + "            <label class=\"control-label\">Serviços</label>\n"
-                + "            <ui:select ng-model=\"ctrl.entity.servico\">\n"
-                + "                <ui:select:match placeholder=\"Selecione um serviço...\">{{$select.selected.nome}}</ui:select:match>\n"
-                + "                <ui:select:choices repeat=\"servico in ctrl.servicos track by $index\"\n"
-                + "                                   refresh=\"ctrl.refreshServicos($select.search)\"\n"
-                + "                                   refresh-delay=\"0\">\n"
-                + "                    <div>{{servico.nome}}</div>\n"
-                + "                </ui:select:choices>\n"
-                + "            </ui:select>\n"
-                + "        </div>\n"
-                + "    </form>\n"
-                + "</div>\n"
-                + "<div class=\"modal-footer\">\n"
-                + "    <button class=\"btn btn-primary\" ng-click=\"$close(ctrl.entity)\">Selecionar</button>\n"
-                + "    <button class=\"btn btn-default\" ng-click=\"$dismiss('close')\">Cancelar</button>\n"
-                + "</div>"
+    private String geraModalOneToMany(Field atributo) throws IOException {
+        geraControladorModalOneToMany(atributo);
+        String nomeArquivo = atributo.getName() + "_modal.jsp";
+        File arquivoModal = new File(pastaJSP + "/" + nomeArquivo);
+        try (FileWriter fwModal = new FileWriter(arquivoModal)) {
+            fwModal.write(""
+                    + "<%@ page language=\"java\" contentType=\"text/html; charset=UTF-8\" pageEncoding=\"UTF-8\"%>\n"
+                    + "<%@ taglib uri=\"http://java.sun.com/jsp/jstl/core\" prefix=\"c\" %>\n"
+                    + "<%@ taglib uri=\"http://gumga.com.br/jsp/tags\" prefix=\"g\" %>\n"
+                    + "\n"
+                    + "<div class=\"modal-body\">\n"
+                    + "    <form name=\"itemForm\" gumga-form-errors gumga-ng-model-errors>\n");
+
+            geraCampos(Util.getTipoGenerico(atributo), fwModal, "ctrl.");
+
+            fwModal.write(""
+                    + "    </form>\n"
+                    + "</div>\n"
+                    + "<div class=\"modal-footer\">\n"
+                    + "    <button class=\"btn btn-primary\" ng-click=\"$close(ctrl.entity)\">Selecionar</button>\n"
+                    + "    <button class=\"btn btn-default\" ng-click=\"$dismiss('close')\">Cancelar</button>\n"
+                    + "</div>"
+                    + "");
+        }
+        return nomeArquivo;
+
+    }
+
+    private void geraControladorModalOneToMany(Field atributo) throws IOException {
+        String nomeArquivo = atributo.getName() + "_modal.js";
+        File arquivoModal = new File(pastaControllers + "/" + nomeArquivo);
+        FileWriter fwModal = new FileWriter(arquivoModal);
+
+        fwModal.write(""
+                + "define([\"gumga-class\"], function (e) {\n"
+                + "    return e.create({$inject: [\"$scope\", \"$modalInstance\", \"entity\"], constructor: function (e, t, n) {\n"
+                + "            this.$modalInstance = t, this.$scope = e, e.gumgaModalController = this, e.entity = n\n"
+                + "        }, prototype: {confirm: function () {\n"
+                + "                this.$modalInstance.close(this.$scope.entity)\n"
+                + "            }, cancel: function () {\n"
+                + "                this.$modalInstance.dismiss()\n"
+                + "            }, validateModal: function () {\n"
+                + "                return!0\n"
+                + "            }}})\n"
+                + "});"
                 + "");
-        fwBase.close();
+
+        fwModal.close();
+
+    }
+
+    private void geraEntradaGumgaFile(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) {
 
     }
 
