@@ -65,6 +65,7 @@ public class GeraEntidade extends AbstractMojo {
                     + "import java.util.*;\n"
                     + "import java.math.BigDecimal;\n"
                     + "import javax.persistence.*;\n"
+                    + "import gumga.framework.domain.domains.*;\n"
                     + "import org.hibernate.annotations.Columns;\n"
                     + "\n");
             
