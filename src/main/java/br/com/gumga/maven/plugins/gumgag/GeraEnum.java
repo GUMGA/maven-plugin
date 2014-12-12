@@ -47,7 +47,7 @@ public class GeraEnum extends AbstractMojo {
         }
         String nomePacote = nomeEnumCompleto.substring(0, nomeEnumCompleto.lastIndexOf('.'));
         String nomeEnum = nomeEnumCompleto.substring(nomeEnumCompleto.lastIndexOf('.') + 1);
-        String pastaEnum = project.getCompileSourceRoots().get(0) + "/".concat(nomePacote.replaceAll("\\.", "/"));
+        String pastaEnum = Util.windowsSafe(project.getCompileSourceRoots().get(0)) + "/".concat(nomePacote.replaceAll("\\.", "/"));
 
         getLog().info("Iniciando plugin Gerador de Enum GUMGA ");
         getLog().info("Gerando " + nomePacote + "." + nomeEnum);

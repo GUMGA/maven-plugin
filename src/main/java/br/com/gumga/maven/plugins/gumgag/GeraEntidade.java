@@ -50,7 +50,7 @@ public class GeraEntidade extends AbstractMojo {
         }
         String nomePacote = nomeCompletoEntidade.substring(0, nomeCompletoEntidade.lastIndexOf('.'));
         String nomeEntidade = nomeCompletoEntidade.substring(nomeCompletoEntidade.lastIndexOf('.') + 1);
-        String pastaClasse = project.getCompileSourceRoots().get(0) + "/".concat(nomePacote.replaceAll("\\.", "/"));
+        String pastaClasse = Util.windowsSafe(project.getCompileSourceRoots().get(0)) + "/".concat(nomePacote.replaceAll("\\.", "/"));
 
         getLog().info("Iniciando plugin Gerador de Entidade GUMGA ");
         getLog().info("Gerando " + nomePacote + "." + nomeEntidade);

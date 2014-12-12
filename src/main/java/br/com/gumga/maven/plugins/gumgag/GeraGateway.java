@@ -63,9 +63,9 @@ public class GeraGateway extends AbstractMojo {
         nomePacoteDto = nomePacoteGateway + ".dto";
         nomePacoteTranslator = nomePacoteGateway + ".translator";
 
-        pastaGateway = project.getCompileSourceRoots().get(0) + "/".concat(nomePacoteGateway.replaceAll("\\.", "/"));
-        pastaDto = project.getCompileSourceRoots().get(0) + "/".concat(nomePacoteDto.replaceAll("\\.", "/"));
-        pastaTranslator = project.getCompileSourceRoots().get(0) + "/".concat(nomePacoteTranslator.replaceAll("\\.", "/"));
+        pastaGateway = Util.windowsSafe(project.getCompileSourceRoots().get(0)) + "/".concat(nomePacoteGateway.replaceAll("\\.", "/"));
+        pastaDto = Util.windowsSafe(project.getCompileSourceRoots().get(0)) + "/".concat(nomePacoteDto.replaceAll("\\.", "/"));
+        pastaTranslator = Util.windowsSafe(project.getCompileSourceRoots().get(0)) + "/".concat(nomePacoteTranslator.replaceAll("\\.", "/"));
         getLog().info("Iniciando plugin Gerador de Gateway");
         getLog().info("Gerando para " + nomeEntidade);
 

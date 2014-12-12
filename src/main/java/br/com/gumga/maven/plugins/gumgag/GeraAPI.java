@@ -52,7 +52,7 @@ public class GeraAPI extends AbstractMojo {
 
             nomePacoteApi = nomePacoteBase + ".presentation.api";
 
-            pastaApi = project.getCompileSourceRoots().get(0) + "/".concat(nomePacoteApi.replaceAll("\\.", "/"));
+            pastaApi = Util.windowsSafe(project.getCompileSourceRoots().get(0)) + "/".concat(nomePacoteApi.replaceAll("\\.", "/"));
 
             getLog().info("Iniciando plugin Gerador de API ");
             getLog().info("Gerando para " + nomeEntidade);

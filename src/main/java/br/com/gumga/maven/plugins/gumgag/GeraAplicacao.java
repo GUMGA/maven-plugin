@@ -57,8 +57,8 @@ public class GeraAplicacao extends AbstractMojo {
             nomePacoteRepositorio = nomePacoteBase + ".application.repository";
             nomePacoteService = nomePacoteBase + ".application.service";
 
-            pastaRepositorios = project.getCompileSourceRoots().get(0) + "/".concat(nomePacoteRepositorio.replaceAll("\\.", "/"));
-            pastaServices = project.getCompileSourceRoots().get(0) + "/".concat(nomePacoteService.replaceAll("\\.", "/"));
+            pastaRepositorios = Util.windowsSafe(project.getCompileSourceRoots().get(0)) + "/".concat(nomePacoteRepositorio.replaceAll("\\.", "/"));
+            pastaServices = Util.windowsSafe(project.getCompileSourceRoots().get(0)) + "/".concat(nomePacoteService.replaceAll("\\.", "/"));
 
             getLog().info("Iniciando plugin Gerador de Classes de Aplicação ");
             getLog().info("Gerando para " + nomeEntidade);

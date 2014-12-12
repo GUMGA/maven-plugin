@@ -70,11 +70,11 @@ public class GeraPresentation extends AbstractMojo {
             nomePacoteApi = nomePacoteBase + ".presentation.api";
             nomePacoteWeb = nomePacoteBase + ".presentation.web";
 
-            pastaApi = project.getCompileSourceRoots().get(0) + "/".concat(nomePacoteApi.replaceAll("\\.", "/"));
-            pastaWeb = project.getCompileSourceRoots().get(0) + "/".concat(nomePacoteWeb.replaceAll("\\.", "/"));
-            pastaJSP = project.getFile().getParent() + "/src/main/webapp/WEB-INF/views/crud/" + (nomeEntidade.toLowerCase());
-            pastaScripts = project.getFile().getParent() + "/src/main/webapp/WEB-INF/static/scripts/app//" + (nomeEntidade.toLowerCase());
-            pastaResources = project.getFile().getParent() + "/src/main/resources/";
+            pastaApi = Util.windowsSafe(project.getCompileSourceRoots().get(0)) + "/".concat(nomePacoteApi.replaceAll("\\.", "/"));
+            pastaWeb = Util.windowsSafe(project.getCompileSourceRoots().get(0)) + "/".concat(nomePacoteWeb.replaceAll("\\.", "/"));
+            pastaJSP = Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/WEB-INF/views/crud/" + (nomeEntidade.toLowerCase());
+            pastaScripts = Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/WEB-INF/static/scripts/app//" + (nomeEntidade.toLowerCase());
+            pastaResources = Util.windowsSafe(project.getFile().getParent()) + "/src/main/resources/";
 
             getLog().info("Iniciando plugin Gerador de Classes de Apresentação ");
             getLog().info("Gerando para " + nomeEntidade);

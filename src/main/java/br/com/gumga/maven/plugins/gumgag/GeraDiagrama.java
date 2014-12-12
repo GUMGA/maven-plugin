@@ -118,8 +118,8 @@ public class GeraDiagrama extends AbstractMojo {
     }
 
     private String transformaEmNomeDeClasse(File f) {
-        String nomeCompleto = f.getAbsolutePath();
-        String incio = pastaClasses.getAbsolutePath();
+        String nomeCompleto = Util.windowsSafe(f.getAbsolutePath());
+        String incio =  Util.windowsSafe(pastaClasses.getAbsolutePath());
         return nomeCompleto.replaceFirst(incio, "").replace(".class", "").replaceAll("/", ".").replaceFirst(".", "");
     }
 
