@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,6 +27,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.omg.CORBA.DATA_CONVERSION;
 
 /**
  *
@@ -272,6 +274,8 @@ public class GeraPresentation extends AbstractMojo {
                 geraEntradaGumgaTime(fwForm, atributo, requerido, primeiro, controller);
             } else if (GumgaURL.class.equals(atributo.getType())) {
                 geraEntradaURL(fwForm, atributo, requerido, primeiro, controller);
+            } else if (Date.class.equals(atributo.getType())) {
+                geraEntradaDate(fwForm, atributo, requerido, primeiro, controller);
             } else {
                 geraEntradaGenerica(fwForm, atributo, requerido, primeiro, controller);
             }
@@ -796,7 +800,7 @@ public class GeraPresentation extends AbstractMojo {
         //.controller("ItemModalController", require("app/venda/controllers/itens_modal"))
         for (Field f : Util.getTodosAtributos(classeEntidade)) {
             if (f.isAnnotationPresent(OneToMany.class)) {
-                fwModule.write(".controller(\""+Util.primeiraMaiuscula(f.getName())+"ModalController\", require(\"app/" + classeEntidade.getSimpleName().toLowerCase() + "/controllers/"+f.getName()+"_modal\"))\n");
+                fwModule.write(".controller(\"" + Util.primeiraMaiuscula(f.getName()) + "ModalController\", require(\"app/" + classeEntidade.getSimpleName().toLowerCase() + "/controllers/" + f.getName() + "_modal\"))\n");
             }
         }
 
@@ -878,5 +882,15 @@ public class GeraPresentation extends AbstractMojo {
     private void geraEntradaGumgaFile(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) {
 
     }
+
+    private void geraEntradaDate(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) throws IOException {
+        fwForm.write(""
+                + "	<div class=\"form-group\" gumga-form-group=\"" + atributo.getName() + "\">\n"
+                + "             <label class=\"control-label\">" + Util.etiqueta(atributo) + "</label><br>\n"
+                + "             <input class=\"form-control\" ng-model=\"" + controller + "entity." + atributo.getName() + "\" gumga-datepicker-popup />"
+                + "		<gumga:input:errors field=\"" + atributo.getName() + "\"></gumga:input:errors>\n"
+                + "	</div>\n");
+    }
+
 
 }
