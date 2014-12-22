@@ -6,9 +6,12 @@
 package br.com.gumga.maven.plugins.gumgag;
 
 import gumga.framework.domain.domains.*;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -27,7 +30,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-import org.omg.CORBA.DATA_CONVERSION;
 
 /**
  *
@@ -48,7 +50,6 @@ public class GeraPresentation extends AbstractMojo {
     private String nomeEntidade;
     private String nomePacoteApi;
     private String nomePacoteWeb;
-    private String pastaApi;
     private String pastaWeb;
     private String pastaJSP;
 
@@ -72,7 +73,6 @@ public class GeraPresentation extends AbstractMojo {
             nomePacoteApi = nomePacoteBase + ".presentation.api";
             nomePacoteWeb = nomePacoteBase + ".presentation.web";
 
-            pastaApi = Util.windowsSafe(project.getCompileSourceRoots().get(0)) + "/".concat(nomePacoteApi.replaceAll("\\.", "/"));
             pastaWeb = Util.windowsSafe(project.getCompileSourceRoots().get(0)) + "/".concat(nomePacoteWeb.replaceAll("\\.", "/"));
             pastaJSP = Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/WEB-INF/views/crud/" + (nomeEntidade.toLowerCase());
             pastaScripts = Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/WEB-INF/static/scripts/app//" + (nomeEntidade.toLowerCase());
@@ -98,7 +98,7 @@ public class GeraPresentation extends AbstractMojo {
                     dependenciasManyToOne.add(atributo.getType());
                 }
                 if (atributo.getType().equals(List.class) || atributo.getType().equals(Set.class) || atributo.getType().equals(Map.class)) {
-                    if (atributo.isAnnotationPresent(ManyToMany.class)) {
+                    if (atributo.isAnnotationPresent(ManyToMany.class) && !dependenciasManyToMany.contains(Util.getTipoGenerico(atributo))) {
                         dependenciasManyToMany.add(Util.getTipoGenerico(atributo));
                     }
                     if (atributo.isAnnotationPresent(OneToMany.class)) {
@@ -111,6 +111,7 @@ public class GeraPresentation extends AbstractMojo {
             geraWeb();
             geraModuleJs();
             geraServiceJs();
+            geraDiretivasManyToMany();
             geraFormJs();
             geraListJs();
             adicionaAoMenu();
@@ -315,31 +316,7 @@ public class GeraPresentation extends AbstractMojo {
     public void geraEntradaManyToMany(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) throws IOException {
         fwForm.write(""
                 + ""
-                + "    <div class=\"form-group\">\n"
-                + "        \n"
-                + "        <div class=\"row\">\n"
-                + "            <div class=\"col-md-6\">\n"
-                + "                <label class=\"control-label\">" + Util.primeiraMaiuscula(atributo.getName()) + " Disponíveis</label>\n"
-                + "                <input type=\"text\" ng-model=\"filtro\" class=\"form-control\" ng-change=\"ctrl.refresh" + Util.getTipoGenerico(atributo).getSimpleName() + "(filtro)\"/><br>\n"
-                + "                <ul class=\"list-group\">\n"
-                + "                    <li class=\"list-group-item\" ng-repeat=\"f in lista" + Util.getTipoGenerico(atributo).getSimpleName() + Util.primeiraMaiuscula(atributo.getName()) + " | filter:filtro  | orderBy: '" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "'\" ng-show=\"!ctrl.contains" + Util.primeiraMaiuscula(atributo.getName()) + "(f)\">\n"
-                + "                        <button type=\"button\" class=\"btn btn-default btn-lg btn-block\" ng-click=\"ctrl.add" + Util.primeiraMaiuscula(atributo.getName()) + "(f)\" >{{f." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</button>\n"
-                + "                    </li>\n"
-                + "                </ul>\n"
-                + "            </div>\n"
-                + "\n"
-                + "            <div class=\"col-md-6\">\n"
-                + "                <label class=\"control-label\">" + Util.etiqueta(atributo) + "</label>\n"
-                + "                <input type=\"text\" ng-model=\"filtroEscolhidos\" class=\"form-control\" /> <br>\n"
-                + "                <ul class=\"list-group\">\n"
-                + "                    <li class=\"list-group-item\" ng-repeat=\"f in entity." + atributo.getName() + "| filter:filtroEscolhidos | orderBy: '" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "'\">\n"
-                + "                        <button type=\"button\" class=\"btn btn-default btn-lg btn-block\" ng-click=\"ctrl.remove" + Util.primeiraMaiuscula(atributo.getName()) + "(f)\">{{f." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</button>\n"
-                + "                    </li>\n"
-                + "                </ul>\n"
-                + "            </div>\n"
-                + "\n"
-                + "        </div>\n"
-                + "    </div>"
+                + "<gumga-many-to-many-" + Util.getTipoGenerico(atributo).getSimpleName().toLowerCase() + " entity-list=\"entity." + atributo.getName() + "\" label=\"" + Util.etiqueta(atributo) + "\"></gumga-many-to-many-" + Util.getTipoGenerico(atributo).getSimpleName().toLowerCase() + ">"
                 + ""
                 + "\n");
     }
@@ -606,9 +583,9 @@ public class GeraPresentation extends AbstractMojo {
         for (Class tipo : dependenciasManyToOne) {
             injetar += ("'" + tipo.getSimpleName() + "Service',");
         }
-        for (Class tipo : dependenciasManyToMany) {
-            injetar += ("'" + tipo.getSimpleName() + "Service',");
-        }
+//        for (Class tipo : dependenciasManyToMany) {
+//            injetar += ("'" + tipo.getSimpleName() + "Service',");
+//        }
         for (Class tipo : dependenciasOneToMany) {
             injetar += ("'" + tipo.getSimpleName() + "Service',");
         }
@@ -629,13 +606,12 @@ public class GeraPresentation extends AbstractMojo {
             fwForm.write("this.$scope.lista" + tipo.getSimpleName() + " = [];\n");
         }
 
-        for (Class tipo : dependenciasManyToMany) {
-            fwForm.write(""
-                    + "                this.$scope." + tipo.getSimpleName() + " = [];\n"
-                    + "                this.refresh" + tipo.getSimpleName() + "();\n"
-                    + "\n");
-        }
-
+//        for (Class tipo : dependenciasManyToMany) {
+//            fwForm.write(""
+//                    + "                this.$scope." + tipo.getSimpleName() + " = [];\n"
+//                    + "                this.refresh" + tipo.getSimpleName() + "();\n"
+//                    + "\n");
+//        }
         for (Field atributo : Util.getTodosAtributos(classeEntidade)) {
             if (atributo.isAnnotationPresent(OneToMany.class)) {
                 fwForm.write(""
@@ -660,45 +636,44 @@ public class GeraPresentation extends AbstractMojo {
                 + "	\n"
                 + "			// Demais métodos do controller\n");
 
-        for (Field atributo : Util.getTodosAtributos(classeEntidade)) {
-            if (atributo.isAnnotationPresent(ManyToMany.class)) {
-
-                fwForm.write(""
-                        + "            refresh" + Util.getTipoGenerico(atributo).getSimpleName() + ": function () {\n"
-                        + "                var $scope = this.$scope;\n"
-                        + "                this." + Util.getTipoGenerico(atributo).getSimpleName() + "Service.search($scope." + Util.primeiraMinuscula(Util.getTipoGenerico(atributo).getSimpleName()) + "Pesquisa, ['" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "']).then(function (result) {\n"
-                        + "                    $scope.lista" + Util.getTipoGenerico(atributo).getSimpleName() + Util.primeiraMaiuscula(atributo.getName()) + "= result.values;\n"
-                        + "                });\n"
-                        + "            },\n");
-
-                fwForm.write(""
-                        + "            add" + Util.primeiraMaiuscula(atributo.getName()) + ": function (objeto) {\n"
-                        + "                var index = this.indexOf" + Util.primeiraMaiuscula(atributo.getName()) + "(objeto);\n"
-                        + "                this.$scope.entity." + atributo.getName() + " = this.$scope.entity." + atributo.getName() + " || [];\n"
-                        + "                this.$scope.entity." + atributo.getName() + ".push(objeto);\n"
-                        + "                this.$scope.entity.lista" + Util.getTipoGenerico(atributo).getSimpleName() + Util.primeiraMaiuscula(atributo.getName()) + ".splice(index,1)\n"
-                        + "            },\n"
-                        + "            remove" + Util.primeiraMaiuscula(atributo.getName()) + ": function (objeto) {\n"
-                        + "                var index = this.indexOf" + Util.primeiraMaiuscula(atributo.getName()) + "(objeto);\n"
-                        + "                this.$scope.entity." + atributo.getName() + ".splice(index, 1);\n"
-                        + "            },\n"
-                        + "            indexOf" + Util.primeiraMaiuscula(atributo.getName()) + ": function (objeto) {\n"
-                        + "                this.$scope.entity." + atributo.getName() + " = this.$scope.entity." + atributo.getName() + " || [];\n"
-                        + "                var lista = this.$scope.entity." + atributo.getName() + ";\n"
-                        + "                for (var i = 0; i < lista.length; i++) {\n"
-                        + "                    if (lista[i].id == objeto.id) {\n"
-                        + "                        return i;\n"
-                        + "                    }\n"
-                        + "                }\n"
-                        + "                return -1;\n"
-                        + "            },\n"
-                        + "            contains" + Util.primeiraMaiuscula(atributo.getName()) + ": function (" + atributo.getName() + ") {\n"
-                        + "                return this.indexOf" + Util.primeiraMaiuscula(atributo.getName()) + "(" + atributo.getName() + ") >= 0;\n"
-                        + "            },"
-                        + "");
-            }
-        }
-
+//        for (Field atributo : Util.getTodosAtributos(classeEntidade)) {
+//            if (atributo.isAnnotationPresent(ManyToMany.class)) {
+//
+//                fwForm.write(""
+//                        + "            refresh" + Util.getTipoGenerico(atributo).getSimpleName() + ": function () {\n"
+//                        + "                var $scope = this.$scope;\n"
+//                        + "                this." + Util.getTipoGenerico(atributo).getSimpleName() + "Service.search($scope." + Util.primeiraMinuscula(Util.getTipoGenerico(atributo).getSimpleName()) + "Pesquisa, ['" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "']).then(function (result) {\n"
+//                        + "                    $scope.lista" + Util.getTipoGenerico(atributo).getSimpleName() + Util.primeiraMaiuscula(atributo.getName()) + "= result.values;\n"
+//                        + "                });\n"
+//                        + "            },\n");
+//
+//                fwForm.write(""
+//                        + "            add" + Util.primeiraMaiuscula(atributo.getName()) + ": function (objeto) {\n"
+//                        + "                var index = this.indexOf" + Util.primeiraMaiuscula(atributo.getName()) + "(objeto);\n"
+//                        + "                this.$scope.entity." + atributo.getName() + " = this.$scope.entity." + atributo.getName() + " || [];\n"
+//                        + "                this.$scope.entity." + atributo.getName() + ".push(objeto);\n"
+//                        + "                this.$scope.entity.lista" + Util.getTipoGenerico(atributo).getSimpleName() + Util.primeiraMaiuscula(atributo.getName()) + ".splice(index,1)\n"
+//                        + "            },\n"
+//                        + "            remove" + Util.primeiraMaiuscula(atributo.getName()) + ": function (objeto) {\n"
+//                        + "                var index = this.indexOf" + Util.primeiraMaiuscula(atributo.getName()) + "(objeto);\n"
+//                        + "                this.$scope.entity." + atributo.getName() + ".splice(index, 1);\n"
+//                        + "            },\n"
+//                        + "            indexOf" + Util.primeiraMaiuscula(atributo.getName()) + ": function (objeto) {\n"
+//                        + "                this.$scope.entity." + atributo.getName() + " = this.$scope.entity." + atributo.getName() + " || [];\n"
+//                        + "                var lista = this.$scope.entity." + atributo.getName() + ";\n"
+//                        + "                for (var i = 0; i < lista.length; i++) {\n"
+//                        + "                    if (lista[i].id == objeto.id) {\n"
+//                        + "                        return i;\n"
+//                        + "                    }\n"
+//                        + "                }\n"
+//                        + "                return -1;\n"
+//                        + "            },\n"
+//                        + "            contains" + Util.primeiraMaiuscula(atributo.getName()) + ": function (" + atributo.getName() + ") {\n"
+//                        + "                return this.indexOf" + Util.primeiraMaiuscula(atributo.getName()) + "(" + atributo.getName() + ") >= 0;\n"
+//                        + "            },"
+//                        + "");
+//            }
+//        }
         if (!atributosAddress.isEmpty()) {
             for (Field at : atributosAddress) {
                 fwForm.write(""
@@ -780,10 +755,22 @@ public class GeraPresentation extends AbstractMojo {
                 + "define(function(require) {\n"
                 + "	\n"
                 + "	require('gumga-components');\n"
-                + "	require('app-commons/modules/crud-module').constant('baseTemplateURL', '" + nomeEntidade.toLowerCase() + "');\n"
-                + "	\n"
+                + "	require('app-commons/modules/crud-module').constant('baseTemplateURL', '" + nomeEntidade.toLowerCase() + "');\n");
+
+        for (Class classe : dependenciasManyToMany) {
+            fwModule.write("require('app/" + classeEntidade.getSimpleName().toLowerCase() + "/directive" + classe.getSimpleName() + "');\n");
+
+        }
+
+        fwModule.write("	\n"
                 + "	return require('angular')\n"
-                + "		.module('app." + nomeEntidade.toLowerCase() + "', [\"app.base.crud\", 'gumga.components'])\n"
+                + "		.module('app." + nomeEntidade.toLowerCase() + "', [\"app.base.crud\", 'gumga.components'");
+
+        for (Class classe : dependenciasManyToMany) {
+            fwModule.write(", 'manyToMany" + classe.getSimpleName() + "'");
+        }
+
+        fwModule.write("])\n"
                 + "		\n"
                 + "		.service('EntityService', require('app/" + nomeEntidade.toLowerCase() + "/service'))\n\n");
 
@@ -818,10 +805,22 @@ public class GeraPresentation extends AbstractMojo {
     private void adicionaAoMenu() {
         try {
             File arquivoMenu = new File(pastaResources + "/menu.config");
-            FileWriter fwMenu = new FileWriter(arquivoMenu, true);
-            fwMenu.write("\n" + nomeEntidade + " { url=\"" + nomeEntidade.toLowerCase() + "\" id=\"" + nomeEntidade.toLowerCase() + "\" }\n");
-            fwMenu.close();
 
+            BufferedReader bf = new BufferedReader(new FileReader(arquivoMenu));
+            String linha = "";
+            boolean naoTem = true;
+
+            while (naoTem && (linha = bf.readLine()) != null) {
+                if (linha.contains("url=\"" + nomeEntidade.toLowerCase() + "\"")) {
+                    naoTem = false;
+                }
+            }
+            bf.close();
+            if (naoTem) {
+                FileWriter fwMenu = new FileWriter(arquivoMenu, true);
+                fwMenu.write("\n" + nomeEntidade + " { url=\"" + nomeEntidade.toLowerCase() + "\" id=\"" + nomeEntidade.toLowerCase() + "\" }\n");
+                fwMenu.close();
+            }
         } catch (Exception ex) {
             getLog().error(ex);
         }
@@ -892,5 +891,91 @@ public class GeraPresentation extends AbstractMojo {
                 + "	</div>\n");
     }
 
+    private void geraDiretivasManyToMany() throws IOException {
+
+        for (Class classe : dependenciasManyToMany) {
+
+            File arquivo = new File(pastaScripts + "/directive" + classe.getSimpleName() + ".js");
+            FileWriter fw = new FileWriter(arquivo);
+
+            fw.write(""
+                    + ""
+                    + "define(function (require) {\n"
+                    + "\n"
+                    + "    return require('angular').module('manyToMany" + classe.getSimpleName() + "', [])\n"
+                    + "            .service('" + classe.getSimpleName() + "Service', require('app/" + classe.getSimpleName().toLowerCase() + "/service'))\n"
+                    + "            .directive('gumgaManyToMany" + classe.getSimpleName() + "', ['" + classe.getSimpleName() + "Service', function (" + classe.getSimpleName() + "Service) {\n"
+                    + "                    return {\n"
+                    + "                        restrict: 'E',\n"
+                    + "                        scope:\n"
+                    + "                                {\n"
+                    + "                                    list: '=entityList',\n"
+                    + "                                    label: '@'\n"
+                    + "                                },\n"
+                    + "                        template:\n"
+                    + "                                \"<div class=\\\"form-group\\\">  \" +\n"
+                    + "                                \"   <div class=\\\"row\\\">\" +\n"
+                    + "                                \"       <div class=\\\"col-md-6\\\">\" +\n"
+                    + "                                \"           <label class=\\\"control-label\\\">" + classe.getSimpleName() + " {{label}}</label>\" +\n"
+                    + "                                '           <input type=\"text\" ng-model=\"filter\" ng-change=\"search()\" class=\"form-control\"/><br>' +\n"
+                    + "                                \"               <ul class=\\\"list-group\\\">\" +\n"
+                    + "                                \"                   <li class=\\\"list-group-item\\\" ng-repeat=\\\"f in firstList| orderBy: '" + Util.primeiroAtributo(classe).getName() + "'\\\" ng-show=\\\"!contains(f)\\\" >\" +\n"
+                    + "                                \"                      <button type=\\\"button\\\" class=\\\"btn btn-default btn-lg btn-block\\\" ng-click=\\\"add(f)\\\" >{{f." + Util.primeiroAtributo(classe).getName() + "}}</button>\" +\n"
+                    + "                                \"                   </li>\" +\n"
+                    + "                                \"               </ul>\" +\n"
+                    + "                                \"       </div>\" +\n"
+                    + "                                \"       <div class=\\\"col-md-6\\\">\" +\n"
+                    + "                                \"           <label class=\\\"control-label\\\">" + classe.getSimpleName() + " {{label}} </label>\" +\n"
+                    + "                                \"           <input type=\\\"text\\\" ng-model=\\\"filtro\\\" class=\\\"form-control\\\"/><br>\" +\n"
+                    + "                                \"               <ul class=\\\"list-group\\\">\" +\n"
+                    + "                                \"                   <li class=\\\"list-group-item\\\" ng-repeat=\\\"f in list | filter: filtro |orderBy: '" + Util.primeiroAtributo(classe).getName() + "'\\\">\" +\n"
+                    + "                                \"                       <button type=\\\"button\\\" class=\\\"btn btn-default btn-lg btn-block\\\" ng-click=\\\"remove(f)\\\">{{f." + Util.primeiroAtributo(classe).getName() + "}}</button>\" +\n"
+                    + "                                \"                   </li>\" +\n"
+                    + "                                \"               </ul>\" +\n"
+                    + "                                \"       </div>\" +\n"
+                    + "                                \"   </div>\" +\n"
+                    + "                                \"</div>\",\n"
+                    + "                        link: function (scope) {\n"
+                    + "                            scope.search = function () {\n"
+                    + "                                " + classe.getSimpleName() + "Service.search(scope.filter, ['" + Util.primeiroAtributo(classe).getName() + "']).then(function (result) {\n"
+                    + "                                    scope.firstList = result.values;\n"
+                    + "                                })\n"
+                    + "                            }\n"
+                    + "                            scope.add = function (obj) {\n"
+                    + "                                var index = this.indexOf(obj);\n"
+                    + "                                scope.list = scope.list || [];\n"
+                    + "                                scope.list.push(obj);\n"
+                    + "                            }\n"
+                    + "\n"
+                    + "                            scope.remove = function (obj) {\n"
+                    + "                                var index = this.indexOf(obj);\n"
+                    + "                                scope.list.splice(index, 1);\n"
+                    + "                            }\n"
+                    + "\n"
+                    + "                            scope.indexOf = function (obj) {\n"
+                    + "                                scope.list = scope.list || [];\n"
+                    + "                                var listAux = scope.list;\n"
+                    + "                                for (var i = 0; i < listAux.length; i++) {\n"
+                    + "                                    if (listAux[i].id === obj.id) {\n"
+                    + "                                        return i;\n"
+                    + "                                    }\n"
+                    + "                                }\n"
+                    + "                                return -1;\n"
+                    + "                            }\n"
+                    + "                            scope.contains = function (obj) {\n"
+                    + "                                return this.indexOf(obj) >= 0\n"
+                    + "                            }\n"
+                    + "                            \n"
+                    + "                            scope.search();\n"
+                    + "                        }\n"
+                    + "                    }\n"
+                    + "                }])\n"
+                    + "});"
+                    + ""
+                    + "");
+
+            fw.close();
+        }
+    }
 
 }
