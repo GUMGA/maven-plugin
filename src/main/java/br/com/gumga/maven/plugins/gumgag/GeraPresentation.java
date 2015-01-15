@@ -99,6 +99,9 @@ public class GeraPresentation extends AbstractMojo {
                 }
                 if (atributo.getType().equals(List.class) || atributo.getType().equals(Set.class) || atributo.getType().equals(Map.class)) {
                     if (atributo.isAnnotationPresent(ManyToMany.class) && !dependenciasManyToMany.contains(Util.getTipoGenerico(atributo))) {
+                        if (true) {
+                            
+                        }
                         dependenciasManyToMany.add(Util.getTipoGenerico(atributo));
                     }
                     if (atributo.isAnnotationPresent(OneToMany.class)) {
@@ -314,11 +317,14 @@ public class GeraPresentation extends AbstractMojo {
     }
 
     public void geraEntradaManyToMany(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) throws IOException {
-        fwForm.write(""
+        ManyToMany mm = atributo.getAnnotation(ManyToMany.class);
+        if (mm.mappedBy().isEmpty()) {
+            fwForm.write(""
                 + ""
                 + "<gumga-many-to-many-" + Util.getTipoGenerico(atributo).getSimpleName().toLowerCase() + " entity-list=\"entity." + atributo.getName() + "\" label=\"" + Util.etiqueta(atributo) + "\"></gumga-many-to-many-" + Util.getTipoGenerico(atributo).getSimpleName().toLowerCase() + ">"
                 + ""
                 + "\n");
+        }
     }
 
     public void geraEntradaBoolean(FileWriter fwForm, Field atributo, boolean requerido, boolean primeiro, String controller) throws IOException {
