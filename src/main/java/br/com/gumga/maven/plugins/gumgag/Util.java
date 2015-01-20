@@ -106,8 +106,8 @@ public class Util {
     public static String etiqueta(Field atributo) {
         return primeiraMaiuscula(atributo.getName());
     }
-    
-    public static String windowsSafe(String s){
+
+    public static String windowsSafe(String s) {
         return s.replaceAll("\\\\", "/");
     }
 
