@@ -157,6 +157,7 @@ public class GeraEnum extends AbstractMojo {
             } else if (multi.equals("true") && rich.equals("false")) {
                 String valuePossibles[] = valoresPossiveis.split(",");
                 ArrayList<String> impressoes = new ArrayList<>();
+                
                 int x = 1;
                 int i = 1;
 
