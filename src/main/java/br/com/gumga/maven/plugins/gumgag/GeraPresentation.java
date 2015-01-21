@@ -100,7 +100,7 @@ public class GeraPresentation extends AbstractMojo {
                 if (atributo.getType().equals(List.class) || atributo.getType().equals(Set.class) || atributo.getType().equals(Map.class)) {
                     if (atributo.isAnnotationPresent(ManyToMany.class) && !dependenciasManyToMany.contains(Util.getTipoGenerico(atributo))) {
                         if (true) {
-                            
+
                         }
                         dependenciasManyToMany.add(Util.getTipoGenerico(atributo));
                     }
@@ -206,8 +206,12 @@ public class GeraPresentation extends AbstractMojo {
                     + "    <jsp:attribute name=\"searchFields\">\n"
                     + "        <gumga:search:field field=\"" + nomeAtributo + "\" label=\"" + etiqueta + "\" selected=\"true\"></gumga:search:field>\n"
                     + "        </jsp:attribute>\n"
-                    + "    <jsp:attribute name=\"advancedFields\">\n"
-                    + "        <gumga:filter:item field=\"" + nomeAtributo + "\" label=\"" + etiqueta + "\"></gumga:filter:item>\n"
+                    + "    <jsp:attribute name=\"advancedFields\">\n");
+            for (Field a : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
+                fwList.write("        <gumga:filter:item field=\"" + a.getName() + "\" label=\"" + a.getName() + "\"></gumga:filter:item>\n");
+            }
+
+            fwList.write(""
                     + "        </jsp:attribute>"
                     + "\n"
                     + "    <jsp:attribute name=\"gridColumns\">\n"
@@ -320,10 +324,10 @@ public class GeraPresentation extends AbstractMojo {
         ManyToMany mm = atributo.getAnnotation(ManyToMany.class);
         if (mm.mappedBy().isEmpty()) {
             fwForm.write(""
-                + ""
-                + "<gumga-many-to-many-" + Util.getTipoGenerico(atributo).getSimpleName().toLowerCase() + " entity-list=\"entity." + atributo.getName() + "\" label=\"" + Util.etiqueta(atributo) + "\"></gumga-many-to-many-" + Util.getTipoGenerico(atributo).getSimpleName().toLowerCase() + ">"
-                + ""
-                + "\n");
+                    + ""
+                    + "<gumga-many-to-many-" + Util.getTipoGenerico(atributo).getSimpleName().toLowerCase() + " entity-list=\"entity." + atributo.getName() + "\" label=\"" + Util.etiqueta(atributo) + "\"></gumga-many-to-many-" + Util.getTipoGenerico(atributo).getSimpleName().toLowerCase() + ">"
+                    + ""
+                    + "\n");
         }
     }
 
