@@ -7,6 +7,7 @@ package br.com.gumga.maven.plugins.gumgag;
 
 import gumga.framework.domain.domains.*;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -30,6 +31,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.hibernate.envers.Audited;
 
 /**
  *
@@ -46,16 +48,12 @@ public class GeraPresentation extends AbstractMojo {
      */
     @Parameter(property = "entidade", defaultValue = "all")
     private String nomeCompletoEntidade;
-    private String nomePacoteBase;
     private String nomeEntidade;
-    private String nomePacoteApi;
-    private String nomePacoteWeb;
-    private String pastaWeb;
-    private String pastaJSP;
+    private String pastaHtml;
 
     private Class classeEntidade;
     private String pastaScripts;
-    private String pastaResources;
+    private String pastaGumgaJs;
 
     private List<Class> dependenciasManyToOne;
     private List<Class> dependenciasOneToMany;
@@ -67,16 +65,11 @@ public class GeraPresentation extends AbstractMojo {
         Util.geraGumga(getLog());
 
         try {
-            nomePacoteBase = nomeCompletoEntidade.substring(0, nomeCompletoEntidade.lastIndexOf(".domain"));
             nomeEntidade = nomeCompletoEntidade.substring(nomeCompletoEntidade.lastIndexOf('.') + 1);
 
-            nomePacoteApi = nomePacoteBase + ".presentation.api";
-            nomePacoteWeb = nomePacoteBase + ".presentation.web";
-
-            pastaWeb = Util.windowsSafe(project.getCompileSourceRoots().get(0)) + "/".concat(nomePacoteWeb.replaceAll("\\.", "/"));
-            pastaJSP = Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/WEB-INF/views/crud/" + (nomeEntidade.toLowerCase());
-            pastaScripts = Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/WEB-INF/static/scripts/app//" + (nomeEntidade.toLowerCase());
-            pastaResources = Util.windowsSafe(project.getFile().getParent()) + "/src/main/resources/";
+            pastaHtml = Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/crud/" + (nomeEntidade.toLowerCase());
+            pastaScripts = Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/static/scripts/app/" + (nomeEntidade.toLowerCase());
+            pastaGumgaJs = Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/static/scripts/gumga/";
 
             getLog().info("Iniciando plugin Gerador de Classes de Apresentação ");
             getLog().info("Gerando para " + nomeEntidade);
@@ -110,8 +103,7 @@ public class GeraPresentation extends AbstractMojo {
                 }
             }
 
-            geraJSPs();
-            geraWeb();
+            geraHTMLs();
             geraModuleJs();
             geraServiceJs();
             geraDiretivasManyToMany();
@@ -124,107 +116,197 @@ public class GeraPresentation extends AbstractMojo {
 
     }
 
-    private void geraWeb() {
-        File f = new File(pastaWeb);
-        f.mkdirs();
-        File arquivoClasse = new File(pastaWeb + "/" + nomeEntidade + "Controller.java");
-        try {
-            FileWriter fw = new FileWriter(arquivoClasse);
-            fw.write(""
-                    + "package " + nomePacoteWeb + ";\n"
-                    + "\n"
-                    + "import gumga.framework.presentation.GumgaCRUDController;\n"
-                    + "import org.springframework.stereotype.Controller;\n"
-                    + "import org.springframework.web.bind.annotation.RequestMapping;\n"
-                    + "\n"
-                    + "@Controller\n"
-                    + "@RequestMapping(\"/" + nomeEntidade.toLowerCase() + "\")\n"
-                    + "public class " + nomeEntidade + "Controller extends GumgaCRUDController {\n"
-                    + "\n"
-                    + "	@Override\n"
-                    + "	public String path() {\n"
-                    + "		return \"crud/" + nomeEntidade.toLowerCase() + "\";\n"
-                    + "	}\n"
-                    + "\n"
-                    + "}\n"
-                    + ""
-                    + "\n");
+    private void geraHTMLs() {
 
-            fw.close();
-        } catch (Exception ex) {
-            getLog().error(ex);
-        }
-
-    }
-
-    private void geraJSPs() {
-
-        File f = new File(pastaJSP);
+        File f = new File(pastaHtml);
         f.mkdirs();
 
         try {
-            File arquivoBase = new File(pastaJSP + "/base.jsp");
+            File arquivoBase = new File(pastaHtml + "/base.html");
             FileWriter fwBase = new FileWriter(arquivoBase);
             fwBase.write(""
-                    + "<%@ page language=\"java\" contentType=\"text/html; charset=UTF-8\" pageEncoding=\"UTF-8\"%>\n"
-                    + "<%@ taglib uri=\"http://java.sun.com/jsp/jstl/core\" prefix=\"c\"%>\n"
-                    + "<%@ taglib uri=\"http://gumga.com.br/jsp/tags\" prefix=\"g\"%>\n"
                     + "\n"
-                    + "<g:basetemplate init=\"app/" + nomeEntidade.toLowerCase() + "/module\" title=\"Cadastro de " + nomeEntidade + "\" openMenu=\"" + nomeEntidade.toLowerCase() + "\">\n"
-                    + "	<div ui-view></div>\n"
-                    + "</g:basetemplate>"
+                    + "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n"
+                    + "    \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
+                    + "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n"
+                    + "    <head>\n"
+                    + "\n"
+                    + "        <meta charset=\"UTF-8\"/>\n"
+                    + "        <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n"
+                    + "        <meta name=\"viewport\" content=\"initial-scale=1, maximum-scale=1, user-scalable=no\" />\n"
+                    + "\n"
+                    + "        <title>" + nomeEntidade + "</title>\n"
+                    + "\n"
+                    + "        <link rel=\"stylesheet\" href=\"/" + project.getParent().getName() + "/static/styles/main.css\"/>\n"
+                    + "        <link rel=\"stylesheet\" href=\"/" + project.getParent().getName() + "/static/styles/gumga.css\" />\n"
+                    + "\n"
+                    + "    </head>\n"
+                    + "    <body class=\"gumga-offcanvas\">\n"
+                    + "\n"
+                    + "        <gumga-nav-bar></gumga-nav-bar>\n"
+                    + "\n"
+                    + "        <!--/.nav-collapse -->\n"
+                    + "\n"
+                    + "        <div class=\"gumga-offcanvas-sidebar\">\n"
+                    + "            <gumga-base-menu></gumga-base-menu>\n"
+                    + "        </div>\n"
+                    + "\n"
+                    + "        <div id=\"gumga-growl-container\" class='notifications top-right'></div>\n"
+                    + "\n"
+                    + "        <div class=\"gumga-offcanvas-content\">\n"
+                    + "            <div id=\"container\" class=\"gumga-content\">\n"
+                    + "                <h1 class=\"gumga-title\">" + nomeEntidade + "</h1>\n"
+                    + "                <div ui-view></div>\n"
+                    + "            </div>\n"
+                    + "        </div>\n"
+                    + "\n"
+                    + "        <script src=\"/" + project.getParent().getName() + "/static/scripts/vendor/require.js\"></script>\n"
+                    + "        <script src=\"/" + project.getParent().getName() + "/static/scripts/config.js\"></script>\n"
+                    + "        <script src=\"/" + project.getParent().getName() + "/static/scripts/app-config.js\"></script>\n"
+                    + "        <script>\n"
+                    + "            requirejs.config({baseUrl: '/" + project.getParent().getName() + "/static/scripts/'});\n"
+                    + "\n"
+                    + "            requirejs(['angular', 'app/" + nomeEntidade.toLowerCase() + "/module', 'gumga/components/menu', 'gumga/components/offcanvas', 'angular-locale_pt-br', 'gumga/directives'], function (angular, initModule) {\n"
+                    + "                var app = angular.module('app', [initModule.name, 'gumga.components.menu', 'gumga.components.offcanvas', 'ngLocale', 'basetemplate']);\n"
+                    + "                app.constant('contextPath', '/" + project.getParent().getName() + "');\n"
+                    + "                angular.bootstrap(document, [app.name]);\n"
+                    + "            });\n"
+                    + "\n"
+                    + "        </script>\n"
+                    + "    </body>\n"
+                    + "</html>"
                     + "");
+
             fwBase.close();
 
-            File arquivoForm = new File(pastaJSP + "/form.jsp");
+            File arquivoForm = new File(pastaHtml + "/form.html");
             FileWriter fwForm = new FileWriter(arquivoForm);
-            fwForm.write(""
-                    + "<%@ page language=\"java\" contentType=\"text/html; charset=UTF-8\" pageEncoding=\"UTF-8\"%>\n"
-                    + "<%@ taglib uri=\"http://gumga.com.br/jsp/tags\" prefix=\"g\" %>\n"
-                    + "<g:form>\n"
+            fwForm.write("\n\n"
+                    + "<div class=\"panel panel-default\">\n"
+                    + "    <div class=\"panel-body\">\n"
+                    + "        <form name=\"entityForm\" method=\"POST\" ng-submit=\"ctrl.save($event, entity)\" gumga-form-errors gumga-ng-model-errors>\n"
                     + "\n");
 
             geraCampos(classeEntidade, fwForm, "");
 
+            if (classeEntidade.isAnnotationPresent(Audited.class)) {
+                fwForm.write(""
+                        + "             <div class=\"text-left\">\n"
+                        + "                <button ng-disabled=\"dataOlder\" type=\"button\" class=\"btn btn-info\" ng-click=\"showOlder = !showOlder\" ng-show=\"!checkboxEnable\" >Older Versions</button>\n"
+                        + "                <div ng-show=\"showOlder == true\">\n"
+                        + "                    <gumga:accordion close-others=\"false\">\n"
+                        + "                        <gumga:accordion:group is-open=\"isopen\" ng-repeat=\"v in older\" \n"
+                        + "                                               heading=\"Editado por: {{v.gumgaRevisionEntity.userLogin ? (v.gumgaRevisionEntity.userLogin) : ' sistema'}} em: {{v.gumgaRevisionEntity.moment | date :'fullDate' }} from ip: {{v.gumgaRevisionEntity.ip ? (v.gumgaRevisionEntity.ip) : ' 0.0.0.0'}}\">\n"
+                        + "                            {{v.object}}\n"
+                        + "                            \n"
+                        + "                        </gumga:accordion:group>\n"
+                        + "                    </gumga:accordion>\n"
+                        + "                </div>\n"
+                        + "            </div> \n"
+                        + ""
+                        + "\n\n");
+            }
+
             fwForm.write(""
-                    + "	\n"
-                    + "</g:form>"
+                    + "            <div class=\"text-right\">\n"
+                    + "                <label ng-show=\"checkboxEnable\"><input type=\"checkbox\" name=\"continuarInserindo\" ng-model=\"entity.continuarInserindo\"/> Continuar Inserindo</label>\n"
+                    + "                <input type=\"submit\" value=\"Salvar\" class=\"btn btn-primary\" ng-disabled=\"ctrl.saving || entityForm.$invalid\" />\n"
+                    + "                <a href=\"#\" class=\"btn btn-default\">Cancelar</a>\n"
+                    + "            </div>\n"
+                    + "        </form>\n"
+                    + "    </div>\n"
+                    + "</div>"
                     + "");
             fwForm.close();
 
-            File arquivoList = new File(pastaJSP + "/list.jsp");
+            File arquivoList = new File(pastaHtml + "/list.html");
             FileWriter fwList = new FileWriter(arquivoList);
             Field primeiroAtributo = Util.getTodosAtributosMenosIdAutomatico(classeEntidade).get(0);
             String nomeAtributo = primeiroAtributo.getName();
             String etiqueta = Util.primeiraMaiuscula(nomeAtributo);
 
             fwList.write(""
-                    + "<%@ page language=\"java\" contentType=\"text/html; charset=UTF-8\" pageEncoding=\"UTF-8\"%>\n"
-                    + "<%@ taglib uri=\"http://gumga.com.br/jsp/tags\" prefix=\"g\" %>\n"
-                    + "\n"
-                    + "<g:grid values=\"list.values\">\n"
-                    + "    <jsp:attribute name=\"searchFields\">\n"
-                    + "        <gumga:search:field field=\"" + nomeAtributo + "\" label=\"" + etiqueta + "\" selected=\"true\"></gumga:search:field>\n"
-                    + "        </jsp:attribute>\n"
-                    + "    <jsp:attribute name=\"advancedFields\">\n");
+                    + "<div class=\"panel panel-default\">\n"
+                    + "    <div class=\"panel-body\">\n"
+                    + "        <div class=\"row\">\n"
+                    + "            <div id=\"buttons\" class=\"col-md-5\" style=\"margin-bottom: 10px;\">\n"
+                    + "                <a href=\"#/insert\" class=\"btn btn-primary\" id=\"btnNovo\">\n"
+                    + "                    <span class=\"glyphicon glyphicon-plus\"></span> \n"
+                    + "                    Novo\n"
+                    + "                </a>\n"
+                    + "                <button id=\"btnExcluir\" class=\"btn btn-danger\" ng-click=\"ctrl.removeSelection()\" ng-disabled=\"selection.length == 0\">\n"
+                    + "                    <span class=\"glyphicon glyphicon-trash\"></span> \n"
+                    + "                    Remover\n"
+                    + "                </button>\n"
+                    + "            </div>\n"
+                    + "\n");
+
+            fwList.write(""
+                    + "            <div class=\"col-md-7 gumga-crud-search-simple\">\n"
+                    + "                <gumga:search on-search=\"ctrl.search($text, $fields)\" search-text=\"search.text\" select-fields=\"search.fields\" ng-disabled=\"search.showAdvanced\" >\n"
+                    + "");
+
             for (Field a : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
-                fwList.write("        <gumga:filter:item field=\"" + a.getName() + "\" label=\"" + a.getName() + "\"></gumga:filter:item>\n");
+                fwList.write("                    <gumga:search:field field=\"" + a.getName() + "\" label=\"" + Util.primeiraMaiuscula(a.getName()) + "\" selected=\"true\"></gumga:search:field>\n");
             }
 
             fwList.write(""
-                    + "        </jsp:attribute>"
-                    + "\n"
-                    + "    <jsp:attribute name=\"gridColumns\">\n"
-                    + "        <gumga:column sort-field=\"" + nomeAtributo + "\" label=\"" + etiqueta + "\">{{$value." + nomeAtributo + "}}</gumga:column>\n"
-                    + "        <gumga:column label=\"\">\n"
-                    + "            <div class=\"text-right\">\n"
-                    + "                <a href=\"#/edit/{{$value.id}}\" class=\"btn btn-primary\" title=\"Editar\">\n"
-                    + "                    <i class=\"glyphicon glyphicon-pencil\"></i>\n"
-                    + "                </a>\n"
+                    + "                </gumga:search>\n"
+                    + "                <button type=\"button\" btn-checkbox ng-model=\"search.showAdvanced\" class=\"btn btn-default btn-switch-filters\" tooltip=\"Pesquisa avan�ada\">\n"
+                    + "                    <span class=\"glyphicon glyphicon-filter\" aria-hidden=\"true\"></span>\n"
+                    + "                </button>\n"
                     + "            </div>\n"
-                    + "        </gumga:column>\n"
-                    + "    </jsp:attribute>\n"
-                    + "</g:grid>"
+                    + "            <div class=\"col-md-12\" ng-show=\"search.showAdvanced\">\n"
+                    + "                <div class=\"panel panel-default\">\n"
+                    + "                    <div class=\"panel-heading\">Pesquisa avançada</div>\n"
+                    + "                    <div class=\"panel-body\">\n"
+                    + "                        <gumga:filter ng-model=\"search.advanced\" size=\"sm\" is-open=\"search.isAdvancedOpen\">\n");
+            for (Field a : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
+                fwList.write(""
+                        + "                        <gumga:filter:item field=\"" + a.getName() + "\" label=\"" + Util.primeiraMaiuscula(a.getName()) + "\"></gumga:filter:item>\n");
+            }
+            fwList.write(""
+                    + "                        </gumga:filter>\n"
+                    + "                        <button class=\"btn btn-primary btn-search\" type=\"submit\" ng-click=\"ctrl.advancedSearch(search.advanced)\" ng-disabled=\"search.isAdvancedOpen\">\n"
+                    + "                            <span class=\"glyphicon glyphicon-search\"></span>\n"
+                    + "                        </button>\n"
+                    + "                    </div>\n"
+                    + "                </div>\n"
+                    + "            </div>\n"
+                    + "        </div>\n"
+                    + "\n"
+                    + "        <div class=\\\"col-xs-12\\\">\n"
+                    + "            <gumga:table\n"
+                    + "                on-sort=\"doSort($column, $direction)\""
+                    + "                values=\"list.values\"\n"
+                    + "                class=\"table-condensed table-striped\"\n"
+                    + "                selectable=\"multiple\"\n"
+                    + "                selection=\"selection\"\n"
+                    + "                sort-by=\"sort.field\"\n"
+                    + "                sort-direction=\"sort.direction\"\n"
+                    + "                empty-values-message=\"Sem resultados\">\n");
+
+            for (Field a : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
+                fwList.write(""
+                        + "                <gumga:column sort-field=\"" + a.getName() + "\" label=\"" + Util.primeiraMaiuscula(a.getName()) + "\">{{$value." + a.getName() + "}}</gumga:column>\n");
+            }
+
+            fwList.write(""
+                    + "                <gumga:column label=\"\">\n"
+                    + "                    <div class=\"text-right\">\n"
+                    + "                        <a href=\"#/edit/{{$value.id}}\" class=\"btn btn-primary\" title=\"Editar\">\n"
+                    + "                            <i class=\"glyphicon glyphicon-pencil\"></i>\n"
+                    + "                        </a>\n"
+                    + "                    </div>\n"
+                    + "                </gumga:column>\n"
+                    + "            </gumga:table>\n"
+                    + "\n"
+                    + "            <gumga:pagination ng-show=\"numberOfPages > 1\" items-per-page=\"list.pageSize\" total-items=\"list.count\" ng-model=\"page\" num-pages=\"numberOfPages\" boundary-links=\"true\"></gumga:pagination>\n"
+                    + "        </div>\n"
+                    + "\n"
+                    + "    </div>\n"
+                    + "</div>"
+                    + ""
                     + "");
             fwList.close();
 
@@ -814,33 +896,19 @@ public class GeraPresentation extends AbstractMojo {
 
     private void adicionaAoMenu() {
         try {
-            File arquivoMenu = new File(pastaResources + "/menu.config");
+            Util.adicionaLinha(pastaGumgaJs + "directives.js", "//FIM MENU", "+ \"      <li><a href=\\\"/financeiro/crud/"+nomeEntidade.toLowerCase()+"/base.html\\\" gumga-menu-id=\\\""+nomeEntidade.toLowerCase()+"\\\">"+nomeEntidade+"</a></li>\\n\"");
 
-            BufferedReader bf = new BufferedReader(new FileReader(arquivoMenu));
-            String linha = "";
-            boolean naoTem = true;
-
-            while (naoTem && (linha = bf.readLine()) != null) {
-                if (linha.contains("url=\"" + nomeEntidade.toLowerCase() + "\"")) {
-                    naoTem = false;
-                }
-            }
-            bf.close();
-            if (naoTem) {
-                FileWriter fwMenu = new FileWriter(arquivoMenu, true);
-                fwMenu.write("\n" + nomeEntidade + " { url=\"" + nomeEntidade.toLowerCase() + "\" id=\"" + nomeEntidade.toLowerCase() + "\" }\n");
-                fwMenu.close();
-            }
         } catch (Exception ex) {
             getLog().error(ex);
         }
 
     }
 
+
     private String geraModalOneToMany(Field atributo) throws IOException {
         geraControladorModalOneToMany(atributo);
         String nomeArquivo = atributo.getName() + "_modal.jsp";
-        File arquivoModal = new File(pastaJSP + "/" + nomeArquivo);
+        File arquivoModal = new File(pastaHtml + "/" + nomeArquivo);
         try (FileWriter fwModal = new FileWriter(arquivoModal)) {
             fwModal.write(""
                     + "<%@ page language=\"java\" contentType=\"text/html; charset=UTF-8\" pageEncoding=\"UTF-8\"%>\n"

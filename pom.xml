@@ -3,12 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>br.com.gumga</groupId>
     <artifactId>gumgag</artifactId>
-    <version>1.1</version>
+    <version>1.2</version>
     <packaging>maven-plugin</packaging>
     
     <name>gumgag Maven Plugin</name>
 
-    <url>http://www.gumga.com.br/plugin/gungag</url>
+    <url>http://www.gumga.com.br/plugin/gumgag</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -22,7 +22,6 @@
             <groupId>gumga.framework</groupId>
             <artifactId>gumga-domain</artifactId>
             <version>1.1</version>
-            <type>jar</type>
         </dependency>
         
         <!-- DEPENDENCIAS OUTRAS  -->
