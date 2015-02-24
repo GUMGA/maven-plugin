@@ -896,7 +896,7 @@ public class GeraPresentation extends AbstractMojo {
 
     private void adicionaAoMenu() {
         try {
-            Util.adicionaLinha(pastaGumgaJs + "directives.js", "//FIM MENU", "+ \"      <li><a href=\\\"/financeiro/crud/"+nomeEntidade.toLowerCase()+"/base.html\\\" gumga-menu-id=\\\""+nomeEntidade.toLowerCase()+"\\\">"+nomeEntidade+"</a></li>\\n\"");
+            Util.adicionaLinha(pastaGumgaJs + "directives.js", "//FIM MENU", "+ \"      <li><a href=\\\"/"+project.getParent().getName()+"/crud/"+nomeEntidade.toLowerCase()+"/base.html\\\" gumga-menu-id=\\\""+nomeEntidade.toLowerCase()+"\\\">"+nomeEntidade+"</a></li>\\n\"");
 
         } catch (Exception ex) {
             getLog().error(ex);
