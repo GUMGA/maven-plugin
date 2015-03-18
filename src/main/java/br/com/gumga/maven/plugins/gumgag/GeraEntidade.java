@@ -67,6 +67,8 @@ public class GeraEntidade extends AbstractMojo {
                     + "import javax.persistence.*;\n"
                     + "import gumga.framework.domain.domains.*;\n"
                     + "import org.hibernate.annotations.Columns;\n"
+                    + "import org.hibernate.search.annotations.Field;\n"
+                    + "import org.hibernate.search.annotations.Indexed;\n"
                     + "\n");
 
             fw.write("@Entity\n");
@@ -145,7 +147,8 @@ public class GeraEntidade extends AbstractMojo {
                 }
                 fw.write("\n");
             }
-            fw.write("    private " + partes[1] + " " + partes[0] + ";\n");
+            fw.write("     @Field\n"
+                    + "    private " + partes[1] + " " + partes[0] + ";\n");
         }
         fw.write("\n\n");
     }

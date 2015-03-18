@@ -71,7 +71,7 @@ public class GeraPresentation extends AbstractMojo {
             pastaScripts = Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/static/scripts/app/" + (nomeEntidade.toLowerCase());
             pastaGumgaJs = Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/static/scripts/gumga/";
 
-            getLog().info("Iniciando plugin Gerador de Classes de Apresentação ");
+            getLog().info("Iniciando plugin Gerador de Html e JavaScript de Apresentação ");
             getLog().info("Gerando para " + nomeEntidade);
 
             File f = new File(pastaScripts);
@@ -660,7 +660,7 @@ public class GeraPresentation extends AbstractMojo {
         File arquivoForm = new File(pastaControllers + "/form.js");
         FileWriter fwForm = new FileWriter(arquivoForm);
         List<Field> atributosAddress = new ArrayList<>();
-        for (Field at : Util.getTodosAtributos(classeEntidade)) {
+        for (Field at : Util.getTodosAtributosNaoEstaticos(classeEntidade)) {
             if (at.getType().equals(GumgaAddress.class)) {
                 atributosAddress.add(at);
             }
@@ -704,7 +704,7 @@ public class GeraPresentation extends AbstractMojo {
 //                    + "                this.refresh" + tipo.getSimpleName() + "();\n"
 //                    + "\n");
 //        }
-        for (Field atributo : Util.getTodosAtributos(classeEntidade)) {
+        for (Field atributo : Util.getTodosAtributosNaoEstaticos(classeEntidade)) {
             if (atributo.isAnnotationPresent(OneToMany.class)) {
                 fwForm.write(""
                         + "                this.$scope.entity." + atributo.getName() + " = this.$scope.entity." + atributo.getName() + " || [];\n"
@@ -877,7 +877,7 @@ public class GeraPresentation extends AbstractMojo {
         }
 
         //.controller("ItemModalController", require("app/venda/controllers/itens_modal"))
-        for (Field f : Util.getTodosAtributos(classeEntidade)) {
+        for (Field f : Util.getTodosAtributosNaoEstaticos(classeEntidade)) {
             if (f.isAnnotationPresent(OneToMany.class)) {
                 fwModule.write(".controller(\"" + Util.primeiraMaiuscula(f.getName()) + "ModalController\", require(\"app/" + classeEntidade.getSimpleName().toLowerCase() + "/controllers/" + f.getName() + "_modal\"))\n");
             }

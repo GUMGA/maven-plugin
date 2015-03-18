@@ -12,6 +12,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URL;
@@ -39,7 +40,7 @@ public class Util {
     }
 
     public static List<Field> getTodosAtributosMenosIdAutomatico(Class classe) {
-        List<Field> todosAtributos = getTodosAtributos(classe);
+        List<Field> todosAtributos = getTodosAtributosNaoEstaticos(classe);
         Field aRemover = null;
         Field aRemoverOi = null;
         for (Field f : todosAtributos) {
@@ -63,12 +64,20 @@ public class Util {
         return todosAtributos;
     }
 
-    public static List<Field> getTodosAtributos(Class classe) throws SecurityException {
+    public static List<Field> getTodosAtributosNaoEstaticos(Class classe) throws SecurityException {
         List<Field> aRetornar = new ArrayList<Field>();
+        List<Field> estaticos = new ArrayList<Field>();
         if (!classe.getSuperclass().equals(Object.class)) {
-            aRetornar.addAll(getTodosAtributosMenosIdAutomatico(classe.getSuperclass()));
+            aRetornar.addAll(getTodosAtributosNaoEstaticos(classe.getSuperclass()));
         }
         aRetornar.addAll(Arrays.asList(classe.getDeclaredFields()));
+        for (Field f : aRetornar) {
+            if (Modifier.isStatic(f.getModifiers())) {
+                estaticos.add(f);
+            }
+        }
+
+        aRetornar.removeAll(estaticos);
         return aRetornar;
     }
 

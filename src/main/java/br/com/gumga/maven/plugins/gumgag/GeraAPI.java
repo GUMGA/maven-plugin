@@ -108,7 +108,7 @@ public class GeraAPI extends AbstractMojo {
     }
 
     private void sobrecarregaLoad(FileWriter fw) throws IOException {
-        List<Field> todosAtributos = Util.getTodosAtributos(classeEntidade);
+        List<Field> todosAtributos = Util.getTodosAtributosNaoEstaticos(classeEntidade);
         for (Field f : todosAtributos) {
             if (f.isAnnotationPresent(OneToMany.class) || f.isAnnotationPresent(ManyToMany.class)) {
                 fw.write(""

@@ -140,7 +140,7 @@ public class GeraAplicacao extends AbstractMojo {
     }
 
     private void geraLoadFat(FileWriter fw) throws IOException {
-        List<Field> todosAtributos = Util.getTodosAtributos(classeEntidade);
+        List<Field> todosAtributos = Util.getTodosAtributosNaoEstaticos(classeEntidade);
         List<Field> atributosToMany = new ArrayList<>();
         for (Field f : todosAtributos) {
             if (f.isAnnotationPresent(OneToMany.class) || f.isAnnotationPresent(ManyToMany.class)) {
