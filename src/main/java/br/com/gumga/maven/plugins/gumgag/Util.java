@@ -30,15 +30,15 @@ import org.apache.maven.project.MavenProject;
  * @author munif
  */
 public class Util {
-    
+
     public static String primeiraMaiuscula(String s) {
         return s.substring(0, 1).toUpperCase().concat(s.substring(1));
     }
-    
+
     public static String primeiraMinuscula(String s) {
         return s.substring(0, 1).toUpperCase().concat(s.substring(1));
     }
-    
+
     public static List<Field> getTodosAtributosMenosIdAutomatico(Class classe) {
         List<Field> todosAtributos = getTodosAtributosNaoEstaticos(classe);
         Field aRemover = null;
@@ -46,13 +46,13 @@ public class Util {
         for (Field f : todosAtributos) {
             if (f.isAnnotationPresent(GeneratedValue.class)) {
                 aRemover = f;
-                
+
             }
             if ("oi".equals(f.getName())) {
                 aRemoverOi = f;
-                
+
             }
-            
+
         }
         if (aRemover != null) {
             todosAtributos.remove(aRemover);
@@ -60,10 +60,10 @@ public class Util {
         if (aRemoverOi != null) {
             todosAtributos.remove(aRemoverOi);
         }
-        
+
         return todosAtributos;
     }
-    
+
     public static List<Field> getTodosAtributosNaoEstaticos(Class classe) throws SecurityException {
         List<Field> aRetornar = new ArrayList<Field>();
         List<Field> estaticos = new ArrayList<Field>();
@@ -76,18 +76,18 @@ public class Util {
                 estaticos.add(f);
             }
         }
-        
+
         aRetornar.removeAll(estaticos);
         return aRetornar;
     }
-    
+
     public static ClassLoader getClassLoader(MavenProject project) {
         ClassLoader aRetornar = null;
         try {
             List elementos = new ArrayList();
             elementos.addAll(project.getRuntimeClasspathElements());
             elementos.addAll(project.getTestClasspathElements());
-            
+
             URL[] runtimeUrls = new URL[elementos.size()];
             for (int i = 0; i < elementos.size(); i++) {
                 String element = (String) elementos.get(i);
@@ -95,25 +95,25 @@ public class Util {
             }
             aRetornar = new URLClassLoader(runtimeUrls,
                     Thread.currentThread().getContextClassLoader());
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        
+
         return aRetornar;
     }
-    
+
     public static Field primeiroAtributo(Class classe) {
         return getTodosAtributosMenosIdAutomatico(classe).get(0);
     }
-    
+
     public static Class getTipoGenerico(Field atributo) {
         ParameterizedType type = (ParameterizedType) atributo.getGenericType();
         Type[] typeArguments = type.getActualTypeArguments();
         Class tipoGenerico = (Class) typeArguments[atributo.getType().equals(Map.class) ? 1 : 0];
         return tipoGenerico;
     }
-    
+
     public static void geraGumga(Log log) {
         log.info("\n"
                 + "   _____ _    _ __  __  _____          \n"
@@ -126,48 +126,50 @@ public class Util {
                 + "                                       \n"
                 + "");
     }
-    
+
     public static String etiqueta(Field atributo) {
         return primeiraMaiuscula(atributo.getName());
     }
-    
+
     public static String windowsSafe(String s) {
         return s.replaceAll("\\\\", "/");
     }
-    
+
     public static void adicionaLinha(String nomeArquivo, String linhaMarcador, String linhaNova) throws IOException {
         String arquivo = nomeArquivo;
         String arquivoTmp = nomeArquivo + "-tmp";
-        
+
         BufferedWriter writer = new BufferedWriter(new FileWriter(arquivoTmp));
         BufferedReader reader = new BufferedReader(new FileReader(arquivo));
-        
+
         String linha;
+        boolean colocou = false;
         while ((linha = reader.readLine()) != null) {
-            if (linha.contains(linhaMarcador)) {
+            if (linha.contains(linhaMarcador) && !colocou) {
                 writer.write(linhaNova + "\n");
+                colocou = true;
             }
             writer.write(linha + "\n");
         }
-        
+
         writer.close();
         reader.close();
-        
+
         new File(arquivo).delete();
         new File(arquivoTmp).renameTo(new File(arquivo));
     }
-    
+
     public static String todosAtributosSeparadosPorVirgula(Class classeEntidade) {
         StringBuilder sb = new StringBuilder();
         for (Field f : getTodosAtributosNaoEstaticos(classeEntidade)) {
             sb.append(f.getName() + ",");
-            
+
         }
         sb.setLength(sb.length() - 1);
-        
+
         return sb.toString().replace("oi,", "");
     }
-    
+
 }
 
 /*

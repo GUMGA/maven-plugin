@@ -7,6 +7,7 @@ package br.com.gumga.maven.plugins.gumgag;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -90,6 +91,7 @@ public class GeraPresentation extends AbstractMojo {
             geraControllers();
             geraServices();
             geraViews();
+            geraModule();
             adicionaAoMenu();
         } catch (Exception ex) {
             getLog().error(ex);
@@ -97,7 +99,32 @@ public class GeraPresentation extends AbstractMojo {
 
     }
 
-    private void adicionaAoMenu() {
+    private void adicionaAoMenu() throws IOException {
+
+        Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/gumga-menu.json", "{", "    {\n"
+                + "        \"label\": \"" + nomeEntidade + "\",\n"
+                + "        \"URL\": \"" + nomeEntidade.toLowerCase() + ".list\",\n"
+                + "        \"key\": \"CRUD-" + nomeEntidade + "\",\n"
+                + "        \"filhos\": []\n"
+                + "    },");
+
+        Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/app.js", "//FIMROUTE", ""
+                + "                .state('" + nomeEntidade.toLowerCase() + "', {\n"
+                + "                    url: '/" + nomeEntidade.toLowerCase() + "',\n"
+                + "                    templateUrl: 'app/modules/" + nomeEntidade.toLowerCase() + "/views/base.html'\n"
+                + "                })\n"
+                + "");
+
+        
+        Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/app.js", "//FIMREQUIRE", "require('app/modules/"+nomeEntidade.toLowerCase()+"/module');");
+        
+        Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/app.js", "//FIMINJECTIONS", ",'app."+nomeEntidade.toLowerCase()+"'");
+        
+        Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/keys.json", "]", ",\"CRUD-" + nomeEntidade + "\"");
+        
+        
+        
+        
 
     }
 
@@ -428,12 +455,9 @@ public class GeraPresentation extends AbstractMojo {
                     + "    <div class=\"col-md-12\" style=\"margin-top:1%\">\n"
                     + "        <gumga-table\n"
                     + "            values=\"list.content.values\"\n");
-            
-            
-            
-            
-            fw.write("            columns=\""+Util.todosAtributosSeparadosPorVirgula(classeEntidade)+"\"\n");
-            
+
+            fw.write("            columns=\"" + Util.todosAtributosSeparadosPorVirgula(classeEntidade) + "\"\n");
+
             fw.write(""
                     + "            sort-function=\"list.sort(field,way)\"\n"
                     + "            >\n"
@@ -451,6 +475,63 @@ public class GeraPresentation extends AbstractMojo {
                     + "    </div>\n"
                     + "\n"
                     + "</div>\n"
+                    + "");
+            fw.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+    }
+
+    private void geraModule() {
+        try {
+            File arquivoModule = new File(pastaApp + "/module.js");
+            FileWriter fw = new FileWriter(arquivoModule);
+            fw.write(""
+                    + "define(function (require) {\n"
+                    + "\n"
+                    + "    var angular = require('angular');\n"
+                    + "    require('angular-ui-router');\n"
+                    + "    require('app/modules/" + nomeEntidade.toLowerCase() + "/services/module');\n"
+                    + "    require('app/modules/" + nomeEntidade.toLowerCase() + "/controllers/module');\n"
+                    + "    require('app/modules/gumga/module');\n"
+                    + "    var APILocation = require('app/apiLocations');\n"
+                    + "\n"
+                    + "    angular.module('app." + nomeEntidade.toLowerCase() + "', ['ui.router', 'app." + nomeEntidade.toLowerCase() + ".controllers', 'app." + nomeEntidade.toLowerCase() + ".services', 'gumga.core'])\n"
+                    + "        .config(function ($stateProvider, $httpProvider) {\n"
+                    + "            $stateProvider\n"
+                    + "                .state('" + nomeEntidade.toLowerCase() + ".list', {\n"
+                    + "                    url: '/list',\n"
+                    + "                    templateUrl: 'app/modules/" + nomeEntidade.toLowerCase() + "/views/list.html',\n"
+                    + "                    controller: 'ListController',\n"
+                    + "                    controllerAs: 'list'\n"
+                    + "                })\n"
+                    + "                .state('" + nomeEntidade.toLowerCase() + ".insert', {\n"
+                    + "                    url: '/insert',\n"
+                    + "                    templateUrl: 'app/modules/" + nomeEntidade.toLowerCase() + "/views/form.html',\n"
+                    + "                    controller: 'FormController',\n"
+                    + "                    controllerAs: 'form',\n"
+                    + "                    resolve: {\n"
+                    + "                        entity: function () {\n"
+                    + "                            return {};\n"
+                    + "                        }\n"
+                    + "                    }\n"
+                    + "                })\n"
+                    + "                .state('" + nomeEntidade.toLowerCase() + ".edit', {\n"
+                    + "                    url: '/edit/:id',\n"
+                    + "                    templateUrl: 'app/modules/" + nomeEntidade.toLowerCase() + "/views/form.html',\n"
+                    + "                    controller: 'FormController',\n"
+                    + "                    controllerAs: 'form',\n"
+                    + "                    resolve: {\n"
+                    + "                        entity: ['$stateParams', '$http', function ($stateParams, $http) {\n"
+                    + "                            var url = APILocation.apiLocation + '/" + project.getParent().getArtifactId() + "-api/api/" + nomeEntidade.toLowerCase() + "/' + $stateParams.id;\n"
+                    + "                            return $http.get(url);\n"
+                    + "                        }]\n"
+                    + "                    }\n"
+                    + "                });\n"
+                    + "        })\n"
+                    + "});\n"
+                    + ""
                     + "");
             fw.close();
         } catch (Exception ex) {
