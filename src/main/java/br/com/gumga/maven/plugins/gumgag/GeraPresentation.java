@@ -10,10 +10,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -82,10 +85,10 @@ public class GeraPresentation extends AbstractMojo {
                     dependenciasManyToOne.add(atributo.getType());
                 }
                 if (atributo.isAnnotationPresent(ManyToMany.class)) {
-                    dependenciasManyToMany.add(atributo.getType());
+                    dependenciasManyToMany.add(Util.getTipoGenerico(atributo));
                 }
                 if (atributo.isAnnotationPresent(OneToMany.class)) {
-                    dependenciasOneToMany.add(atributo.getType());
+                    dependenciasOneToMany.add(Util.getTipoGenerico(atributo));
                 }
             }
             geraControllers();
@@ -109,22 +112,17 @@ public class GeraPresentation extends AbstractMojo {
                 + "    },");
 
         Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/app.js", "//FIMROUTE", ""
-                + "                .state('" + nomeEntidade.toLowerCase() + "', {\n"
-                + "                    url: '/" + nomeEntidade.toLowerCase() + "',\n"
-                + "                    templateUrl: 'app/modules/" + nomeEntidade.toLowerCase() + "/views/base.html'\n"
-                + "                })\n"
+                + Util.IDENTACAO + Util.IDENTACAO + ".state('" + nomeEntidade.toLowerCase() + "', {\n"
+                + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "url: '/" + nomeEntidade.toLowerCase() + "',\n"
+                + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "templateUrl: 'app/modules/" + nomeEntidade.toLowerCase() + "/views/base.html'\n"
+                + Util.IDENTACAO + Util.IDENTACAO + "})\n"
                 + "");
 
-        
-        Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/app.js", "//FIMREQUIRE", "require('app/modules/"+nomeEntidade.toLowerCase()+"/module');");
-        
-        Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/app.js", "//FIMINJECTIONS", ",'app."+nomeEntidade.toLowerCase()+"'");
-        
+        Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/app.js", "//FIMREQUIRE", Util.IDENTACAO + "require('app/modules/" + nomeEntidade.toLowerCase() + "/module');");
+
+        Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/app.js", "//FIMINJECTIONS", Util.IDENTACAO + Util.IDENTACAO + ",'app." + nomeEntidade.toLowerCase() + "'");
+
         Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/keys.json", "]", ",\"CRUD-" + nomeEntidade + "\"");
-        
-        
-        
-        
 
     }
 
@@ -134,7 +132,7 @@ public class GeraPresentation extends AbstractMojo {
             FileWriter fw = new FileWriter(arquivoModule);
             fw.write(""
                     + "/**\n"
-                    + " * Created by igorsantana on 3/9/15.\n"
+                    + " * Created by igorsantana on " + Util.hoje() + ".\n"
                     + " */\n"
                     + "\n"
                     + "define(function (require) {\n"
@@ -143,14 +141,9 @@ public class GeraPresentation extends AbstractMojo {
                     + "    require('app/modules/" + nomeEntidade.toLowerCase() + "/services/module');\n"
                     + "    require('angular-ui-router');\n"
                     + "\n"
-                    + "    var FormController = require('app/modules/" + nomeEntidade.toLowerCase() + "/controllers/FormController');\n"
-                    + "    var ListController = require('app/modules/" + nomeEntidade.toLowerCase() + "/controllers/ListController');\n"
-                    //                    + "    var ModalController = require('app/modules/"+nomeEntidade+"/controllers/ModalController');\n"
-                    + "\n"
                     + "    return angular.module('app." + nomeEntidade.toLowerCase() + ".controllers', ['app." + nomeEntidade.toLowerCase() + ".services','ui.router'])\n"
-                    + "        .controller('FormController', FormController)\n"
-                    + "        .controller('ListController', ListController)\n"
-                    //+ "        .controller('ModalController', ModalController);\n"
+                    + "        .controller('" + nomeEntidade + "FormController', require('app/modules/" + nomeEntidade.toLowerCase() + "/controllers/" + nomeEntidade + "FormController'))\n"
+                    + "        .controller('" + nomeEntidade + "ListController', require('app/modules/" + nomeEntidade.toLowerCase() + "/controllers/" + nomeEntidade + "ListController'))\n"
                     + "});\n"
                     + "");
             fw.close();
@@ -158,100 +151,58 @@ public class GeraPresentation extends AbstractMojo {
             ex.printStackTrace();
         }
         try {
-            File arquivoModule = new File(pastaControllers + "/ListController.js");
+            File arquivoModule = new File(pastaControllers + "/" + nomeEntidade + "ListController.js");
             FileWriter fw = new FileWriter(arquivoModule);
             fw.write(""
                     + "define([], function () {\n"
                     + "\n"
-                    + "    ListController.$inject = ["
-                    //                    + "'$scope',"
+                    + "    " + nomeEntidade + "ListController.$inject = ["
+                    + "'$scope',"
                     + " '" + nomeEntidade + "Service' "
-                    //                    + "',$modal', "
-                    //                    + "'$templateCache', '$timeout'"
                     + "];\n"
-                    + "    function ListController("
-                    //                    + "$scope, "
+                    + "    function " + nomeEntidade + "ListController("
+                    + "$scope, "
                     + nomeEntidade + "Service "
-                    //                    + ",$modal, "
-                    //                    + "$templateCache, $timeout"
                     + ") {\n"
-                    + "        var list = this;\n"
-                    + "        list.content = {};\n"
-                    + "        list.page = 1;\n"
                     + "\n"
-                    //                    + "        list.open = function (obj) {\n"
-                    //                    + "            var modalInstance = $modal.open({\n"
-                    //                    + "                template: $templateCache.get('modalTemplate.html'),\n"
-                    //                    + "                controller: 'ModalController',\n"
-                    //                    + "                size: 'lg',\n"
-                    //                    + "                resolve: {\n"
-                    //                    + "                    item: function () {\n"
-                    //                    + "                        return obj || {};\n"
-                    //                    + "                    }\n"
-                    //                    + "                }\n"
-                    //                    + "            });\n"
+                    + "        $scope.content = {};\n"
+                    + "        $scope.page = 1;\n"
                     + "\n"
-                    //                    + "            modalInstance.result.then(\n"
-                    //                    + "                function (data) {\n"
-                    //                    + "                    var index = list.caracters.indexOf(data);\n"
-                    //                    + "                    if (index == -1) {\n"
-                    //                    + "                        list.caracters.push(data);\n"
-                    //                    + "                    } else {\n"
-                    //                    + "                        list.caracters.splice(index, data);\n"
-                    //                    + "                    }\n"
-                    //                    + "                }\n"
-                    //                    + "            );\n"
-                    //                    + "        };\n"
-                    //                    + "\n"
-                    //                    + "\n"
-                    //                    + "        list.removeChar = function (obj) {\n"
-                    //                    + "            var index = list.caracters.indexOf(obj);\n"
-                    //                    + "            list.caracters.splice(index, 1);\n"
-                    //                    + "        };\n"
+                    + "        function update(values) {\n"
+                    + "            $scope.page = 1;\n"
+                    + "            $scope.content = values;\n"
+                    + "        }\n"
                     + "\n"
-                    + "        list.get = function () {\n"
-                    + "            " + nomeEntidade + "Service.get(list.page).success(function (values) {\n"
-                    + "                list.content = values;\n"
+                    + "        $scope.get = function () {\n"
+                    + "            " + nomeEntidade + "Service.get($scope.page).success(function (values) {\n"
+                    + "                $scope.content = values;\n"
                     + "            });\n"
                     + "        };\n"
                     + "\n"
-                    + "        list.sort = function (field, way) {\n"
-                    + "            list.page = 1;\n"
+                    + "        $scope.sort = function (field, way) {\n"
                     + "            " + nomeEntidade + "Service.doSort(field, way)\n"
-                    + "                .success(function (values) {\n"
-                    + "                    list.content = values;\n"
-                    + "                });\n"
+                    + "                .success(update);\n"
                     + "        };\n"
                     + "\n"
-                    + "        list.del = function (entities) {\n"
-                    + "            list.page = 1;\n"
+                    + "        $scope.del = function (entities) {\n"
                     + "            " + nomeEntidade + "Service.doRemove(entities)\n"
-                    + "                .then(function () {\n"
-                    + "                    list.get();\n"
-                    + "                });\n"
+                    + "                .success(update);\n"
                     + "\n"
                     + "        };\n"
                     + "\n"
-                    + "        list.search = function (field, param) {\n"
-                    + "            list.page = 1;\n"
+                    + "        $scope.search = function (field, param) {\n"
                     + "            " + nomeEntidade + "Service.getSearch(field, param)\n"
-                    + "                .success(function (values) {\n"
-                    + "                    list.content = values;\n"
-                    + "                });\n"
+                    + "                .success(update);\n"
                     + "        };\n"
                     + "\n"
-                    + "        list.advancedSearch = function (param) {\n"
-                    + "            list.page = 1;\n"
-                    + "            var a = " + nomeEntidade + "Service.advancedSearch(param);\n"
-                    + "            a.success(function (values) {\n"
-                    + "                list.content = values;\n"
-                    + "            });\n"
+                    + "        $scope.advancedSearch = function (param) {\n"
+                    + "            " + nomeEntidade + "Service.advancedSearch(param)\n"
+                    + "              .success(update);\n"
                     + "        };\n"
-                    + "\n"
-                    + "        list.get();\n"
+                    + "        $scope.get();\n"
                     + "    }\n"
                     + "\n"
-                    + "    return ListController;\n"
+                    + "    return " + nomeEntidade + "ListController;\n"
                     + "\n"
                     + "});"
                     + "");
@@ -261,27 +212,68 @@ public class GeraPresentation extends AbstractMojo {
         }
 
         try {
-            File arquivoModule = new File(pastaControllers + "/FormController.js");
+            File arquivoModule = new File(pastaControllers + "/" + nomeEntidade + "FormController.js");
             FileWriter fw = new FileWriter(arquivoModule);
+
+            Set<Class> dependencias = new HashSet<>();
+            dependencias.addAll(dependenciasManyToMany);
+            dependencias.addAll(dependenciasManyToOne);
+
             fw.write(""
                     + "define([], function () {\n"
                     + "\n"
-                    + "    FormController.$inject = ['" + nomeEntidade + "Service', '$state','entity'];\n"
+                    + "    " + nomeEntidade + "FormController.$inject = ['" + nomeEntidade + "Service', '$state','entity','$scope'");
+
+            for (Class classe : dependencias) {
+                fw.write(",'" + classe.getSimpleName() + "Service'");
+            }
+
+            fw.write(""
+                    + "];\n"
                     + "\n"
-                    + "    function FormController(" + nomeEntidade + "Service, $state,entity) {\n"
-                    + "        var form = this;\n"
-                    + "        form.entity = entity.data;\n"
+                    + "    function " + nomeEntidade + "FormController(" + nomeEntidade + "Service, $state,entity,$scope");
+            for (Class classe : dependencias) {
+                fw.write("," + classe.getSimpleName() + "Service");
+            }
+            fw.write(""
+                    + ") {\n"
+                    + "        $scope.entity = entity.data || {};\n"
                     + "\n"
-                    + "        form.update = function (entity) {\n"
+                    + "        $scope.update = function (entity) {\n"
                     + "            " + nomeEntidade + "Service.update(entity)\n"
                     + "                .success(function () {\n"
                     + "                    $state.go('" + nomeEntidade.toLowerCase() + ".list');\n"
                     + "                });\n"
                     + "        };\n"
+                    + "\n");
+            for (Class classe : dependenciasManyToOne) {
+                fw.write(""
+                        + Util.IDENTACAO + Util.IDENTACAO + "$scope.searchTypeAhead" + classe.getSimpleName() + " = function (field, param) {\n"
+                        + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "return " + classe.getSimpleName() + "Service.getSearch(field, param).then(function(data){\n"
+                        + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "return data.data.values;\n"
+                        + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "})\n"
+                        + Util.IDENTACAO + Util.IDENTACAO + "};\n"
+                        + "\n");
+            }
+
+            for (Field atributo : Util.getTodosAtributosNaoEstaticos(classeEntidade)) {
+                if (atributo.isAnnotationPresent(ManyToMany.class)){
+                    fw.write("        $scope.entity."+atributo.getName()+" = $scope.entity."+atributo.getName()+"  || [];\n");
+                }
+            }
+
+            for (Class classe : dependenciasManyToMany) {
+                fw.write(""
+                        + "        $scope.list" + classe.getSimpleName() + "= [];\n"
+                        + "        " + classe.getSimpleName() + "Service.get().success(function (data) {\n"
+                        + "            $scope.list" + classe.getSimpleName() + " = data.values;\n"
+                        + "        });\n"
+                        + "\n");
+            }
+
+            fw.write("    }\n"
                     + "\n"
-                    + "    }\n"
-                    + "\n"
-                    + "    return FormController;\n"
+                    + "    return " + nomeEntidade + "FormController;\n"
                     + "});\n"
                     + ""
             );
@@ -302,55 +294,57 @@ public class GeraPresentation extends AbstractMojo {
                     + "    " + nomeEntidade + "Service.$inject = ['GumgaBase', '$stateParams'];\n"
                     + "\n"
                     + "    function " + nomeEntidade + "Service(GumgaBase, $stateParams) {\n"
-                    + "        var " + nomeEntidade.toLowerCase() + " = this;\n"
-                    + "        " + nomeEntidade.toLowerCase() + ".url = APILocation.apiLocation + '/financeiro-api/api/" + nomeEntidade.toLowerCase() + "';\n"
+                    + "        var url = APILocation.apiLocation + '/financeiro-api/api/" + nomeEntidade.toLowerCase() + "';\n"
                     + "        var query = {};\n"
                     + "        query.params = {\n"
                     + "            start: 0,\n"
                     + "            pageSize: 10\n"
                     + "        };\n"
                     + "\n"
-                    + "        " + nomeEntidade.toLowerCase() + ".get = function (page) {\n"
-                    + "            if ($stateParams.id) {\n"
-                    + "                return GumgaBase.getById($stateParams.id);\n"
-                    + "            }\n"
+                    + "        this.get = function (page) {\n"
                     + "            if (page) {\n"
                     + "                query.params.start = (page - 1) * query.params.pageSize;\n"
                     + "                if (page < 1) throw 'Invalid page';\n"
                     + "            }\n"
-                    + "            return GumgaBase.get(" + nomeEntidade.toLowerCase() + ".url,query);\n"
+                    + "            return GumgaBase.get(url,query);\n"
                     + "        };\n"
                     + "\n"
-                    + "        " + nomeEntidade.toLowerCase() + ".getSearch = function (field, param) {\n"
+                    + "        this.getById = function(id) {\n"
+                    + "            return GumgaBase.getById(id);\n"
+                    + "        };\n"
+                    + "\n"
+                    + "        this.getSearch = function (field, param) {\n"
                     + "            if (!param) param = '';\n"
                     + "            query.params = {};\n"
                     + "            query.params.q = param;\n"
+                    + "            query.params.start = 0;\n"
+                    + "            query.params.pageSize = 10;\n"
                     + "            query.params.searchFields = field;\n"
-                    + "            return GumgaBase.get(" + nomeEntidade.toLowerCase() + ".url,query);\n"
+                    + "            return GumgaBase.get(url,query);\n"
                     + "        };\n"
                     + "\n"
-                    + "        " + nomeEntidade.toLowerCase() + ".doSort = function (field, way) {\n"
+                    + "        this.doSort = function (field, way) {\n"
                     + "            query.params.start = 0;\n"
                     + "            query.params.sortField = field;\n"
                     + "            query.params.sortDir = way;\n"
-                    + "            return GumgaBase.get(" + nomeEntidade.toLowerCase() + ".url,query);\n"
+                    + "            return GumgaBase.get(url,query);\n"
                     + "        };\n"
                     + "\n"
-                    + "        " + nomeEntidade.toLowerCase() + ".doRemove = function (entities) {\n"
-                    + "            return GumgaBase.deleteAll(" + nomeEntidade.toLowerCase() + ".url,entities);\n"
+                    + "        this.doRemove = function (entities) {\n"
+                    + "            return GumgaBase.deleteAll(url,entities);\n"
                     + "        };\n"
                     + "\n"
-                    + "        " + nomeEntidade.toLowerCase() + ".update = function (entity) {\n"
+                    + "        this.update = function (entity) {\n"
                     + "            if (entity.id) {\n"
-                    + "                return GumgaBase.update(" + nomeEntidade.toLowerCase() + ".url,entity);\n"
+                    + "                return GumgaBase.update(url,entity);\n"
                     + "            }\n"
-                    + "            return GumgaBase.save(" + nomeEntidade.toLowerCase() + ".url,entity);\n"
+                    + "            return GumgaBase.save(url,entity);\n"
                     + "        };\n"
                     + "\n"
-                    + "        " + nomeEntidade.toLowerCase() + ".advancedSearch = function (param) {\n"
+                    + "        this.advancedSearch = function (param) {\n"
                     + "            query.params = {};\n"
                     + "            query.params.aq = param;\n"
-                    + "            return GumgaBase.get(" + nomeEntidade.toLowerCase() + ".url,query);\n"
+                    + "            return GumgaBase.get(url,query);\n"
                     + "        };\n"
                     + "\n"
                     + "    }\n"
@@ -369,7 +363,7 @@ public class GeraPresentation extends AbstractMojo {
             FileWriter fw = new FileWriter(arquivoModule);
             fw.write(""
                     + "/**\n"
-                    + " * Created by igorsantana on 3/10/15.\n"
+                    + " * Created by igorsantana on " + Util.hoje() + ".\n"
                     + " */\n"
                     + "\n"
                     + "define(function(require){\n"
@@ -407,21 +401,44 @@ public class GeraPresentation extends AbstractMojo {
                     + "    <div class=\"col-md-12\">\n"
                     + "\n");
 
+            boolean primeiro = true;
             for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
                 //COLOCAR OS TIPOS
-                fw.write(""
-                        + "        <input type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"form.entity." + atributo.getName() + "\" class=\"form-control\" gumga-required gumga-min=\"3\"/>\n"
-                        + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
-                        + "\n");
+                boolean requerido = false;
+
+                fw.write("         <!--" + atributo.getName() + " " + atributo.getType() + "-->\n");
+                fw.write("         <label for=\"" + atributo.getName() + "\">" + atributo.getName() + "</label>\n");
+                if (atributo.isAnnotationPresent(ManyToOne.class) || atributo.isAnnotationPresent(OneToOne.class)) {
+                    fw.write(Util.IDENTACAO + Util.IDENTACAO
+                            + "<input type=\"text\" ng-model=\"entity." + atributo.getName() + "\" "
+                            + "typeahead=\"obj as obj." + Util.primeiroAtributo(atributo.getType()).getName() + " for obj in searchTypeAhead" + atributo.getType().getSimpleName() + "('" + Util.primeiroAtributo(atributo.getType()).getName()
+                            + "', $viewValue)\" class=\"form-control\">"
+                            + "");
+
+                } else if (atributo.isAnnotationPresent(ManyToMany.class)) {
+                    fw.write(Util.IDENTACAO + Util.IDENTACAO + ""
+                            + Util.IDENTACAO + Util.IDENTACAO + "<gumga-many-to-many left-list=\"list" + Util.getTipoGenerico(atributo).getSimpleName() + "\" right-list=\"entity." + atributo.getName() + "\" >\n"
+                            + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "    <left-list-field>{{item." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</left-list-field>\n"
+                            + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "    <right-list-field>{{item." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</right-list-field>\n"
+                            + Util.IDENTACAO + Util.IDENTACAO + "</gumga-many-to-many>"
+                            + "");
+
+                } else {
+                    fw.write(""
+                            + "        <input type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + "\" class=\"form-control\" gumga-required gumga-min=\"3\"/>\n"
+                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "\n");
+                }
+                primeiro = false;
             }
             fw.write(""
                     + "\n"
                     + "        <gumga-form-buttons\n"
                     + "                back=\"" + nomeEntidade.toLowerCase() + ".list\"\n"
-                    + "                submit=\"form.update(form.entity)\"\n"
+                    + "                submit=\"update(entity)\"\n"
                     + "                position=\"right\"\n"
-                    + "                valid=\"forms.$valid\"\n"
-                    + "                ></gumga-form-buttons>\n"
+                    + "                valid=\"forms.$valid\">\n"
+                    + "        </gumga-form-buttons>\n"
                     + "    </div>\n"
                     + "</form>"
             );
@@ -436,13 +453,13 @@ public class GeraPresentation extends AbstractMojo {
                     + "<div class=\"col-md-12\">\n"
                     + "    <div class=\"col-md-5\">\n"
                     + "        <a ui-sref=\"" + nomeEntidade.toLowerCase() + ".insert\" class=\"btn btn-primary\"><i class=\"fa fa-plus\"></i> New</a>\n"
-                    + "        <button type=\"button\" class=\"btn btn-danger\" ng-click=\"list.del(deletedEntities)\"><i class=\"fa fa-trash-o\"></i> Delete\n"
+                    + "        <button type=\"button\" class=\"btn btn-danger\" ng-click=\"del(deletedEntities)\"><i class=\"fa fa-trash-o\"></i> Delete\n"
                     + "        </button>\n"
                     + "    </div>\n"
                     + "    <div class=\"col-md-7\">\n"
-                    + "        <gumga-search field=\"" + Util.primeiroAtributo(classeEntidade).getName() + "\" advanced-search=\"true\" search-method=\"list.search(field,param)\"\n"
-                    + "                      advanced-params=\"list.array\"\n"
-                    + "                      advanced-method=\"list.advancedSearch(param)\">\n"
+                    + "        <gumga-search field=\"" + Util.primeiroAtributo(classeEntidade).getName() + "\" advanced-search=\"true\" search-method=\"search(field,param)\"\n"
+                    + "                      advanced-params=\"array\"\n"
+                    + "                      advanced-method=\"advancedSearch(param)\">\n"
                     + "            <gumga-advanced field=\"id\" type=\"string\"></gumga-advanced>\n");
 
             for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
@@ -454,12 +471,12 @@ public class GeraPresentation extends AbstractMojo {
                     + "    </div>\n"
                     + "    <div class=\"col-md-12\" style=\"margin-top:1%\">\n"
                     + "        <gumga-table\n"
-                    + "            values=\"list.content.values\"\n");
+                    + "            values=\"content.values\"\n");
 
             fw.write("            columns=\"" + Util.todosAtributosSeparadosPorVirgula(classeEntidade) + "\"\n");
 
             fw.write(""
-                    + "            sort-function=\"list.sort(field,way)\"\n"
+                    + "            sort-function=\"sort(field,way)\"\n"
                     + "            >\n"
                     + "        <buttons-column>\n"
                     + "            <a ui-sref=\"" + nomeEntidade.toLowerCase() + ".edit({id: entity.id})\" class=\"btn btn-link pull-right\">Edit</a>\n"
@@ -468,10 +485,10 @@ public class GeraPresentation extends AbstractMojo {
                     + "    </div>\n"
                     + "\n"
                     + "    <div class=\"col-md-12\">\n"
-                    + "        <pagination ng-model=\"list.page\"\n"
-                    + "                    items-per-page=\"list.content.pageSize\"\n"
-                    + "                    total-items=\"list.content.count\"\n"
-                    + "                    ng-change=\"list.get()\"></pagination>\n"
+                    + "        <pagination ng-model=\"page\"\n"
+                    + "                    items-per-page=\"content.pageSize\"\n"
+                    + "                    total-items=\"content.count\"\n"
+                    + "                    ng-change=\"get()\"></pagination>\n"
                     + "    </div>\n"
                     + "\n"
                     + "</div>\n"
@@ -503,13 +520,12 @@ public class GeraPresentation extends AbstractMojo {
                     + "                .state('" + nomeEntidade.toLowerCase() + ".list', {\n"
                     + "                    url: '/list',\n"
                     + "                    templateUrl: 'app/modules/" + nomeEntidade.toLowerCase() + "/views/list.html',\n"
-                    + "                    controller: 'ListController',\n"
-                    + "                    controllerAs: 'list'\n"
+                    + "                    controller: '" + nomeEntidade + "ListController'\n"
                     + "                })\n"
                     + "                .state('" + nomeEntidade.toLowerCase() + ".insert', {\n"
                     + "                    url: '/insert',\n"
                     + "                    templateUrl: 'app/modules/" + nomeEntidade.toLowerCase() + "/views/form.html',\n"
-                    + "                    controller: 'FormController',\n"
+                    + "                    controller: '" + nomeEntidade + "FormController',\n"
                     + "                    controllerAs: 'form',\n"
                     + "                    resolve: {\n"
                     + "                        entity: function () {\n"
@@ -520,8 +536,7 @@ public class GeraPresentation extends AbstractMojo {
                     + "                .state('" + nomeEntidade.toLowerCase() + ".edit', {\n"
                     + "                    url: '/edit/:id',\n"
                     + "                    templateUrl: 'app/modules/" + nomeEntidade.toLowerCase() + "/views/form.html',\n"
-                    + "                    controller: 'FormController',\n"
-                    + "                    controllerAs: 'form',\n"
+                    + "                    controller: '" + nomeEntidade + "FormController',\n"
                     + "                    resolve: {\n"
                     + "                        entity: ['$stateParams', '$http', function ($stateParams, $http) {\n"
                     + "                            var url = APILocation.apiLocation + '/" + project.getParent().getArtifactId() + "-api/api/" + nomeEntidade.toLowerCase() + "/' + $stateParams.id;\n"

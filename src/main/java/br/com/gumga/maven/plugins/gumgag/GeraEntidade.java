@@ -5,10 +5,12 @@
  */
 package br.com.gumga.maven.plugins.gumgag;
 
+import gumga.framework.domain.GumgaModel;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
+import javax.persistence.SequenceGenerator;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -38,6 +40,9 @@ public class GeraEntidade extends AbstractMojo {
 
     @Parameter(property = "super", defaultValue = "GumgaModel<Long>")
     private String superClasse;
+    private String nomeEntidade;
+    private String nomePacote;
+    private String pastaClasse;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -48,9 +53,9 @@ public class GeraEntidade extends AbstractMojo {
             System.out.print("Nome completo da entidade a ser gerada:");
             nomeCompletoEntidade = entrada.next();
         }
-        String nomePacote = nomeCompletoEntidade.substring(0, nomeCompletoEntidade.lastIndexOf('.'));
-        String nomeEntidade = nomeCompletoEntidade.substring(nomeCompletoEntidade.lastIndexOf('.') + 1);
-        String pastaClasse = Util.windowsSafe(project.getCompileSourceRoots().get(0)) + "/".concat(nomePacote.replaceAll("\\.", "/"));
+        nomePacote = nomeCompletoEntidade.substring(0, nomeCompletoEntidade.lastIndexOf('.'));
+        nomeEntidade = nomeCompletoEntidade.substring(nomeCompletoEntidade.lastIndexOf('.') + 1);
+        pastaClasse = Util.windowsSafe(project.getCompileSourceRoots().get(0)) + "/".concat(nomePacote.replaceAll("\\.", "/"));
 
         getLog().info("Iniciando plugin Gerador de Entidade GUMGA ");
         getLog().info("Gerando " + nomePacote + "." + nomeEntidade);
@@ -59,8 +64,10 @@ public class GeraEntidade extends AbstractMojo {
         File arquivoClasse = new File(pastaClasse + "/" + nomeEntidade + ".java");
         try {
             FileWriter fw = new FileWriter(arquivoClasse);
+            Util.escreveCabecario(fw);
             fw.write("package " + nomePacote + ";\n\n");
             fw.write("import gumga.framework.domain.GumgaModel;\n" //TODO RETIRAR OS IMPORTS DESNECESSÁRIOS
+                    + "import gumga.framework.domain.GumgaMultitenancy;\n"
                     + "import java.io.Serializable;\n"
                     + "import java.util.*;\n"
                     + "import java.math.BigDecimal;\n"
@@ -69,8 +76,13 @@ public class GeraEntidade extends AbstractMojo {
                     + "import org.hibernate.annotations.Columns;\n"
                     + "import org.hibernate.search.annotations.Field;\n"
                     + "import org.hibernate.search.annotations.Indexed;\n"
+                    + "import org.hibernate.envers.Audited;\n"
                     + "\n");
 
+            fw.write("@GumgaMultitenancy\n");
+            fw.write("@SequenceGenerator(name = GumgaModel.SEQ_NAME, sequenceName = \"SEQ_" + nomeEntidade.toUpperCase() + "\")\n");
+            fw.write("@Indexed\n");
+            fw.write("@Audited\n");
             fw.write("@Entity\n");
             fw.write("public class " + nomeEntidade + " extends " + superClasse + " implements Serializable {\n\n");
 
@@ -89,7 +101,15 @@ public class GeraEntidade extends AbstractMojo {
         }
         String atributos[] = parametroAtributos.split(",");
         declaraAtributos(atributos, fw);
+        declaraConstrutor(fw);
         declaraGettersESetters(atributos, fw);
+    }
+
+    private void declaraConstrutor(FileWriter fw) throws IOException {
+        fw.write(""
+                + Util.IDENTACAO + "public " + nomeEntidade + "(){\n"
+                + Util.IDENTACAO + "}\n"
+                + "\n");
     }
 
     public void declaraGettersESetters(String[] atributos, FileWriter fw) throws Exception {
@@ -101,6 +121,7 @@ public class GeraEntidade extends AbstractMojo {
 
     public void declaraAtributos(String[] atributos, FileWriter fw) throws IOException {
         for (String atributo : atributos) {
+            fw.write(Util.IDENTACAO + "//@Field //Descomente para ser utilizado na busca multientidades\n");
             String partes[] = atributo.split(":");
             if (partes[1].trim().endsWith("GumgaAddress")) {
                 fw.write("     @Columns(columns = {\n"
@@ -147,10 +168,9 @@ public class GeraEntidade extends AbstractMojo {
                 }
                 fw.write("\n");
             }
-            fw.write("     @Field\n"
-                    + "    private " + partes[1] + " " + partes[0] + ";\n");
+            fw.write(Util.IDENTACAO + "private " + partes[1] + " " + partes[0] + ";\n");
         }
-        fw.write("\n\n");
+        fw.write("\n");
     }
 
     private void criaGet(FileWriter fw, String atributo) throws Exception {

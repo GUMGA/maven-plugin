@@ -17,8 +17,10 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.GeneratedValue;
@@ -30,6 +32,9 @@ import org.apache.maven.project.MavenProject;
  * @author munif
  */
 public class Util {
+
+    public final static String IDENTACAO = "    ";
+    public final static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
     public static String primeiraMaiuscula(String s) {
         return s.substring(0, 1).toUpperCase().concat(s.substring(1));
@@ -168,6 +173,17 @@ public class Util {
         sb.setLength(sb.length() - 1);
 
         return sb.toString().replace("oi,", "");
+    }
+
+    public static String hoje() {
+        return sdf.format(new Date());
+    }
+
+    static void escreveCabecario(FileWriter fw) throws IOException {
+        fw.write("/*\n"
+                + "* Gerado automaticamente por GUMGAGenerator em " + hoje() + "\n"
+                + "*/\n"
+                + "\n");
     }
 
 }
