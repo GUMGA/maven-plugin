@@ -44,9 +44,9 @@ public class GeraPresentation extends AbstractMojo {
 
     private Class classeEntidade;
 
-    private List<Class> dependenciasManyToOne;
-    private List<Class> dependenciasOneToMany;
-    private List<Class> dependenciasManyToMany;
+    private Set<Class> dependenciasManyToOne;
+    private Set<Class> dependenciasOneToMany;
+    private Set<Class> dependenciasManyToMany;
 
     private String pastaApp;
     private String pastaControllers;
@@ -76,9 +76,9 @@ public class GeraPresentation extends AbstractMojo {
 
             classeEntidade = Util.getClassLoader(project).loadClass(nomeCompletoEntidade);
 
-            dependenciasManyToOne = new ArrayList<>();
-            dependenciasManyToMany = new ArrayList<>();
-            dependenciasOneToMany = new ArrayList<>();
+            dependenciasManyToOne = new HashSet<>();
+            dependenciasManyToMany = new HashSet<>();
+            dependenciasOneToMany = new HashSet<>();
 
             for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
                 if (atributo.isAnnotationPresent(ManyToOne.class)) {
@@ -143,7 +143,13 @@ public class GeraPresentation extends AbstractMojo {
                     + "\n"
                     + "    return angular.module('app." + nomeEntidade.toLowerCase() + ".controllers', ['app." + nomeEntidade.toLowerCase() + ".services','ui.router'])\n"
                     + "        .controller('" + nomeEntidade + "FormController', require('app/modules/" + nomeEntidade.toLowerCase() + "/controllers/" + nomeEntidade + "FormController'))\n"
-                    + "        .controller('" + nomeEntidade + "ListController', require('app/modules/" + nomeEntidade.toLowerCase() + "/controllers/" + nomeEntidade + "ListController'))\n"
+                    + "        .controller('" + nomeEntidade + "ListController', require('app/modules/" + nomeEntidade.toLowerCase() + "/controllers/" + nomeEntidade + "ListController'))\n");
+
+            for (Class classe : dependenciasOneToMany) {
+                fw.write("        .controller('Modal" + classe.getSimpleName() + "Controller', require('app/modules/" + nomeEntidade.toLowerCase() + "/controllers/Modal" + classe.getSimpleName() + "Controller'))\n");
+            }
+
+            fw.write(""
                     + "});\n"
                     + "");
             fw.close();
@@ -224,6 +230,10 @@ public class GeraPresentation extends AbstractMojo {
                     + "\n"
                     + "    " + nomeEntidade + "FormController.$inject = ['" + nomeEntidade + "Service', '$state','entity','$scope'");
 
+            if (!dependenciasOneToMany.isEmpty()) {
+                fw.write(",'$modal'");
+            }
+
             for (Class classe : dependencias) {
                 fw.write(",'" + classe.getSimpleName() + "Service'");
             }
@@ -232,9 +242,14 @@ public class GeraPresentation extends AbstractMojo {
                     + "];\n"
                     + "\n"
                     + "    function " + nomeEntidade + "FormController(" + nomeEntidade + "Service, $state,entity,$scope");
+            if (!dependenciasOneToMany.isEmpty()) {
+                fw.write(",$modal");
+            }
+
             for (Class classe : dependencias) {
                 fw.write("," + classe.getSimpleName() + "Service");
             }
+
             fw.write(""
                     + ") {\n"
                     + "        $scope.entity = entity.data || {};\n"
@@ -257,18 +272,61 @@ public class GeraPresentation extends AbstractMojo {
             }
 
             for (Field atributo : Util.getTodosAtributosNaoEstaticos(classeEntidade)) {
-                if (atributo.isAnnotationPresent(ManyToMany.class)){
-                    fw.write("        $scope.entity."+atributo.getName()+" = $scope.entity."+atributo.getName()+"  || [];\n");
-                }
-            }
+                if (atributo.isAnnotationPresent(ManyToMany.class)) {
+                    fw.write("        $scope.entity." + atributo.getName() + " = $scope.entity." + atributo.getName() + "  || [];\n\n");
 
-            for (Class classe : dependenciasManyToMany) {
-                fw.write(""
-                        + "        $scope.list" + classe.getSimpleName() + "= [];\n"
-                        + "        " + classe.getSimpleName() + "Service.get().success(function (data) {\n"
-                        + "            $scope.list" + classe.getSimpleName() + " = data.values;\n"
-                        + "        });\n"
-                        + "\n");
+                    fw.write(""
+                            + "        $scope." + atributo.getName() + "Availables = [];\n"
+                            + "        " + Util.getTipoGenerico(atributo).getSimpleName() + "Service.get().success(function (data) {\n"
+                            + "            $scope." + atributo.getName() + "Availables = data.values;\n"
+                            + "        });\n"
+                            + "\n");
+
+                    fw.write(""
+                            + "        $scope." + atributo.getName() + "Search = function(param){\n"
+                            + "            " + Util.getTipoGenerico(atributo).getSimpleName() + "Service.getSearch('" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "', param).then(function(data){\n"
+                            + "                $scope." + atributo.getName() + "Availables = data.data.values;\n"
+                            + "            })\n"
+                            + "        }\n"
+                            + "");
+
+                }
+
+                if (atributo.isAnnotationPresent(OneToMany.class)) {
+                    fw.write("        $scope.entity." + atributo.getName() + " = $scope.entity." + atributo.getName() + "  || [];\n\n");
+
+                    fw.write(""
+                            + "        $scope.open" + Util.primeiraMaiuscula(atributo.getName()) + " = function (index) {\n"
+                            + "\n"
+                            + "			var modalInstance = $modal.open({\n"
+                            + "				templateUrl: '/app/modules/" + nomeEntidade.toLowerCase() + "/views/modal" + Util.getTipoGenerico(atributo).getSimpleName() + ".html',\n"
+                            + "				controller: 'Modal" + Util.getTipoGenerico(atributo).getSimpleName() + "Controller',\n"
+                            + "				size: 'lg',\n"
+                            + "				resolve: {\n"
+                            + "					entity: function () {\n"
+                            + "\n"
+                            + "						if(index == undefined){\n"
+                            + "							index = $scope.entity." + atributo.getName() + ".length;\n"
+                            + "						}\n"
+                            + "						return $scope.entity." + atributo.getName() + "[index];\n"
+                            + "					}\n"
+                            + "				}\n"
+                            + "			});\n"
+                            + "\n"
+                            + "			modalInstance.result.then(function (item) {\n"
+                            + "				$scope.entity." + atributo.getName() + ".splice(index, 1, item);\n"
+                            + "			}, function () {\n"
+                            + "				console.log('Modal Cancelado at: ' + new Date());\n"
+                            + "			});\n"
+                            + "		}\n"
+                            + "\n"
+                            + "		$scope.remove" + Util.primeiraMaiuscula(atributo.getName()) + " = function(index){\n"
+                            + "			$scope.entity." + atributo.getName() + ".splice(index, 1);\n"
+                            + "		}"
+                            + "\n"
+                            + "\n");
+                }
+
             }
 
             fw.write("    }\n"
@@ -280,6 +338,40 @@ public class GeraPresentation extends AbstractMojo {
             fw.close();
         } catch (Exception ex) {
             ex.printStackTrace();
+        }
+
+        for (Class classe : dependenciasOneToMany) {
+            try {
+                File f = new File(pastaControllers + "/" + " Modal" + classe.getSimpleName() + "Controller.js");
+                FileWriter fw = new FileWriter(f);
+
+                fw.write(""
+                        + "define([], function(){\n"
+                        + "	Modal" + classe.getSimpleName() + "Controller.$inject = ['$scope', '$modalInstance', 'entity', '$modal'];\n"
+                        + "\n"
+                        + "	function Modal" + classe.getSimpleName() + "Controller($scope, $modalInstance, entity, $modal){\n"
+                        + "		entity = entity || {}\n"
+                        + "		$scope.entity = entity;\n"
+                        + "\n"
+                        + "		$scope.ok = function (obj) {\n"
+                        + "			$modalInstance.close(obj);\n"
+                        + "		};\n"
+                        + "\n"
+                        + "		$scope.cancel = function () {\n"
+                        + "			$modalInstance.dismiss('cancel');\n"
+                        + "		};\n"
+                        + "\n"
+                        + "	}\n"
+                        + "	return Modal" + classe.getSimpleName() + "Controller;\n"
+                        + "})\n"
+                        + "\n");
+
+                fw.close();
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
         }
 
     }
@@ -406,8 +498,8 @@ public class GeraPresentation extends AbstractMojo {
                 //COLOCAR OS TIPOS
                 boolean requerido = false;
 
-                fw.write("         <!--" + atributo.getName() + " " + atributo.getType() + "-->\n");
-                fw.write("         <label for=\"" + atributo.getName() + "\">" + atributo.getName() + "</label>\n");
+                fw.write(Util.IDENTACAO + Util.IDENTACAO + "<!--" + atributo.getName() + " " + atributo.getType() + "-->\n");
+                fw.write(Util.IDENTACAO + Util.IDENTACAO + "<label for=\"" + atributo.getName() + "\">" + atributo.getName() + "</label>\n");
                 if (atributo.isAnnotationPresent(ManyToOne.class) || atributo.isAnnotationPresent(OneToOne.class)) {
                     fw.write(Util.IDENTACAO + Util.IDENTACAO
                             + "<input type=\"text\" ng-model=\"entity." + atributo.getName() + "\" "
@@ -416,16 +508,41 @@ public class GeraPresentation extends AbstractMojo {
                             + "");
 
                 } else if (atributo.isAnnotationPresent(ManyToMany.class)) {
-                    fw.write(Util.IDENTACAO + Util.IDENTACAO + ""
-                            + Util.IDENTACAO + Util.IDENTACAO + "<gumga-many-to-many left-list=\"list" + Util.getTipoGenerico(atributo).getSimpleName() + "\" right-list=\"entity." + atributo.getName() + "\" >\n"
+                    fw.write(""
+                            + Util.IDENTACAO + Util.IDENTACAO + "<gumga-many-to-many left-list=\"" + atributo.getName() + "Availables" + "\" right-list=\"entity." + atributo.getName() + "\" "
+                            + "left-search=\"" + atributo.getName() + "Search(param)\""
+                            + ">\n"
                             + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "    <left-list-field>{{item." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</left-list-field>\n"
                             + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "    <right-list-field>{{item." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</right-list-field>\n"
-                            + Util.IDENTACAO + Util.IDENTACAO + "</gumga-many-to-many>"
+                            + Util.IDENTACAO + Util.IDENTACAO + "</gumga-many-to-many>\n\n"
                             + "");
+
+                } else if (atributo.isAnnotationPresent(OneToMany.class)) {
+                    fw.write(""
+                            + "    <div class=\"col-md-12\">\n"
+                            + "    <div class=\"btn-group\">\n"
+                            + "        <button class=\"btn btn-default\" ng-click=\"open()\">New</button>\n"
+                            + "    </div>\n"
+                            + "        <table class=\"table\">\n"
+                            + "            <tbody>\n"
+                            + "                <tr ng-repeat=\"obj in entity." + atributo.getName() + "\">\n"
+                            + "                    <td>{{obj." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</td>\n"
+                            + "                    <td>\n"
+                            + "                        <div class=\"btn-group pull-right\">\n"
+                            + "                            <button class=\"btn prymary\" ng-click=\"open($index)\">Edit</button>\n"
+                            + "                            <button class=\"btn btn-danger\" ng-click=\"remove" + Util.primeiraMaiuscula(atributo.getName()) + "($index)\">Remove</button>\n"
+                            + "                        </div>\n"
+                            + "                    </td>\n"
+                            + "                    </div>\n"
+                            + "                </tr>\n"
+                            + "            </tbody>\n"
+                            + "        </table>\n"
+                            + "    </div>\n"
+                            + "\n");
 
                 } else {
                     fw.write(""
-                            + "        <input type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + "\" class=\"form-control\" gumga-required gumga-min=\"3\"/>\n"
+                            + "        <input type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + "\" class=\"form-control\" />\n"
                             + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
                             + "\n");
                 }
