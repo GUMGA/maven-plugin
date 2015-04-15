@@ -299,7 +299,7 @@ public class GeraPresentation extends AbstractMojo {
                             + "        $scope.open" + Util.primeiraMaiuscula(atributo.getName()) + " = function (index) {\n"
                             + "\n"
                             + "			var modalInstance = $modal.open({\n"
-                            + "				templateUrl: '/app/modules/" + nomeEntidade.toLowerCase() + "/views/modal" + Util.getTipoGenerico(atributo).getSimpleName() + ".html',\n"
+                            + "				templateUrl: 'app/modules/" + nomeEntidade.toLowerCase() + "/views/modal" + Util.getTipoGenerico(atributo).getSimpleName() + ".html',\n"
                             + "				controller: 'Modal" + Util.getTipoGenerico(atributo).getSimpleName() + "Controller',\n"
                             + "				size: 'lg',\n"
                             + "				resolve: {\n"
@@ -342,10 +342,11 @@ public class GeraPresentation extends AbstractMojo {
 
         for (Class classe : dependenciasOneToMany) {
             try {
-                File f = new File(pastaControllers + "/" + " Modal" + classe.getSimpleName() + "Controller.js");
+                File f = new File(pastaControllers + "/Modal" + classe.getSimpleName() + "Controller.js");
                 FileWriter fw = new FileWriter(f);
 
                 fw.write(""
+                        + "\n"
                         + "define([], function(){\n"
                         + "	Modal" + classe.getSimpleName() + "Controller.$inject = ['$scope', '$modalInstance', 'entity', '$modal'];\n"
                         + "\n"
@@ -494,60 +495,7 @@ public class GeraPresentation extends AbstractMojo {
                     + "\n");
 
             boolean primeiro = true;
-            for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
-                //COLOCAR OS TIPOS
-                boolean requerido = false;
-
-                fw.write(Util.IDENTACAO + Util.IDENTACAO + "<!--" + atributo.getName() + " " + atributo.getType() + "-->\n");
-                fw.write(Util.IDENTACAO + Util.IDENTACAO + "<label for=\"" + atributo.getName() + "\">" + atributo.getName() + "</label>\n");
-                if (atributo.isAnnotationPresent(ManyToOne.class) || atributo.isAnnotationPresent(OneToOne.class)) {
-                    fw.write(Util.IDENTACAO + Util.IDENTACAO
-                            + "<input type=\"text\" ng-model=\"entity." + atributo.getName() + "\" "
-                            + "typeahead=\"obj as obj." + Util.primeiroAtributo(atributo.getType()).getName() + " for obj in searchTypeAhead" + atributo.getType().getSimpleName() + "('" + Util.primeiroAtributo(atributo.getType()).getName()
-                            + "', $viewValue)\" class=\"form-control\">"
-                            + "");
-
-                } else if (atributo.isAnnotationPresent(ManyToMany.class)) {
-                    fw.write(""
-                            + Util.IDENTACAO + Util.IDENTACAO + "<gumga-many-to-many left-list=\"" + atributo.getName() + "Availables" + "\" right-list=\"entity." + atributo.getName() + "\" "
-                            + "left-search=\"" + atributo.getName() + "Search(param)\""
-                            + ">\n"
-                            + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "    <left-list-field>{{item." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</left-list-field>\n"
-                            + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "    <right-list-field>{{item." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</right-list-field>\n"
-                            + Util.IDENTACAO + Util.IDENTACAO + "</gumga-many-to-many>\n\n"
-                            + "");
-
-                } else if (atributo.isAnnotationPresent(OneToMany.class)) {
-                    fw.write(""
-                            + "    <div class=\"col-md-12\">\n"
-                            + "    <div class=\"btn-group\">\n"
-                            + "        <button class=\"btn btn-default\" ng-click=\"open()\">New</button>\n"
-                            + "    </div>\n"
-                            + "        <table class=\"table\">\n"
-                            + "            <tbody>\n"
-                            + "                <tr ng-repeat=\"obj in entity." + atributo.getName() + "\">\n"
-                            + "                    <td>{{obj." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</td>\n"
-                            + "                    <td>\n"
-                            + "                        <div class=\"btn-group pull-right\">\n"
-                            + "                            <button class=\"btn prymary\" ng-click=\"open($index)\">Edit</button>\n"
-                            + "                            <button class=\"btn btn-danger\" ng-click=\"remove" + Util.primeiraMaiuscula(atributo.getName()) + "($index)\">Remove</button>\n"
-                            + "                        </div>\n"
-                            + "                    </td>\n"
-                            + "                    </div>\n"
-                            + "                </tr>\n"
-                            + "            </tbody>\n"
-                            + "        </table>\n"
-                            + "    </div>\n"
-                            + "\n");
-
-                } else {
-                    fw.write(""
-                            + "        <input type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + "\" class=\"form-control\" />\n"
-                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
-                            + "\n");
-                }
-                primeiro = false;
-            }
+            geraCampos(fw, this.classeEntidade);
             fw.write(""
                     + "\n"
                     + "        <gumga-form-buttons\n"
@@ -615,6 +563,90 @@ public class GeraPresentation extends AbstractMojo {
             ex.printStackTrace();
         }
 
+        for (Class classe : dependenciasOneToMany) {
+            try {
+                File arquivoModalHtml = new File(pastaViews + "/modal"+classe.getSimpleName()+".html");
+                FileWriter fw = new FileWriter(arquivoModalHtml);
+                fw.write("<form>\n"
+                        + "<div class=\"modal-header\">\n"
+                        + "    <h3 class=\"modal-title\">" + classe.getSimpleName() + ":{{entity.nome}}</h3>\n"
+                        + "</div>\n"
+                        + "<div class=\"modal-body\">\n");
+
+                geraCampos(fw, classe);
+
+                fw.write("</div>\n"
+                        + "<div class=\"modal-footer\">\n"
+                        + "    <button type=\"button\" class=\"btn btn-primary\" ng-click=\"ok(entity)\">OK</button>\n"
+                        + "    <button type=\"button\" class=\"btn btn-warning\" ng-click=\"cancel()\">Cancel</button>\n"
+                        + "</div>\n"
+                        + "<\form>\n");
+                
+                fw.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+        }
+
+    }
+
+    public void geraCampos(FileWriter fw, Class classeEntidade) throws IOException {
+        boolean primeiro;
+        for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
+            //COLOCAR OS TIPOS
+            boolean requerido = false;
+
+            fw.write(Util.IDENTACAO + Util.IDENTACAO + "<!--" + atributo.getName() + " " + atributo.getType() + "-->\n");
+            fw.write(Util.IDENTACAO + Util.IDENTACAO + "<label for=\"" + atributo.getName() + "\">" + atributo.getName() + "</label>\n");
+            if (atributo.isAnnotationPresent(ManyToOne.class) || atributo.isAnnotationPresent(OneToOne.class)) {
+                fw.write(Util.IDENTACAO + Util.IDENTACAO
+                        + "<input type=\"text\" ng-model=\"entity." + atributo.getName() + "\" "
+                        + "typeahead=\"obj as obj." + Util.primeiroAtributo(atributo.getType()).getName() + " for obj in searchTypeAhead" + atributo.getType().getSimpleName() + "('" + Util.primeiroAtributo(atributo.getType()).getName()
+                        + "', $viewValue)\" class=\"form-control\">"
+                        + "");
+
+            } else if (atributo.isAnnotationPresent(ManyToMany.class)) {
+                fw.write(""
+                        + Util.IDENTACAO + Util.IDENTACAO + "<gumga-many-to-many left-list=\"" + atributo.getName() + "Availables" + "\" right-list=\"entity." + atributo.getName() + "\" "
+                        + "left-search=\"" + atributo.getName() + "Search(param)\""
+                        + ">\n"
+                        + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "    <left-list-field>{{item." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</left-list-field>\n"
+                        + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "    <right-list-field>{{item." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</right-list-field>\n"
+                        + Util.IDENTACAO + Util.IDENTACAO + "</gumga-many-to-many>\n\n"
+                        + "");
+
+            } else if (atributo.isAnnotationPresent(OneToMany.class)) {
+                fw.write(""
+                        + "    <div class=\"col-md-12\">\n"
+                        + "    <div class=\"btn-group\">\n"
+                        + "        <button class=\"btn btn-default\" ng-click=\"open"+Util.primeiraMaiuscula(atributo.getName())+"()\">New</button>\n"
+                        + "    </div>\n"
+                        + "        <table class=\"table\">\n"
+                        + "            <tbody>\n"
+                        + "                <tr ng-repeat=\"obj in entity." + atributo.getName() + "\">\n"
+                        + "                    <td>{{obj." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</td>\n"
+                        + "                    <td>\n"
+                        + "                        <div class=\"btn-group pull-right\">\n"
+                        + "                            <button class=\"btn prymary\" ng-click=\"open"+Util.primeiraMaiuscula(atributo.getName())+"($index)\">Edit</button>\n"
+                        + "                            <button class=\"btn btn-danger\" ng-click=\"remove" + Util.primeiraMaiuscula(atributo.getName()) + "($index)\">Remove</button>\n"
+                        + "                        </div>\n"
+                        + "                    </td>\n"
+                        + "                    </div>\n"
+                        + "                </tr>\n"
+                        + "            </tbody>\n"
+                        + "        </table>\n"
+                        + "    </div>\n"
+                        + "\n");
+
+            } else {
+                fw.write(""
+                        + "        <input type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + "\" class=\"form-control\" />\n"
+                        + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                        + "\n");
+            }
+            primeiro = false;
+        }
     }
 
     private void geraModule() {
