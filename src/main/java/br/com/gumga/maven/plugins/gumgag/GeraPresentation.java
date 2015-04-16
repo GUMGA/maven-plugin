@@ -5,6 +5,7 @@
  */
 package br.com.gumga.maven.plugins.gumgag;
 
+import gumga.framework.domain.domains.GumgaAddress;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -52,6 +53,7 @@ public class GeraPresentation extends AbstractMojo {
     private String pastaControllers;
     private String pastaServices;
     private String pastaViews;
+    private String pastaI18n;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -70,9 +72,11 @@ public class GeraPresentation extends AbstractMojo {
             pastaControllers = pastaApp + "/controllers";
             pastaServices = pastaApp + "/services";
             pastaViews = pastaApp + "/views";
+            pastaI18n = Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/i18n/pt-br/";
             new File(pastaControllers).mkdirs();
             new File(pastaServices).mkdirs();
             new File(pastaViews).mkdirs();
+            new File(pastaI18n).mkdirs();
 
             classeEntidade = Util.getClassLoader(project).loadClass(nomeCompletoEntidade);
 
@@ -95,6 +99,7 @@ public class GeraPresentation extends AbstractMojo {
             geraServices();
             geraViews();
             geraModule();
+            geraI18n();
             adicionaAoMenu();
         } catch (Exception ex) {
             getLog().error(ex);
@@ -171,6 +176,7 @@ public class GeraPresentation extends AbstractMojo {
                     + nomeEntidade + "Service "
                     + ") {\n"
                     + "\n"
+                    + "        " + nomeEntidade + "Service.resetDefaultState();\n"
                     + "        $scope.content = {};\n"
                     + "        $scope.page = 1;\n"
                     + "\n"
@@ -251,8 +257,14 @@ public class GeraPresentation extends AbstractMojo {
             }
 
             fw.write(""
-                    + ") {\n"
-                    + "        $scope.entity = entity.data || {};\n"
+                    + ") {\n");
+            for (Class classe : dependencias) {
+                fw.write("        " + classe.getSimpleName() + "Service.resetDefaultState();\n");
+            }
+
+            fw.write("        " + nomeEntidade + "Service.resetDefaultState();\n");  //TODO REMOVER DUPLICIDADE EM AUTORELACIONAMENTOS QUANDO EXISTEREM
+
+            fw.write("        $scope.entity = entity.data || {};\n"
                     + "\n"
                     + "        $scope.update = function (entity) {\n"
                     + "            " + nomeEntidade + "Service.update(entity)\n"
@@ -351,9 +363,8 @@ public class GeraPresentation extends AbstractMojo {
                         + "	Modal" + classe.getSimpleName() + "Controller.$inject = ['$scope', '$modalInstance', 'entity', '$modal'];\n"
                         + "\n"
                         + "	function Modal" + classe.getSimpleName() + "Controller($scope, $modalInstance, entity, $modal){\n"
-                        + "		entity = entity || {}\n"
-                        + "		$scope.entity = entity;\n"
-                        + "\n"
+                        + "		entity = entity || {};\n"
+                        + "             $scope.entity = angular.copy(entity)\n"
                         + "		$scope.ok = function (obj) {\n"
                         + "			$modalInstance.close(obj);\n"
                         + "		};\n"
@@ -387,7 +398,7 @@ public class GeraPresentation extends AbstractMojo {
                     + "    " + nomeEntidade + "Service.$inject = ['GumgaBase', '$stateParams'];\n"
                     + "\n"
                     + "    function " + nomeEntidade + "Service(GumgaBase, $stateParams) {\n"
-                    + "        var url = APILocation.apiLocation + '/financeiro-api/api/" + nomeEntidade.toLowerCase() + "';\n"
+                    + "        var url = APILocation.apiLocation + '/api/" + nomeEntidade.toLowerCase() + "';\n"
                     + "        var query = {};\n"
                     + "        query.params = {\n"
                     + "            start: 0,\n"
@@ -405,6 +416,10 @@ public class GeraPresentation extends AbstractMojo {
                     + "        this.getById = function(id) {\n"
                     + "            return GumgaBase.getById(id);\n"
                     + "        };\n"
+                    + "\n"
+                    + "        this.getNew = function(){\n"
+                    + "            return GumgaBase.getNew(url);\n"
+                    + "        }\n"
                     + "\n"
                     + "        this.getSearch = function (field, param) {\n"
                     + "            if (!param) param = '';\n"
@@ -440,6 +455,12 @@ public class GeraPresentation extends AbstractMojo {
                     + "            return GumgaBase.get(url,query);\n"
                     + "        };\n"
                     + "\n"
+                    + "        this.resetDefaultState = function(){\n"
+                    + "            query.params = {\n"
+                    + "                start: 0,\n"
+                    + "                pageSize: 10\n"
+                    + "            };\n"
+                    + "        };\n"
                     + "    }\n"
                     + "\n"
                     + "    return " + nomeEntidade + "Service;\n"
@@ -536,6 +557,7 @@ public class GeraPresentation extends AbstractMojo {
                     + "    </div>\n"
                     + "    <div class=\"col-md-12\" style=\"margin-top:1%\">\n"
                     + "        <gumga-table\n"
+                    + "            name=\"" + nomeEntidade.toLowerCase() + "\""
                     + "            values=\"content.values\"\n");
 
             fw.write("            columns=\"" + Util.todosAtributosSeparadosPorVirgula(classeEntidade) + "\"\n");
@@ -565,7 +587,7 @@ public class GeraPresentation extends AbstractMojo {
 
         for (Class classe : dependenciasOneToMany) {
             try {
-                File arquivoModalHtml = new File(pastaViews + "/modal"+classe.getSimpleName()+".html");
+                File arquivoModalHtml = new File(pastaViews + "/modal" + classe.getSimpleName() + ".html");
                 FileWriter fw = new FileWriter(arquivoModalHtml);
                 fw.write("<form>\n"
                         + "<div class=\"modal-header\">\n"
@@ -580,8 +602,8 @@ public class GeraPresentation extends AbstractMojo {
                         + "    <button type=\"button\" class=\"btn btn-primary\" ng-click=\"ok(entity)\">OK</button>\n"
                         + "    <button type=\"button\" class=\"btn btn-warning\" ng-click=\"cancel()\">Cancel</button>\n"
                         + "</div>\n"
-                        + "<\form>\n");
-                
+                        + "</form>\n");
+
                 fw.close();
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -598,7 +620,7 @@ public class GeraPresentation extends AbstractMojo {
             boolean requerido = false;
 
             fw.write(Util.IDENTACAO + Util.IDENTACAO + "<!--" + atributo.getName() + " " + atributo.getType() + "-->\n");
-            fw.write(Util.IDENTACAO + Util.IDENTACAO + "<label for=\"" + atributo.getName() + "\">" + atributo.getName() + "</label>\n");
+            fw.write(Util.IDENTACAO + Util.IDENTACAO + "<label for=\"" + atributo.getName() + "\"  translate=\"" + nomeEntidade.toLowerCase() + "." + atributo.getName() + "\"  >" + atributo.getName() + "</label>\n");
             if (atributo.isAnnotationPresent(ManyToOne.class) || atributo.isAnnotationPresent(OneToOne.class)) {
                 fw.write(Util.IDENTACAO + Util.IDENTACAO
                         + "<input type=\"text\" ng-model=\"entity." + atributo.getName() + "\" "
@@ -620,7 +642,7 @@ public class GeraPresentation extends AbstractMojo {
                 fw.write(""
                         + "    <div class=\"col-md-12\">\n"
                         + "    <div class=\"btn-group\">\n"
-                        + "        <button class=\"btn btn-default\" ng-click=\"open"+Util.primeiraMaiuscula(atributo.getName())+"()\">New</button>\n"
+                        + "        <button class=\"btn btn-default\" ng-click=\"open" + Util.primeiraMaiuscula(atributo.getName()) + "()\">New</button>\n"
                         + "    </div>\n"
                         + "        <table class=\"table\">\n"
                         + "            <tbody>\n"
@@ -628,7 +650,7 @@ public class GeraPresentation extends AbstractMojo {
                         + "                    <td>{{obj." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</td>\n"
                         + "                    <td>\n"
                         + "                        <div class=\"btn-group pull-right\">\n"
-                        + "                            <button class=\"btn prymary\" ng-click=\"open"+Util.primeiraMaiuscula(atributo.getName())+"($index)\">Edit</button>\n"
+                        + "                            <button class=\"btn prymary\" ng-click=\"open" + Util.primeiraMaiuscula(atributo.getName()) + "($index)\">Edit</button>\n"
                         + "                            <button class=\"btn btn-danger\" ng-click=\"remove" + Util.primeiraMaiuscula(atributo.getName()) + "($index)\">Remove</button>\n"
                         + "                        </div>\n"
                         + "                    </td>\n"
@@ -639,9 +661,11 @@ public class GeraPresentation extends AbstractMojo {
                         + "    </div>\n"
                         + "\n");
 
+            } else if (GumgaAddress.class.equals(atributo.getType())) {
+                fw.write("<gumga-address name=\"" + atributo.getName() + "\" value=\"entity." + atributo.getName() + "\"> </gumga-address>\n\n");
             } else {
                 fw.write(""
-                        + "        <input type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + "\" class=\"form-control\" />\n"
+                        + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + "\" class=\"form-control\" />\n"
                         + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
                         + "\n");
             }
@@ -663,13 +687,19 @@ public class GeraPresentation extends AbstractMojo {
                     + "    require('app/modules/gumga/module');\n"
                     + "    var APILocation = require('app/apiLocations');\n"
                     + "\n"
-                    + "    angular.module('app." + nomeEntidade.toLowerCase() + "', ['ui.router', 'app." + nomeEntidade.toLowerCase() + ".controllers', 'app." + nomeEntidade.toLowerCase() + ".services', 'gumga.core'])\n"
+                    + "    angular.module('app." + nomeEntidade.toLowerCase() + "', ['ui.router', 'app." + nomeEntidade.toLowerCase() + ".controllers', 'app." + nomeEntidade.toLowerCase() + ".services', 'gumga.core', 'pascalprecht.translate'])\n"
                     + "        .config(function ($stateProvider, $httpProvider) {\n"
                     + "            $stateProvider\n"
                     + "                .state('" + nomeEntidade.toLowerCase() + ".list', {\n"
                     + "                    url: '/list',\n"
                     + "                    templateUrl: 'app/modules/" + nomeEntidade.toLowerCase() + "/views/list.html',\n"
-                    + "                    controller: '" + nomeEntidade + "ListController'\n"
+                    + "                    controller: '" + nomeEntidade + "ListController',\n"
+                    + "                    resolve:{\n"
+                    + "                        translatePartialLoader: ['$translate', '$translatePartialLoader', function ($translate, $translatePartialLoader) {\n"
+                    + "                            $translatePartialLoader.addPart('" + nomeEntidade.toLowerCase() + "');\n"
+                    + "                            return $translate.refresh();\n"
+                    + "                        }]\n"
+                    + "                    }\n"
                     + "                })\n"
                     + "                .state('" + nomeEntidade.toLowerCase() + ".insert', {\n"
                     + "                    url: '/insert',\n"
@@ -677,9 +707,14 @@ public class GeraPresentation extends AbstractMojo {
                     + "                    controller: '" + nomeEntidade + "FormController',\n"
                     + "                    controllerAs: 'form',\n"
                     + "                    resolve: {\n"
-                    + "                        entity: function () {\n"
-                    + "                            return {};\n"
-                    + "                        }\n"
+                    + "                        entity: ['$stateParams', '$http', function ($stateParams, $http) {\n"
+                    + "                            var url = APILocation.apiLocation + '/api/" + nomeEntidade.toLowerCase() + "/new'\n"
+                    + "                            return $http.get(url);\n"
+                    + "                        }],\n"
+                    + "                        translatePartialLoader: ['$translate', '$translatePartialLoader', function ($translate, $translatePartialLoader) {\n"
+                    + "                            $translatePartialLoader.addPart('" + nomeEntidade.toLowerCase() + "');\n"
+                    + "                            return $translate.refresh();\n"
+                    + "             servic           }]\n"
                     + "                    }\n"
                     + "                })\n"
                     + "                .state('" + nomeEntidade.toLowerCase() + ".edit', {\n"
@@ -688,8 +723,12 @@ public class GeraPresentation extends AbstractMojo {
                     + "                    controller: '" + nomeEntidade + "FormController',\n"
                     + "                    resolve: {\n"
                     + "                        entity: ['$stateParams', '$http', function ($stateParams, $http) {\n"
-                    + "                            var url = APILocation.apiLocation + '/" + project.getParent().getArtifactId() + "-api/api/" + nomeEntidade.toLowerCase() + "/' + $stateParams.id;\n"
+                    + "                            var url = APILocation.apiLocation + '/api/" + nomeEntidade.toLowerCase() + "/' + $stateParams.id;\n"
                     + "                            return $http.get(url);\n"
+                    + "                        }],\n"
+                    + "                        translatePartialLoader: ['$translate', '$translatePartialLoader', function ($translate, $translatePartialLoader) {\n"
+                    + "                            $translatePartialLoader.addPart('" + nomeEntidade.toLowerCase() + "');\n"
+                    + "                            return $translate.refresh();\n"
                     + "                        }]\n"
                     + "                    }\n"
                     + "                });\n"
@@ -702,6 +741,27 @@ public class GeraPresentation extends AbstractMojo {
             ex.printStackTrace();
         }
 
+    }
+
+    private void geraI18n() {
+        try {
+            File arq = new File(pastaI18n + "/" + nomeEntidade.toLowerCase() + ".json");
+            FileWriter fw = new FileWriter(arq);
+            fw.write("{\n"
+                    + Util.IDENTACAO + "\"" + nomeEntidade.toLowerCase() + "\":{\n"
+                    + Util.IDENTACAO + Util.IDENTACAO + "\"menuLabel\": \"" + nomeEntidade.toUpperCase() + "\"\n"
+                    + Util.IDENTACAO + Util.IDENTACAO + ",\"id\": \"ID\"\n"
+                    + "");
+            for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
+                fw.write(Util.IDENTACAO + Util.IDENTACAO + ",\"" + atributo.getName() + "\": \"" + atributo.getName().toUpperCase() + "\"\n");
+
+            }
+            fw.write(Util.IDENTACAO + "}\n"
+                    + "}\n");
+            fw.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
 }
