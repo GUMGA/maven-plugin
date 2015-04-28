@@ -124,16 +124,17 @@ public class GeraEntidade extends AbstractMojo {
             fw.write(Util.IDENTACAO + "//@Field //Descomente para ser utilizado na busca multientidades\n");
             String partes[] = atributo.split(":");
             if (partes[1].trim().endsWith("GumgaAddress")) {
-                fw.write("     @Columns(columns = {\n"
-                        + "     @Column(name = \"" + partes[0] + "_cep\"),\n"
-                        + "     @Column(name = \"" + partes[0] + "_tipoLogradouro\"),\n"
-                        + "     @Column(name = \"" + partes[0] + "_logradouro\"),\n"
-                        + "     @Column(name = \"" + partes[0] + "_numero\"),\n"
-                        + "     @Column(name = \"" + partes[0] + "_complemento\"),\n"
-                        + "     @Column(name = \"" + partes[0] + "_bairro\"),\n"
-                        + "     @Column(name = \"" + partes[0] + "_localidade\"),\n"
-                        + "     @Column(name = \"" + partes[0] + "_uf\"),\n"
-                        + "     @Column(name = \"" + partes[0] + "_pais\")\n"
+                fw.write(""
+                        + "     @Columns(columns = {\n"
+                        + "     @Column(name = \"" + partes[0] + "_zip_code\"),\n"
+                        + "     @Column(name = \"" + partes[0] + "_premisse_type\"),\n"
+                        + "     @Column(name = \"" + partes[0] + "_premisse\"),\n"
+                        + "     @Column(name = \"" + partes[0] + "_number\"),\n"
+                        + "     @Column(name = \"" + partes[0] + "_information\"),\n"
+                        + "     @Column(name = \"" + partes[0] + "_neighbourhood\"),\n"
+                        + "     @Column(name = \"" + partes[0] + "_localization\"),\n"
+                        + "     @Column(name = \"" + partes[0] + "_state\"),\n"
+                        + "     @Column(name = \"" + partes[0] + "_country\")\n"
                         + "     })"
                         + "\n");
             }

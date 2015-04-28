@@ -87,7 +87,7 @@ public class GeraPresentation extends AbstractMojo {
             pastaControllers = pastaApp + "/controllers";
             pastaServices = pastaApp + "/services";
             pastaViews = pastaApp + "/views";
-            pastaI18n = Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/i18n/pt-br/";
+            pastaI18n = Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/i18n/";
             new File(pastaControllers).mkdirs();
             new File(pastaServices).mkdirs();
             new File(pastaViews).mkdirs();
@@ -318,7 +318,7 @@ public class GeraPresentation extends AbstractMojo {
                             + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "$scope." + atributo.getName() + "List = data.values;\n"
                             + Util.IDENTACAO + Util.IDENTACAO + "});\n\n"
                             + Util.IDENTACAO + Util.IDENTACAO + "$scope.searchManyToOne" + atributo.getName() + " = function (param) {\n"
-                            + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "return " + atributo.getType().getSimpleName()+ "Service.getSearch('" + Util.primeiroAtributo(atributo.getType()).getName() + "', param).then(function(data){\n"
+                            + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "return " + atributo.getType().getSimpleName() + "Service.getSearch('" + Util.primeiroAtributo(atributo.getType()).getName() + "', param).then(function(data){\n"
                             + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "$scope." + atributo.getName() + "List = data.data.values;\n"
                             + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "})\n"
                             + Util.IDENTACAO + Util.IDENTACAO + "};\n"
@@ -618,7 +618,7 @@ public class GeraPresentation extends AbstractMojo {
             if (atributo.isAnnotationPresent(ManyToOne.class) || atributo.isAnnotationPresent(OneToOne.class)) {
                 fw.write(Util.IDENTACAO + Util.IDENTACAO
                         + "<gumga-many-to-one model=\"entity." + atributo.getName() + "\"\n"
-                        + "         search-method=\"searchManyToOne" +Util.primeiraMaiuscula(atributo.getName()) + "(param)\"\n"
+                        + "         search-method=\"searchManyToOne" + Util.primeiraMaiuscula(atributo.getName()) + "(param)\"\n"
                         + "         list=\"" + atributo.getName() + "List\"\n"
                         + "         field=\"" + Util.primeiroAtributo(atributo.getType()).getName() + "\">\n"
                         + "</gumga-many-to-one>"
@@ -638,7 +638,7 @@ public class GeraPresentation extends AbstractMojo {
                 fw.write(""
                         + "<gumga-one-to-many\n"
                         + "     children=\"entity." + atributo.getName().toLowerCase() + "\"\n"
-                        + "     template-url=\"app/modules/" + nomeEntidade.toLowerCase() + "/views/modal" + Util.getTipoGenerico(atributo).getSimpleName()+ ".html\"\n"
+                        + "     template-url=\"app/modules/" + nomeEntidade.toLowerCase() + "/views/modal" + Util.getTipoGenerico(atributo).getSimpleName() + ".html\"\n"
                         + "     displayable-property=\"" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName().toLowerCase() + "\"\n"
                         + "     controller=\"Modal" + Util.getTipoGenerico(atributo).getSimpleName() + "Controller\">"
                         + "</gumga-one-to-many>\n"
@@ -832,20 +832,15 @@ public class GeraPresentation extends AbstractMojo {
 
     private void geraI18n() {
         try {
-            File arq = new File(pastaI18n + "/" + nomeEntidade.toLowerCase() + ".json");
-            FileWriter fw = new FileWriter(arq);
-            fw.write("{\n"
-                    + Util.IDENTACAO + "\"" + nomeEntidade.toLowerCase() + "\":{\n"
-                    + Util.IDENTACAO + Util.IDENTACAO + "\"menuLabel\": \"" + nomeEntidade.toUpperCase() + "\"\n"
-                    + Util.IDENTACAO + Util.IDENTACAO + ",\"id\": \"ID\"\n"
-                    + "");
+            String texto = Util.IDENTACAO + ",\"" + nomeEntidade.toLowerCase() + "\":{\n"
+                    + Util.IDENTACAO + Util.IDENTACAO + "\"title\":\"" + nomeEntidade.toUpperCase() + "\"\n"
+                    + Util.IDENTACAO + Util.IDENTACAO + ",\"menulabel\": \"" + nomeEntidade.toUpperCase() + "\"\n"
+                    + Util.IDENTACAO + Util.IDENTACAO + ",\"id\": \"ID\"\n";
             for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
-                fw.write(Util.IDENTACAO + Util.IDENTACAO + ",\"" + atributo.getName() + "\": \"" + atributo.getName().toUpperCase() + "\"\n");
-
+                texto += Util.IDENTACAO + Util.IDENTACAO + ",\"" + atributo.getName().toLowerCase() + "\":\"" + atributo.getName().toUpperCase() + "\"\n";
             }
-            fw.write(Util.IDENTACAO + "}\n"
-                    + "}\n");
-            fw.close();
+            texto += Util.IDENTACAO + "}\n";
+            Util.adicionaLinha(pastaI18n + "/pt-br.json", ",\"FIM\":\"FIM\"", texto);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
