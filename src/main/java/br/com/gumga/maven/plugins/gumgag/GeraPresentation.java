@@ -489,7 +489,7 @@ public class GeraPresentation extends AbstractMojo {
                     + "<div class=\"gumga-container\" gumga-alert>\n"
                     + "    <gumga-breadcrumb></gumga-breadcrumb>\n"
                     + "    <div class=\"col-md-12\">\n"
-                    + "        <h3 style=\"margin-top: 0\"> " + nomeEntidade + " </h3>\n"
+                    + "        <h3 style=\"margin-top: 0\" gumga-translate-tag=\""+ nomeEntidade.toLowerCase() +".title\"></h3>\n"
                     + "    </div>\n"
                     + "    <div class=\"col-md-12\" ui-view style=\"margin-right:0;margin-left:0\">\n"
                     + "\n"
@@ -551,6 +551,7 @@ public class GeraPresentation extends AbstractMojo {
                     + "    </div>\n"
                     + "    <div class=\"col-md-12\" style=\"margin-top:1%\">\n"
                     + "        <gumga-table\n"
+                    + "            translate-entity=\"" + nomeEntidade.toLowerCase() + "\""
                     + "            name=\"" + nomeEntidade.toLowerCase() + "\""
                     + "            values=\"content.values\"\n");
 
@@ -585,7 +586,7 @@ public class GeraPresentation extends AbstractMojo {
                 FileWriter fw = new FileWriter(arquivoModalHtml);
                 fw.write("<form>\n"
                         + "<div class=\"modal-header\">\n"
-                        + "    <h3 class=\"modal-title\">" + classe.getSimpleName() + ":{{entity.nome}}</h3>\n"
+                        + "    <h3 class=\"modal-title\" gumga-translate-tag=\" " + classe.getSimpleName().toLowerCase() +".title\"></h3>\n"
                         + "</div>\n"
                         + "<div class=\"modal-body\">\n");
 
@@ -614,7 +615,9 @@ public class GeraPresentation extends AbstractMojo {
             boolean requerido = false;
 
             fw.write(Util.IDENTACAO + Util.IDENTACAO + "<!--" + atributo.getName() + " " + atributo.getType() + "-->\n");
-            fw.write(Util.IDENTACAO + Util.IDENTACAO + "<label for=\"" + atributo.getName() + "\"  translate=\"" + nomeEntidade.toLowerCase() + "." + atributo.getName() + "\"  >" + atributo.getName() + "</label>\n");
+            fw.write(Util.IDENTACAO + Util.IDENTACAO + "<label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + nomeEntidade.toLowerCase() + "." + atributo.getName() + "\"></label>\n");
+            
+            
             if (atributo.isAnnotationPresent(ManyToOne.class) || atributo.isAnnotationPresent(OneToOne.class)) {
                 fw.write(Util.IDENTACAO + Util.IDENTACAO
                         + "<gumga-many-to-one model=\"entity." + atributo.getName() + "\"\n"
@@ -738,7 +741,7 @@ public class GeraPresentation extends AbstractMojo {
                         + "\n");
             } else if (GumgaBoolean.class.equals(atributo.getType())) {
                 fw.write(""
-                        + "        <label><input type=\"checkbox\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" /> " + Util.etiqueta(atributo) + "</label>"
+                        + "        <label><input type=\"checkbox\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" /> <span gumga-translate-tag=\"" + nomeEntidade.toLowerCase() + "." + atributo.getName() + "\"></span></label>"
                         + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
                         + "\n");
             } else {
