@@ -133,6 +133,9 @@ public class GeraPresentation extends AbstractMojo {
 
         Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/app.js", "//FIMROUTE", ""
                 + Util.IDENTACAO + Util.IDENTACAO + ".state('" + nomeEntidade.toLowerCase() + "', {\n"
+                + Util.IDENTACAO + Util.IDENTACAO + "data: {\n"
+                + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "id: 1\n"
+                + Util.IDENTACAO + Util.IDENTACAO + "}, \n"
                 + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "url: '/" + nomeEntidade.toLowerCase() + "',\n"
                 + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "templateUrl: 'app/modules/" + nomeEntidade.toLowerCase() + "/views/base.html'\n"
                 + Util.IDENTACAO + Util.IDENTACAO + "})\n"
@@ -489,7 +492,7 @@ public class GeraPresentation extends AbstractMojo {
                     + "<div class=\"gumga-container\" gumga-alert>\n"
                     + "    <gumga-breadcrumb></gumga-breadcrumb>\n"
                     + "    <div class=\"col-md-12\">\n"
-                    + "        <h3 style=\"margin-top: 0\" gumga-translate-tag=\""+ nomeEntidade.toLowerCase() +".title\"></h3>\n"
+                    + "        <h3 style=\"margin-top: 0\" gumga-translate-tag=\"" + nomeEntidade.toLowerCase() + ".title\"></h3>\n"
                     + "    </div>\n"
                     + "    <div class=\"col-md-12\" ui-view style=\"margin-right:0;margin-left:0\">\n"
                     + "\n"
@@ -586,7 +589,7 @@ public class GeraPresentation extends AbstractMojo {
                 FileWriter fw = new FileWriter(arquivoModalHtml);
                 fw.write("<form>\n"
                         + "<div class=\"modal-header\">\n"
-                        + "    <h3 class=\"modal-title\" gumga-translate-tag=\" " + classe.getSimpleName().toLowerCase() +".title\"></h3>\n"
+                        + "    <h3 class=\"modal-title\" gumga-translate-tag=\" " + classe.getSimpleName().toLowerCase() + ".title\"></h3>\n"
                         + "</div>\n"
                         + "<div class=\"modal-body\">\n");
 
@@ -616,8 +619,7 @@ public class GeraPresentation extends AbstractMojo {
 
             fw.write(Util.IDENTACAO + Util.IDENTACAO + "<!--" + atributo.getName() + " " + atributo.getType() + "-->\n");
             fw.write(Util.IDENTACAO + Util.IDENTACAO + "<label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + nomeEntidade.toLowerCase() + "." + atributo.getName() + "\"></label>\n");
-            
-            
+
             if (atributo.isAnnotationPresent(ManyToOne.class) || atributo.isAnnotationPresent(OneToOne.class)) {
                 fw.write(Util.IDENTACAO + Util.IDENTACAO
                         + "<gumga-many-to-one model=\"entity." + atributo.getName() + "\"\n"
@@ -768,7 +770,7 @@ public class GeraPresentation extends AbstractMojo {
                     + "    require('app/modules/gumga/module');\n"
                     + "    var APILocation = require('app/apiLocations');\n"
                     + "\n"
-                    + "    angular.module('app." + nomeEntidade.toLowerCase() + "', ['ui.router', 'app." + nomeEntidade.toLowerCase() + ".controllers', 'app." + nomeEntidade.toLowerCase() + ".services', 'gumga.core', 'pascalprecht.translate'])\n"
+                    + "    angular.module('app." + nomeEntidade.toLowerCase() + "', ['ui.router', 'app." + nomeEntidade.toLowerCase() + ".controllers', 'app." + nomeEntidade.toLowerCase() + ".services', 'gumga.core'])\n"
                     + "        .config(function ($stateProvider, $httpProvider) {\n"
                     + "            $stateProvider\n"
                     + "                .state('" + nomeEntidade.toLowerCase() + ".list', {\n"
@@ -777,13 +779,7 @@ public class GeraPresentation extends AbstractMojo {
                     + "                    controller: '" + nomeEntidade + "ListController',\n"
                     + "                    data: {"
                     + "                         id: 2 "
-                    + "                    },"
-                    + "                    resolve:{\n"
-                    + "                        translatePartialLoader: ['$translate', '$translatePartialLoader', function ($translate, $translatePartialLoader) {\n"
-                    + "                            $translatePartialLoader.addPart('" + nomeEntidade.toLowerCase() + "');\n"
-                    + "                            return $translate.refresh();\n"
-                    + "                        }]\n"
-                    + "                    }\n"
+                    + "                    }"
                     + "                })\n"
                     + "                .state('" + nomeEntidade.toLowerCase() + ".insert', {\n"
                     + "                    url: '/insert',\n"
@@ -797,10 +793,6 @@ public class GeraPresentation extends AbstractMojo {
                     + "                        entity: ['$stateParams', '$http', function ($stateParams, $http) {\n"
                     + "                            var url = APILocation.apiLocation + '/api/" + nomeEntidade.toLowerCase() + "/new'\n"
                     + "                            return $http.get(url);\n"
-                    + "                        }],\n"
-                    + "                        translatePartialLoader: ['$translate', '$translatePartialLoader', function ($translate, $translatePartialLoader) {\n"
-                    + "                            $translatePartialLoader.addPart('" + nomeEntidade.toLowerCase() + "');\n"
-                    + "                            return $translate.refresh();\n"
                     + "                        }]\n"
                     + "                    }\n"
                     + "                })\n"
@@ -815,10 +807,6 @@ public class GeraPresentation extends AbstractMojo {
                     + "                        entity: ['$stateParams', '$http', function ($stateParams, $http) {\n"
                     + "                            var url = APILocation.apiLocation + '/api/" + nomeEntidade.toLowerCase() + "/' + $stateParams.id;\n"
                     + "                            return $http.get(url);\n"
-                    + "                        }],\n"
-                    + "                        translatePartialLoader: ['$translate', '$translatePartialLoader', function ($translate, $translatePartialLoader) {\n"
-                    + "                            $translatePartialLoader.addPart('" + nomeEntidade.toLowerCase() + "');\n"
-                    + "                            return $translate.refresh();\n"
                     + "                        }]\n"
                     + "                    }\n"
                     + "                });\n"
@@ -843,7 +831,7 @@ public class GeraPresentation extends AbstractMojo {
                 texto += Util.IDENTACAO + Util.IDENTACAO + ",\"" + atributo.getName().toLowerCase() + "\":\"" + atributo.getName().toUpperCase() + "\"\n";
             }
             texto += Util.IDENTACAO + "}\n";
-            Util.adicionaLinha(pastaI18n + "/pt-br.json", ",\"FIM\":\"FIM\"", texto);
+            Util.adicionaLinha(pastaI18n + "/pt-br.json", ",\"FIM\": \"FIM\"", texto);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
