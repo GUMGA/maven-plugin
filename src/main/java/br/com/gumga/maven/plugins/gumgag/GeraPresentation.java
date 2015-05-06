@@ -6,6 +6,7 @@
 package br.com.gumga.maven.plugins.gumgag;
 
 import gumga.framework.domain.domains.GumgaAddress;
+import gumga.framework.domain.domains.GumgaBarCode;
 import gumga.framework.domain.domains.GumgaBoolean;
 import gumga.framework.domain.domains.GumgaCEP;
 import gumga.framework.domain.domains.GumgaCNPJ;
@@ -25,9 +26,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
@@ -656,6 +655,11 @@ public class GeraPresentation extends AbstractMojo {
                         + "         <gumga-address name=\"" + atributo.getName() + "\" value=\"entity." + atributo.getName() + "\"> </gumga-address>\n"
                         + "     </div>\n"
                         + " </div>\n"
+                        + "\n");
+            } else if (GumgaBarCode.class.equals(atributo.getType())) { 
+                fw.write(""
+                        + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" />\n"
+                        + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
                         + "\n");
             } else if (GumgaCEP.class.equals(atributo.getType())) { //TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR A DEPENDENCIA EXTERNA
                 fw.write(""
