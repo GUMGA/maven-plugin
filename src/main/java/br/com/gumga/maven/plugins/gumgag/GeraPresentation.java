@@ -349,8 +349,17 @@ public class GeraPresentation extends AbstractMojo {
 //                A zica tá aqui nas dependências Munif, a gente não sabe controlar certinho essas dependências,
 //                vê como é o jeito certo, o resto tá explicando no papel.
                 Set<Class> dependencias = new HashSet<>();
-                dependencias.addAll(dependenciasManyToMany);
-                dependencias.addAll(dependenciasManyToOne);
+                for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classe)) {
+                    if (atributo.isAnnotationPresent(ManyToOne.class)) {
+                        dependencias.add(atributo.getType());
+                    }
+                    if (atributo.isAnnotationPresent(ManyToMany.class)) {
+                        dependencias.add(Util.getTipoGenerico(atributo));
+                    }
+                    if (atributo.isAnnotationPresent(OneToMany.class)) {
+                        dependencias.add(Util.getTipoGenerico(atributo));
+                    }
+                }
 
                 File f = new File(pastaControllers + "/Modal" + classe.getSimpleName() + "Controller.js");
                 FileWriter fw = new FileWriter(f);
@@ -379,8 +388,8 @@ public class GeraPresentation extends AbstractMojo {
                 fw.write(
                         "		entity = entity || {};\n"
                         + "             $scope.entity = angular.copy(entity)\n"
-                                + "");
-                for (Field atributo : Util.getTodosAtributosNaoEstaticos(classeEntidade)) {
+                        + "");
+                for (Field atributo : Util.getTodosAtributosNaoEstaticos(classe)) {
                     if (atributo.isAnnotationPresent(ManyToMany.class)) {
                         fw.write("        $scope.entity." + atributo.getName() + " = $scope.entity." + atributo.getName() + "  || [];\n\n");
 
@@ -420,8 +429,7 @@ public class GeraPresentation extends AbstractMojo {
 
                 }
 
-                
-                            fw.write( "		$scope.ok = function (obj) {\n"
+                fw.write("		$scope.ok = function (obj) {\n"
                         + "			$modalInstance.close(obj);\n"
                         + "		};\n"
                         + "\n"
@@ -663,11 +671,12 @@ public class GeraPresentation extends AbstractMojo {
                         + "<div class=\"modal-header\">\n"
                         + "    <h3 class=\"modal-title\" gumga-translate-tag=\" " + classe.getSimpleName().toLowerCase() + ".title\"></h3>\n"
                         + "</div>\n"
-                        + "<div class=\"modal-body\">\n");
+                        + "<div class=\"modal-body\" style=\"overflow: auto\">\n");
 
                 geraCampos(fw, classe);
 
                 fw.write("</div>\n"
+                        + "<div class=\"clearfix\"></div>\n"
                         + "<div class=\"modal-footer\">\n"
                         + "    <button type=\"button\" class=\"btn btn-primary\" ng-click=\"ok(entity)\">OK</button>\n"
                         + "    <button type=\"button\" class=\"btn btn-warning\" ng-click=\"cancel()\">Cancel</button>\n"
@@ -690,9 +699,9 @@ public class GeraPresentation extends AbstractMojo {
             boolean requerido = false;
 
             fw.write(Util.IDENTACAO + Util.IDENTACAO + "<!--" + atributo.getName() + " " + atributo.getType() + "-->\n");
-            fw.write(Util.IDENTACAO + Util.IDENTACAO + "<label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + nomeEntidade.toLowerCase() + "." + atributo.getName() + "\"></label>\n");
 
             if (atributo.isAnnotationPresent(ManyToOne.class) || atributo.isAnnotationPresent(OneToOne.class)) {
+                fw.write(Util.IDENTACAO + Util.IDENTACAO + "<label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\"></label>\n");
                 fw.write(Util.IDENTACAO + Util.IDENTACAO
                         + "<gumga-many-to-one model=\"entity." + atributo.getName() + "\"\n"
                         + "         search-method=\"searchManyToOne" + Util.primeiraMaiuscula(atributo.getName()) + "(param)\"\n"
@@ -703,131 +712,145 @@ public class GeraPresentation extends AbstractMojo {
 
             } else if (atributo.isAnnotationPresent(ManyToMany.class)) {
                 fw.write(""
+                        + "        <div class=\"col-md-6\">\n"
+                        + "            <label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + Util.getTipoGenerico(atributo).getSimpleName().toLowerCase()+ ".title\"></label>\n"
+                        + "        </div>\n"
+                        + "        <div class=\"col-md-6\">\n"
+                        + "            <label for=\"cidade\" gumga-translate-tag=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\"></label>\n"
+                        + "        </div>"
+                        + "\n");
+
+                fw.write("<div class=\"full-width-without-padding\">\n"
                         + Util.IDENTACAO + Util.IDENTACAO + "<gumga-many-to-many left-list=\"" + atributo.getName() + "Availables" + "\" right-list=\"entity." + atributo.getName() + "\" "
                         + "left-search=\"" + atributo.getName() + "Search(param)\""
                         + ">\n"
                         + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "    <left-list-field>{{item." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</left-list-field>\n"
                         + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "    <right-list-field>{{item." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</right-list-field>\n"
                         + Util.IDENTACAO + Util.IDENTACAO + "</gumga-many-to-many>\n\n"
+                        + "</div>\n"
                         + "");
 
             } else if (atributo.isAnnotationPresent(OneToMany.class)) {
-                fw.write(""
+                fw.write(Util.IDENTACAO + Util.IDENTACAO + "<label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\"></label>\n");
+                fw.write("<div class=\"col-md-12\">\n"
                         + "<gumga-one-to-many\n"
                         + "     children=\"entity." + atributo.getName().toLowerCase() + "\"\n"
                         + "     template-url=\"app/modules/" + nomeEntidade.toLowerCase() + "/views/modal" + Util.getTipoGenerico(atributo).getSimpleName() + ".html\"\n"
                         + "     displayable-property=\"" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName().toLowerCase() + "\"\n"
                         + "     controller=\"Modal" + Util.getTipoGenerico(atributo).getSimpleName() + "Controller\">"
                         + "</gumga-one-to-many>\n"
-                        + "\n"
+                        + "</div>\n"
                         + "\n");
 
-            } else if (GumgaAddress.class.equals(atributo.getType())) {
-                fw.write("  <div class=\"row\">"
-                        + "     <div class=\"col-md-12\">\n"
-                        + "         <gumga-address name=\"" + atributo.getName() + "\" value=\"entity." + atributo.getName() + "\"> </gumga-address>\n"
-                        + "     </div>\n"
-                        + " </div>\n"
-                        + "\n");
-            } else if (GumgaBarCode.class.equals(atributo.getType())) { 
-                fw.write(""
-                        + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" />\n"
-                        + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
-                        + "\n");
-            } else if (GumgaCEP.class.equals(atributo.getType())) { //TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR A DEPENDENCIA EXTERNA
-                fw.write(""
-                        + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" ui-br-cep-mask/>\n"
-                        + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
-                        + "\n");
-            } else if (GumgaCNPJ.class.equals(atributo.getType())) { //TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR A DEPENDENCIA EXTERNA
-                fw.write(""
-                        + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + ".\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" ui-br-cnpj-mask/>\n"
-                        + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
-                        + "\n");
-            } else if (GumgaCPF.class.equals(atributo.getType())) { //TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR A DEPENDENCIA EXTERNA
-                fw.write(""
-                        + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" ui-br-cpf-mask/>\n"
-                        + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
-                        + "\n");
-            } else if (GumgaIP4.class.equals(atributo.getType())) { //TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR O GUMGAMAX E GUMGAMIN
-                fw.write(""
-                        + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" gumga-min=\"12\" gumga-max=\"12\"/>\n"
-                        + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
-                        + "\n");
-            } else if (GumgaIP6.class.equals(atributo.getType())) { //TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR O GUMGAMAX E GUMGAMIN
-                fw.write(""
-                        + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" gumga-min=\"12\" gumga-max=\"12\"/>\n"
-                        + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
-                        + "\n");
-            } else if (GumgaFile.class.equals(atributo.getType())) {//TODO SUBSTITUIR PELA DIRETIVA DE IMPORTAÇÃO E ARQUIVO QUANDO ESTIVER PRONTA
-
-            } else if (GumgaImage.class.equals(atributo.getType())) {//TODO SUBSTITUIR PELA DIRETIVA DE IMPORTAÇÃO E ARQUIVO QUANDO ESTIVER PRONTA
-
-            } else if (GumgaEMail.class.equals(atributo.getType())) {
-                fw.write(""
-                        + "        <input id=\"" + atributo.getName() + "\" type=\"email\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" />\n"
-                        + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
-                        + "\n");
-            } else if (GumgaMoney.class.equals(atributo.getType())) {//TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR A DEPENDENCIA EXTERNA
-                fw.write(""
-                        + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" ui-money-mask=\"2\"/>\n"
-                        + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
-                        + "\n");
-            } else if (GumgaPhoneNumber.class.equals(atributo.getType())) {//TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR A DEPENDENCIA EXTERNA
-                fw.write(""
-                        + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" ui-br-phone-number/>\n"
-                        + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
-                        + "\n");
-            } else if (GumgaURL.class.equals(atributo.getType())) {//TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR A DEPENDENCIA EXTERNA
-                fw.write(""
-                        + "        <input id=\"" + atributo.getName() + "\" type=\"url\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" />\n"
-                        + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
-                        + "\n");
-            } else if (GumgaTime.class.equals(atributo.getType())) {//TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR A DEPENDENCIA EXTERNA
-                fw.write("\n"
-                        + " <div class=\"row\">\n"
-                        + "     <div class=\"col-md-12\">\n"
-                        + "            <label for=\"" + atributo.getName() + ".hour\">Hour</label>\n"
-                        + "            <input id=\"" + atributo.getName() + ".hour\" type=\"number\" name=\"" + atributo.getName() + ".hour\" ng-model=\"entity." + atributo.getName() + ".hour\" max=\"23\" min=\"0\" class=\"form-control\"/>\n"
-                        + "            <gumga-errors name=\"" + atributo.getName() + ".hour\"></gumga-errors>\n"
-                        + "            <label for=\"" + atributo.getName() + ".minute\">Minute</label>\n"
-                        + "            <input id=\"" + atributo.getName() + ".minute\" type=\"number\" name=\"" + atributo.getName() + ".minute\" ng-model=\"entity." + atributo.getName() + ".minute\" max=\"59\" min=\"0\" class=\"form-control\"/>\n"
-                        + "            <gumga-errors name=\"" + atributo.getName() + ".minute\"></gumga-errors>\n"
-                        + "            <label for=\"" + atributo.getName() + ".second\">Second</label>\n"
-                        + "            <input id=\"" + atributo.getName() + ".second\" type=\"number\" name=\"" + atributo.getName() + ".second\" ng-model=\"entity." + atributo.getName() + ".second\" max=\"59\" min=\"0\" class=\"form-control\"/>\n"
-                        + "            <gumga-errors name=\"" + atributo.getName() + ".second\"></gumga-errors>\n"
-                        + "    </div>\n"
-                        + " </div>\n"
-                        + "\n");
-            } else if (GumgaMultiLineString.class.equals(atributo.getType())) {
-                fw.write(""
-                        + "        <textarea ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" placeholder=\"Digite " + Util.etiqueta(atributo) + ".\" rows=\"4\" cols=\"50\"></textarea>\n\n"
-                        + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
-                        + "\n");
-            } else if (GumgaGeoLocation.class.equals(atributo.getType())) { //TODO SUBSTITUIR PELO COMPONENTE GUMGAMAPS QUANDO ELE ESTIVER PRONTO
-                fw.write(""
-                        + " <div class=\"row\">\n"
-                        + "     <div class=\"col-md-12\">\n"
-                        + "        <label for=\"" + atributo.getName() + ".latitude\">Latitude</label>\n"
-                        + "        <input id=\"" + atributo.getName() + ".latitude\" type=\"text\" name=\"" + atributo.getName() + ".latitude\" ng-model=\"entity." + atributo.getName() + ".latitude\" class=\"form-control\" />\n"
-                        + "        <gumga-errors name=\"" + atributo.getName() + ".latitude\"></gumga-errors>\n"
-                        + "        <label for=\"" + atributo.getName() + ".longitude\">Longitude</label>\n"
-                        + "        <input id=\"" + atributo.getName() + ".longitude\" type=\"text\" name=\"" + atributo.getName() + ".longitude\" ng-model=\"entity." + atributo.getName() + ".longitude\" class=\"form-control\" />\n"
-                        + "        <gumga-errors name=\"" + atributo.getName() + ".longitude\"></gumga-errors>\n"
-                        + "        <a class=\"btn btn-default\" ng-href=\"http://maps.google.com/maps?q={{entity." + atributo.getName() + ".latitude + ',' + entity." + atributo.getName() + ".longitude}}\" target=\"_blank\"> <p class=\"glyphicon glyphicon-globe\"></p> GOOGLE MAPS</a>\n"
-                        + "     </div>\n"
-                        + " </div>\n"
-                        + "\n");
-            } else if (GumgaBoolean.class.equals(atributo.getType())) {
-                fw.write(""
-                        + "        <label><input type=\"checkbox\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" /> <span gumga-translate-tag=\"" + nomeEntidade.toLowerCase() + "." + atributo.getName() + "\"></span></label>"
-                        + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
-                        + "\n");
             } else {
-                fw.write(""
-                        + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + "\" class=\"form-control\" />\n"
-                        + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
-                        + "\n");
+                fw.write(Util.IDENTACAO + Util.IDENTACAO + "<label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + nomeEntidade.toLowerCase() + "." + atributo.getName() + "\"></label>\n");
+                if (GumgaAddress.class.equals(atributo.getType())) {
+                    fw.write("  <div class=\"row\">"
+                            + "     <div class=\"col-md-12\">\n"
+                            + "         <gumga-address name=\"" + atributo.getName() + "\" value=\"entity." + atributo.getName() + "\"> </gumga-address>\n"
+                            + "     </div>\n"
+                            + " </div>\n"
+                            + "\n");
+                } else if (GumgaBarCode.class.equals(atributo.getType())) {
+                    fw.write(""
+                            + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" />\n"
+                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "\n");
+                } else if (GumgaCEP.class.equals(atributo.getType())) { //TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR A DEPENDENCIA EXTERNA
+                    fw.write(""
+                            + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" ui-br-cep-mask/>\n"
+                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "\n");
+                } else if (GumgaCNPJ.class.equals(atributo.getType())) { //TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR A DEPENDENCIA EXTERNA
+                    fw.write(""
+                            + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + ".\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" ui-br-cnpj-mask/>\n"
+                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "\n");
+                } else if (GumgaCPF.class.equals(atributo.getType())) { //TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR A DEPENDENCIA EXTERNA
+                    fw.write(""
+                            + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" ui-br-cpf-mask/>\n"
+                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "\n");
+                } else if (GumgaIP4.class.equals(atributo.getType())) { //TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR O GUMGAMAX E GUMGAMIN
+                    fw.write(""
+                            + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" gumga-min=\"12\" gumga-max=\"12\"/>\n"
+                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "\n");
+                } else if (GumgaIP6.class.equals(atributo.getType())) { //TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR O GUMGAMAX E GUMGAMIN
+                    fw.write(""
+                            + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" gumga-min=\"12\" gumga-max=\"12\"/>\n"
+                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "\n");
+                } else if (GumgaFile.class.equals(atributo.getType())) {//TODO SUBSTITUIR PELA DIRETIVA DE IMPORTAÇÃO E ARQUIVO QUANDO ESTIVER PRONTA
+
+                } else if (GumgaImage.class.equals(atributo.getType())) {//TODO SUBSTITUIR PELA DIRETIVA DE IMPORTAÇÃO E ARQUIVO QUANDO ESTIVER PRONTA
+
+                } else if (GumgaEMail.class.equals(atributo.getType())) {
+                    fw.write(""
+                            + "        <input id=\"" + atributo.getName() + "\" type=\"email\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" />\n"
+                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "\n");
+                } else if (GumgaMoney.class.equals(atributo.getType())) {//TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR A DEPENDENCIA EXTERNA
+                    fw.write(""
+                            + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" ui-money-mask=\"2\"/>\n"
+                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "\n");
+                } else if (GumgaPhoneNumber.class.equals(atributo.getType())) {//TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR A DEPENDENCIA EXTERNA
+                    fw.write(""
+                            + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" ui-br-phone-number/>\n"
+                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "\n");
+                } else if (GumgaURL.class.equals(atributo.getType())) {//TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR A DEPENDENCIA EXTERNA
+                    fw.write(""
+                            + "        <input id=\"" + atributo.getName() + "\" type=\"url\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" />\n"
+                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "\n");
+                } else if (GumgaTime.class.equals(atributo.getType())) {//TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR A DEPENDENCIA EXTERNA
+                    fw.write("\n"
+                            + " <div class=\"row\">\n"
+                            + "     <div class=\"col-md-12\">\n"
+                            + "            <label for=\"" + atributo.getName() + ".hour\">Hour</label>\n"
+                            + "            <input id=\"" + atributo.getName() + ".hour\" type=\"number\" name=\"" + atributo.getName() + ".hour\" ng-model=\"entity." + atributo.getName() + ".hour\" max=\"23\" min=\"0\" class=\"form-control\"/>\n"
+                            + "            <gumga-errors name=\"" + atributo.getName() + ".hour\"></gumga-errors>\n"
+                            + "            <label for=\"" + atributo.getName() + ".minute\">Minute</label>\n"
+                            + "            <input id=\"" + atributo.getName() + ".minute\" type=\"number\" name=\"" + atributo.getName() + ".minute\" ng-model=\"entity." + atributo.getName() + ".minute\" max=\"59\" min=\"0\" class=\"form-control\"/>\n"
+                            + "            <gumga-errors name=\"" + atributo.getName() + ".minute\"></gumga-errors>\n"
+                            + "            <label for=\"" + atributo.getName() + ".second\">Second</label>\n"
+                            + "            <input id=\"" + atributo.getName() + ".second\" type=\"number\" name=\"" + atributo.getName() + ".second\" ng-model=\"entity." + atributo.getName() + ".second\" max=\"59\" min=\"0\" class=\"form-control\"/>\n"
+                            + "            <gumga-errors name=\"" + atributo.getName() + ".second\"></gumga-errors>\n"
+                            + "    </div>\n"
+                            + " </div>\n"
+                            + "\n");
+                } else if (GumgaMultiLineString.class.equals(atributo.getType())) {
+                    fw.write(""
+                            + "        <textarea ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" placeholder=\"Digite " + Util.etiqueta(atributo) + ".\" rows=\"4\" cols=\"50\"></textarea>\n\n"
+                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "\n");
+                } else if (GumgaGeoLocation.class.equals(atributo.getType())) { //TODO SUBSTITUIR PELO COMPONENTE GUMGAMAPS QUANDO ELE ESTIVER PRONTO
+                    fw.write(""
+                            + " <div class=\"row\">\n"
+                            + "     <div class=\"col-md-12\">\n"
+                            + "        <label for=\"" + atributo.getName() + ".latitude\">Latitude</label>\n"
+                            + "        <input id=\"" + atributo.getName() + ".latitude\" type=\"text\" name=\"" + atributo.getName() + ".latitude\" ng-model=\"entity." + atributo.getName() + ".latitude\" class=\"form-control\" />\n"
+                            + "        <gumga-errors name=\"" + atributo.getName() + ".latitude\"></gumga-errors>\n"
+                            + "        <label for=\"" + atributo.getName() + ".longitude\">Longitude</label>\n"
+                            + "        <input id=\"" + atributo.getName() + ".longitude\" type=\"text\" name=\"" + atributo.getName() + ".longitude\" ng-model=\"entity." + atributo.getName() + ".longitude\" class=\"form-control\" />\n"
+                            + "        <gumga-errors name=\"" + atributo.getName() + ".longitude\"></gumga-errors>\n"
+                            + "        <a class=\"btn btn-default\" ng-href=\"http://maps.google.com/maps?q={{entity." + atributo.getName() + ".latitude + ',' + entity." + atributo.getName() + ".longitude}}\" target=\"_blank\"> <p class=\"glyphicon glyphicon-globe\"></p> GOOGLE MAPS</a>\n"
+                            + "     </div>\n"
+                            + " </div>\n"
+                            + "\n");
+                } else if (GumgaBoolean.class.equals(atributo.getType())) {
+                    fw.write(""
+                            + "        <label><input type=\"checkbox\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" /> <span gumga-translate-tag=\"" + nomeEntidade.toLowerCase() + "." + atributo.getName() + "\"></span></label>"
+                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "\n");
+                } else {
+                    fw.write(""
+                            + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + "\" class=\"form-control\" />\n"
+                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "\n");
+                }
             }
             primeiro = false;
         }
