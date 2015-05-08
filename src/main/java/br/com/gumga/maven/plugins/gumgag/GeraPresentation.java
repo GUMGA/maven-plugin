@@ -589,7 +589,7 @@ public class GeraPresentation extends AbstractMojo {
             FileWriter fw = new FileWriter(arquivoModule);
             fw.write(""
                     + "<form name=\"forms\" novalidate>\n"
-                    + "    <div class=\"col-md-12\">\n"
+                    + "    <div class=\"full-width-without-padding\">\n"
                     + "\n");
 
             boolean primeiro = true;
@@ -616,8 +616,8 @@ public class GeraPresentation extends AbstractMojo {
             fw.write(""
                     + "<div class=\"col-md-12\">\n"
                     + "    <div class=\"col-md-5\">\n"
-                    + "        <a ui-sref=\"" + nomeEntidade.toLowerCase() + ".insert\" class=\"btn btn-primary\"><i class=\"fa fa-plus\"></i> New</a>\n"
-                    + "        <button type=\"button\" class=\"btn btn-danger\" ng-click=\"del(selectedEntities)\"><i class=\"fa fa-trash-o\"></i> Delete\n"
+                    + "        <a ui-sref=\"" + nomeEntidade.toLowerCase() + ".insert\" class=\"btn btn-primary\"><i class=\"glyphicon glyphicon-plus\"></i> New</a>\n"
+                    + "        <button type=\"button\" class=\"btn btn-danger\" ng-click=\"del(selectedEntities)\"><i class=\"glyphicon glyphicon-trash\"></i> Delete\n"
                     + "        </button>\n"
                     + "    </div>\n"
                     + "    <div class=\"col-md-7\">\n"
@@ -701,19 +701,19 @@ public class GeraPresentation extends AbstractMojo {
             fw.write(Util.IDENTACAO + Util.IDENTACAO + "<!--" + atributo.getName() + " " + atributo.getType() + "-->\n");
 
             if (atributo.isAnnotationPresent(ManyToOne.class) || atributo.isAnnotationPresent(OneToOne.class)) {
-                fw.write(Util.IDENTACAO + Util.IDENTACAO + "<label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\"></label>\n");
-                fw.write(Util.IDENTACAO + Util.IDENTACAO
+                fw.write("<div class=\"full-width-without-padding\"> "+
+                        Util.IDENTACAO + Util.IDENTACAO + "<label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\"></label>\n"
                         + "<gumga-many-to-one model=\"entity." + atributo.getName() + "\"\n"
                         + "         search-method=\"searchManyToOne" + Util.primeiraMaiuscula(atributo.getName()) + "(param)\"\n"
                         + "         list=\"" + atributo.getName() + "List\"\n"
                         + "         field=\"" + Util.primeiroAtributo(atributo.getType()).getName() + "\">\n"
                         + "</gumga-many-to-one>"
-                        + "");
+                        + "</div>");
 
             } else if (atributo.isAnnotationPresent(ManyToMany.class)) {
                 fw.write(""
                         + "        <div class=\"col-md-6\">\n"
-                        + "            <label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + Util.getTipoGenerico(atributo).getSimpleName().toLowerCase()+ ".title\"></label>\n"
+                        + "            <label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + Util.getTipoGenerico(atributo).getSimpleName().toLowerCase() + ".title\"></label>\n"
                         + "        </div>\n"
                         + "        <div class=\"col-md-6\">\n"
                         + "            <label for=\"cidade\" gumga-translate-tag=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\"></label>\n"
@@ -734,7 +734,7 @@ public class GeraPresentation extends AbstractMojo {
                 fw.write(Util.IDENTACAO + Util.IDENTACAO + "<label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\"></label>\n");
                 fw.write("<div class=\"col-md-12\">\n"
                         + "<gumga-one-to-many\n"
-                        + "     children=\"entity." + atributo.getName().toLowerCase() + "\"\n"
+                        + "     children=\"entity." + atributo.getName() + "\"\n"
                         + "     template-url=\"app/modules/" + nomeEntidade.toLowerCase() + "/views/modal" + Util.getTipoGenerico(atributo).getSimpleName() + ".html\"\n"
                         + "     displayable-property=\"" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName().toLowerCase() + "\"\n"
                         + "     controller=\"Modal" + Util.getTipoGenerico(atributo).getSimpleName() + "Controller\">"
