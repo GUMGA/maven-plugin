@@ -303,24 +303,24 @@ public class GeraDiagrama extends AbstractMojo {
                     if (!mm.mappedBy().isEmpty()) {
                         continue;
                     }
-                    associacoes.add("edge [arrowhead = \"none\" headlabel = \"*\" taillabel = \"*\"] " + entidade.getSimpleName() + " -> " + tipoGenerico.getSimpleName() + " [label = \"" + nomeAtributo + "\"]");
+                    associacoes.add("edge [arrowhead = \"none\" headlabel = \"*\" taillabel = \"*.\"] " + entidade.getSimpleName() + " -> " + tipoGenerico.getSimpleName() + " [label = \"" + nomeAtributo + "\"]");
                 } else if (f.isAnnotationPresent(OneToMany.class)) {
                     OneToMany oo = f.getAnnotation(OneToMany.class);
                     if (!oo.mappedBy().isEmpty()) {
                         continue;
                     }
-                    associacoes.add("edge [arrowhead = \"none\" headlabel = \"*\" taillabel = \"1\"] " + entidade.getSimpleName() + " -> " + tipoGenerico.getSimpleName() + " [label = \"" + nomeAtributo + "\"]");
+                    associacoes.add("edge [arrowhead = \"none\" headlabel = \"*\" taillabel = \"1.\"] " + entidade.getSimpleName() + " -> " + tipoGenerico.getSimpleName() + " [label = \"" + nomeAtributo + "\"]");
                 }
 
             } else if (f.isAnnotationPresent(ManyToOne.class)) {
                 ManyToOne mo = f.getAnnotation(ManyToOne.class);
-                associacoes.add("edge [arrowhead = \"none\" headlabel = \"1\" taillabel = \"*\"] " + entidade.getSimpleName() + " -> " + tipo + " [label = \"" + nomeAtributo + "\"]");
+                associacoes.add("edge [arrowhead = \"none\" headlabel = \"1\" taillabel = \"*.\"] " + entidade.getSimpleName() + " -> " + tipo + " [label = \"" + nomeAtributo + "\"]");
             } else if (f.isAnnotationPresent(OneToOne.class)) {
                 OneToOne oo = f.getAnnotation(OneToOne.class);
                 if (!oo.mappedBy().isEmpty()) {
                     continue;
                 }
-                associacoes.add("edge [arrowhead = \"none\" headlabel = \"1\" taillabel = \"1\"] " + entidade.getSimpleName() + " -> " + tipo + " [label = \"" + nomeAtributo + "\"]");
+                associacoes.add("edge [arrowhead = \"none\" headlabel = \"1\" taillabel = \"1.\"] " + entidade.getSimpleName() + " -> " + tipo + " [label = \"" + nomeAtributo + "\"]");
 
             } else {
                 fw.write(nomeAtributo + ":" + tipo + "\\l");
