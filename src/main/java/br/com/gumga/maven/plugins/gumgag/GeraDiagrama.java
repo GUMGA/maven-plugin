@@ -98,6 +98,10 @@ public class GeraDiagrama extends AbstractMojo {
                 aRetornar.addAll(pesquisaClasses(f));
             } else {
                 if (f.getName().endsWith(".class")) {
+                    if (f.getName().endsWith("Coisa.class")){  //PUlA COISA
+                        continue;
+                    }
+                    
                     String nomeClasse = transformaEmNomeDeClasse(f);
                     try {
                         //Class classe = Class.forName(nomeClasse);
