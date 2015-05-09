@@ -743,7 +743,7 @@ public class GeraPresentation extends AbstractMojo {
                         + "\n");
 
             } else {
-                fw.write(Util.IDENTACAO + Util.IDENTACAO + "<label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + nomeEntidade.toLowerCase() + "." + atributo.getName() + "\"></label>\n");
+                fw.write(Util.IDENTACAO + Util.IDENTACAO + "<label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\"></label>\n");
                 if (GumgaAddress.class.equals(atributo.getType())) {
                     fw.write("  <div class=\"row\">"
                             + "     <div class=\"col-md-12\">\n"

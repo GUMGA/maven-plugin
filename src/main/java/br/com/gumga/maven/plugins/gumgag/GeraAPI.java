@@ -50,7 +50,7 @@ public class GeraAPI extends AbstractMojo {
             nomePacoteBase = nomeCompletoEntidade.substring(0, nomeCompletoEntidade.lastIndexOf(".domain"));
             nomeEntidade = nomeCompletoEntidade.substring(nomeCompletoEntidade.lastIndexOf('.') + 1);
 
-            nomePacoteApi = nomePacoteBase + ".presentation.api";
+            nomePacoteApi = nomePacoteBase + ".api";
 
             pastaApi = Util.windowsSafe(project.getCompileSourceRoots().get(0)) + "/".concat(nomePacoteApi.replaceAll("\\.", "/"));
 
