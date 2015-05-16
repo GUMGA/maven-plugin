@@ -98,10 +98,10 @@ public class GeraDiagrama extends AbstractMojo {
                 aRetornar.addAll(pesquisaClasses(f));
             } else {
                 if (f.getName().endsWith(".class")) {
-                    if (f.getName().endsWith("Coisa.class")){  //PUlA COISA
+                    if (f.getName().endsWith("Coisa.class")) {  //PUlA COISA
                         continue;
                     }
-                    
+
                     String nomeClasse = transformaEmNomeDeClasse(f);
                     try {
                         //Class classe = Class.forName(nomeClasse);
@@ -123,7 +123,7 @@ public class GeraDiagrama extends AbstractMojo {
 
     private String transformaEmNomeDeClasse(File f) {
         String nomeCompleto = Util.windowsSafe(f.getAbsolutePath());
-        String incio =  Util.windowsSafe(pastaClasses.getAbsolutePath());
+        String incio = Util.windowsSafe(pastaClasses.getAbsolutePath());
         return nomeCompleto.replaceFirst(incio, "").replace(".class", "").replaceAll("/", ".").replaceFirst(".", "");
     }
 
@@ -307,26 +307,27 @@ public class GeraDiagrama extends AbstractMojo {
                     if (!mm.mappedBy().isEmpty()) {
                         continue;
                     }
-                    associacoes.add("edge [arrowhead = \"none\" headlabel = \"*\" taillabel = \"*.\"] " + entidade.getSimpleName() + " -> " + tipoGenerico.getSimpleName() + " [label = \"" + nomeAtributo + "\"]");
+                    associacoes.add("edge [arrowhead = \"none\" headlabel = \"*\" taillabel = \"*@\"] " + entidade.getSimpleName() + " -> " + tipoGenerico.getSimpleName() + " [label = \"" + nomeAtributo + "\"]");
                 } else if (f.isAnnotationPresent(OneToMany.class)) {
                     OneToMany oo = f.getAnnotation(OneToMany.class);
                     if (!oo.mappedBy().isEmpty()) {
                         continue;
                     }
-                    associacoes.add("edge [arrowhead = \"none\" headlabel = \"*\" taillabel = \"1.\"] " + entidade.getSimpleName() + " -> " + tipoGenerico.getSimpleName() + " [label = \"" + nomeAtributo + "\"]");
+                    associacoes.add("edge [arrowhead = \"none\" headlabel = \"*\" taillabel = \"1@\"] " + entidade.getSimpleName() + " -> " + tipoGenerico.getSimpleName() + " [label = \"" + nomeAtributo + "\"]");
                 }
 
             } else if (f.isAnnotationPresent(ManyToOne.class)) {
                 ManyToOne mo = f.getAnnotation(ManyToOne.class);
-                associacoes.add("edge [arrowhead = \"none\" headlabel = \"1\" taillabel = \"*.\"] " + entidade.getSimpleName() + " -> " + tipo + " [label = \"" + nomeAtributo + "\"]");
+                associacoes.add("edge [arrowhead = \"none\" headlabel = \"1\" taillabel = \"*@\"] " + entidade.getSimpleName() + " -> " + tipo + " [label = \"" + nomeAtributo + "\"]");
             } else if (f.isAnnotationPresent(OneToOne.class)) {
                 OneToOne oo = f.getAnnotation(OneToOne.class);
                 if (!oo.mappedBy().isEmpty()) {
                     continue;
                 }
-                associacoes.add("edge [arrowhead = \"none\" headlabel = \"1\" taillabel = \"1.\"] " + entidade.getSimpleName() + " -> " + tipo + " [label = \"" + nomeAtributo + "\"]");
+                associacoes.add("edge [arrowhead = \"none\" headlabel = \"1\" taillabel = \"1@\"] " + entidade.getSimpleName() + " -> " + tipo + " [label = \"" + nomeAtributo + "\"]");
 
-            } else {
+            } //else 
+            {
                 fw.write(nomeAtributo + ":" + tipo + "\\l");
             }
         }
