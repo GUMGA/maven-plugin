@@ -35,6 +35,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.NotNull;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -102,6 +103,9 @@ public class GeraPresentation extends AbstractMojo {
             dependenciasOneToMany = new HashSet<>();
 
             for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
+                if (atributo.isAnnotationPresent(OneToOne.class)) {
+                    dependenciasManyToOne.add(atributo.getType());
+                }
                 if (atributo.isAnnotationPresent(ManyToOne.class)) {
                     dependenciasManyToOne.add(atributo.getType());
                 }
@@ -317,7 +321,7 @@ public class GeraPresentation extends AbstractMojo {
                 if (atributo.isAnnotationPresent(OneToMany.class)) {
                     fw.write("        $scope.entity." + atributo.getName() + " = $scope.entity." + atributo.getName() + "  || [];\n\n");
                 }
-                if (atributo.isAnnotationPresent(ManyToOne.class)) {
+                if (atributo.isAnnotationPresent(ManyToOne.class)  || atributo.isAnnotationPresent(OneToOne.class)) {
                     fw.write(""
                             + Util.IDENTACAO + Util.IDENTACAO + "$scope." + atributo.getName() + "List = [];\n\n"
                             + Util.IDENTACAO + Util.IDENTACAO + "" + atributo.getType().getSimpleName() + "Service.get().success(function(data){\n"
@@ -350,6 +354,9 @@ public class GeraPresentation extends AbstractMojo {
 //                vê como é o jeito certo, o resto tá explicando no papel.
                 Set<Class> dependencias = new HashSet<>();
                 for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classe)) {
+                    if (atributo.isAnnotationPresent(OneToOne.class)) {
+                        dependencias.add(atributo.getType());
+                    }
                     if (atributo.isAnnotationPresent(ManyToOne.class)) {
                         dependencias.add(atributo.getType());
                     }
@@ -413,7 +420,7 @@ public class GeraPresentation extends AbstractMojo {
                     if (atributo.isAnnotationPresent(OneToMany.class)) {
                         fw.write("        $scope.entity." + atributo.getName() + " = $scope.entity." + atributo.getName() + "  || [];\n\n");
                     }
-                    if (atributo.isAnnotationPresent(ManyToOne.class)) {
+                    if (atributo.isAnnotationPresent(ManyToOne.class)||atributo.isAnnotationPresent(OneToOne.class)) {
                         fw.write(""
                                 + Util.IDENTACAO + Util.IDENTACAO + "$scope." + atributo.getName() + "List = [];\n\n"
                                 + Util.IDENTACAO + Util.IDENTACAO + "" + atributo.getType().getSimpleName() + "Service.get().success(function(data){\n"
@@ -847,13 +854,21 @@ public class GeraPresentation extends AbstractMojo {
                             + "\n");
                 } else {
                     fw.write(""
-                            + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + "\" class=\"form-control\" />\n"
+                            + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + "\""+geraValidacoesDoBenValidator(atributo)+"  class=\"form-control\" />\n"
                             + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
                             + "\n");
                 }
             }
             primeiro = false;
         }
+    }
+    
+    private String geraValidacoesDoBenValidator(Field atributo){
+        String aRetornar="";
+        if (atributo.getClass().isAnnotationPresent(NotNull.class)){
+            aRetornar+="required";
+        }
+        return aRetornar;
     }
 
     private void geraModule() {
