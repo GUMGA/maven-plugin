@@ -117,7 +117,7 @@ public class GeraPresentation extends AbstractMojo {
                 if (atributo.isAnnotationPresent(OneToMany.class)) {
                     dependenciasOneToMany.add(Util.getTipoGenerico(atributo));
                 }
-                
+
             }
             geraControllers();
             geraServices();
@@ -137,7 +137,16 @@ public class GeraPresentation extends AbstractMojo {
                 + "        \"label\": \"" + nomeEntidade + "\",\n"
                 + "        \"URL\": \"" + nomeEntidade.toLowerCase() + ".list\",\n"
                 + "        \"key\": \"CRUD-" + nomeEntidade + "\",\n"
-                + "        \"filhos\": []\n"
+                + "         \"icon\": \"glyphicon glyphicon-user\",\n"
+                + "        \"filhos\": [\n"
+                + "             {\n"
+                + "             \"label\": \" Inserir \",\n"
+                + "             \"URL\": \"" + nomeEntidade.toLowerCase() + ".insert\",\n"
+                + "             \"key\": \"CRUD-" + nomeEntidade + "\",\n"
+                + "             \"icon\": \"glyphicon glyphicon-user\",\n"
+                + "             \"filhos\": []\n"
+                + "             }\n"
+                + "         ]\n"
                 + "    },");
 
         Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/app.js", "//FIMROUTE", ""
@@ -295,11 +304,7 @@ public class GeraPresentation extends AbstractMojo {
                     + "        $scope.update = function (entity) {\n"
                     + "            " + nomeEntidade + "Service.update(entity)\n"
                     + "                .success(function () {\n"
-                    + "                     if(!$scope.continue.value){\n"
-                    + "                         $state.go('" + nomeEntidade.toLowerCase() + ".list');\n"
-                    + "                     }else{\n"
-                    + "                         $scope.entity = angular.copy(entity.data);\n"
-                    + "                     }"
+                    + "                     $scope.continue.value === true? $scope.entity = angular.copy(entity.data ) : $state.go('" + nomeEntidade.toLowerCase() + ".list')\n;"
                     + "                });\n"
                     + "        };\n"
                     + "\n");
@@ -311,11 +316,11 @@ public class GeraPresentation extends AbstractMojo {
                             + "        $scope." + atributo.getName() + "Availables = [];\n"
                             + "        $scope." + atributo.getName() + "Search = function(param){\n"
                             + "            " + Util.getTipoGenerico(atributo).getSimpleName() + "Service.getSearch('" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "', param).then(function(data){\n"
-                            + "                $scope." + atributo.getName() + "Availables = data.data.values;\n"
+                            + "                $scope." + Util.getTipoGenerico(atributo).getSimpleName() + "SAvailables = data.data.values;\n"
                             + "            })\n"
                             + "        }\n"
                             + ""
-                            + "        $scope.postManyToMany"+ Util.primeiraMaiuscula(atributo.getName()) +" = function(value){\n"
+                            + "        $scope.postManyToMany" + Util.primeiraMaiuscula(atributo.getName()) + " = function(value){\n"
                             + "            return " + atributo.getType().getSimpleName() + "Service.update({descricao: value});\n"
                             + "        };"
                             + ""
@@ -327,14 +332,14 @@ public class GeraPresentation extends AbstractMojo {
                 if (atributo.isAnnotationPresent(OneToMany.class)) {
                     fw.write("        $scope.entity." + atributo.getName() + " = $scope.entity." + atributo.getName() + "  || [];\n\n");
                 }
-                if (atributo.isAnnotationPresent(ManyToOne.class)  || atributo.isAnnotationPresent(OneToOne.class)) {
+                if (atributo.isAnnotationPresent(ManyToOne.class) || atributo.isAnnotationPresent(OneToOne.class)) {
                     fw.write(" "
                             + "        $scope.postManyToOne" + Util.primeiraMaiuscula(atributo.getName()) + " = function(value){\n"
-                            + "            return " + atributo.getType().getSimpleName() + "Service.update({descricao: value});\n"
+                            + "            return " + atributo.getType().getSimpleName() + "Service.update({" + atributo.getName() + ": value});\n"
                             + "        };\n"
                             + ""
                             + "        $scope.searchManyToOne" + Util.primeiraMaiuscula(atributo.getName()) + " = function(value){\n"
-                            + "            return " + atributo.getType().getSimpleName() + "Service.getSearch('"+atributo.getName()+"',param)\n"
+                            + "            return " + atributo.getType().getSimpleName() + "Service.getSearch('" + Util.primeiroAtributo(classeEntidade).getName() + "',value)\n"
                             + "                .then(function(data){\n"
                             + "                    return data.data.values;\n"
                             + "                });"
@@ -344,22 +349,22 @@ public class GeraPresentation extends AbstractMojo {
                 }
 
             }
-            
-            for(Field atributo:Util.getTodosAtributosMenosIdAutomatico(classeEntidade)){
-                if(GumgaImage.class.equals(atributo.getType()) || GumgaFile.class.equals(atributo.getType())){
+
+            for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
+                if (GumgaImage.class.equals(atributo.getType()) || GumgaFile.class.equals(atributo.getType())) {
                     fw.write(""
-                            + "     $scope."+ atributo.getName() +"oPstPicture = function(image){\n" +
-                            "            return "+nomeEntidade+"Service.postImage('picture',image);\n" +
-                            "\n" +
-                            "        };\n" +
-                            "        $scope."+ atributo.getName()+"DeletePicture = function(){\n" +
-                            "            "+nomeEntidade+"Service.deleteImage('picture')\n" +
-                            "                .then(function(data){\n" +
-                            "                    if(data.data == 'OK'){\n" +
-                            "                        $scope.data.picture = {}\n" +
-                            "                    }\n" +
-                            "                });\n" +
-                            "        };"
+                            + "     $scope." + atributo.getName() + "oPstPicture = function(image){\n"
+                            + "            return " + nomeEntidade + "Service.postImage('picture',image);\n"
+                            + "\n"
+                            + "        };\n"
+                            + "        $scope." + atributo.getName() + "DeletePicture = function(){\n"
+                            + "            " + nomeEntidade + "Service.deleteImage('picture')\n"
+                            + "                .then(function(data){\n"
+                            + "                    if(data.data == 'OK'){\n"
+                            + "                        $scope.data.picture = {}\n"
+                            + "                    }\n"
+                            + "                });\n"
+                            + "        };"
                             + ""
                             + ""
                             + ""
@@ -436,7 +441,7 @@ public class GeraPresentation extends AbstractMojo {
                                 + "            })\n"
                                 + "        }\n"
                                 + ""
-                                + "        $scope.postManyToMany"+ Util.primeiraMaiuscula(atributo.getName()) +" = function(value){\n"
+                                + "        $scope.postManyToMany" + Util.primeiraMaiuscula(atributo.getName()) + " = function(value){\n"
                                 + "            return " + atributo.getType().getSimpleName() + "Service.update({descricao: value});\n"
                                 + "        };"
                                 + ""
@@ -448,14 +453,14 @@ public class GeraPresentation extends AbstractMojo {
                     if (atributo.isAnnotationPresent(OneToMany.class)) {
                         fw.write("        $scope.entity." + atributo.getName() + " = $scope.entity." + atributo.getName() + "  || [];\n\n");
                     }
-                    if (atributo.isAnnotationPresent(ManyToOne.class)  || atributo.isAnnotationPresent(OneToOne.class)) {
+                    if (atributo.isAnnotationPresent(ManyToOne.class) || atributo.isAnnotationPresent(OneToOne.class)) {
                         fw.write(" "
-                                + "        $scope.postManyToOne" + Util.primeiraMaiuscula(atributo.getName()) + " = function(value){\n"
-                                + "            return " + atributo.getType().getSimpleName() + "Service.update({descricao: value});\n"
+                                + "        $scope.postManyToOne" + Util.primeiraMaiuscula(atributo.getName()) + " = function(param){\n"
+                                + "            return " + atributo.getType().getSimpleName() + "Service.update({" +  Util.primeiroAtributo(atributo.getClass()) + ": param});\n"
                                 + "        };\n"
                                 + ""
                                 + "        $scope.searchManyToOne" + Util.primeiraMaiuscula(atributo.getName()) + " = function(value){\n"
-                                + "            return " + atributo.getType().getSimpleName() + "Service.getSearch('"+atributo.getName()+"',param)\n"
+                                + "            return " + atributo.getType().getSimpleName() + "Service.getSearch('" +  Util.primeiroAtributo(atributo.getClass()) + "',value)\n"
                                 + "                .then(function(data){\n"
                                 + "                    return data.data.values;\n"
                                 + "                });"
@@ -465,29 +470,29 @@ public class GeraPresentation extends AbstractMojo {
                     }
 
                 }
-                
-                for(Field atributo:Util.getTodosAtributosMenosIdAutomatico(classe)){
-                    if(GumgaImage.class.equals(atributo.getType()) || GumgaFile.class.equals(atributo.getType())){
+
+                for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classe)) {
+                    if (GumgaImage.class.equals(atributo.getType()) || GumgaFile.class.equals(atributo.getType())) {
                         fw.write(""
-                                + "     $scope."+ atributo.getName() +"PostPicture = function(image){\n" +
-                                "            return "+classe.getSimpleName()+"Service.postImage('picture',image);\n" +
-                                "\n" +
-                                "        };\n" +
-                                "        $scope."+ atributo.getName()+"DeletePicture = function(){\n" +
-                                "            "+classe.getSimpleName()+"Service.deleteImage('picture')\n" +
-                                "                .then(function(data){\n" +
-                                "                    if(data.data == 'OK'){\n" +
-                                "                        $scope.data.picture = {}\n" +
-                                "                    }\n" +
-                                "                });\n" +
-                                "        };"
+                                + "     $scope." + atributo.getName() + "PostPicture = function(image){\n"
+                                + "            return " + classe.getSimpleName() + "Service.postImage('picture',image);\n"
+                                + "\n"
+                                + "        };\n"
+                                + "        $scope." + atributo.getName() + "DeletePicture = function(){\n"
+                                + "            " + classe.getSimpleName() + "Service.deleteImage('picture')\n"
+                                + "                .then(function(data){\n"
+                                + "                    if(data.data == 'OK'){\n"
+                                + "                        $scope.data.picture = {}\n"
+                                + "                    }\n"
+                                + "                });\n"
+                                + "        };"
                                 + ""
                                 + ""
                                 + ""
                                 + "");
                     }
                 }
-                
+
                 fw.write("		$scope.ok = function (obj) {\n"
                         + "			$modalInstance.close(obj);\n"
                         + "		};\n"
@@ -516,7 +521,7 @@ public class GeraPresentation extends AbstractMojo {
             File arquivoModule = new File(pastaServices + "/" + nomeEntidade + "Service.js");
             FileWriter fw = new FileWriter(arquivoModule);
             fw.write(""
-                    + "define(['api-locations'], function (APILocation) {\n"
+                    + "define(['app/apiLocations'], function (APILocation) {\n"
                     + "\n"
                     + "    " + nomeEntidade + "Service.$inject = ['GumgaBase', '$stateParams'];\n"
                     + "\n"
@@ -634,7 +639,7 @@ public class GeraPresentation extends AbstractMojo {
         try {
             File arquivoModule = new File(pastaViews + "/base.html");
             FileWriter fw = new FileWriter(arquivoModule);
-            fw.write("<gumga-nav title=\"" + nomeEntidade + "\"></gumga-nav>\n"
+            fw.write("<gumga-nav title=\"" + nomeEntidade + "\" state=\"login.log\"></gumga-nav>\n"
                     + "<gumga-menu menu-url=\"gumga-menu.json\" keys-url=\"keys.json\"  image=\"resources/images/gumga.png\"></gumga-menu>\n"
                     + "<div class=\"gumga-container\" gumga-alert>\n"
                     + "    <gumga-breadcrumb></gumga-breadcrumb>\n"
@@ -666,7 +671,7 @@ public class GeraPresentation extends AbstractMojo {
                     + "                back=\"" + nomeEntidade.toLowerCase() + ".list\"\n"
                     + "                submit=\"update(entity)\"\n"
                     + "                position=\"right\"\n"
-                    + "                valid=\"forms.$valid\"\n"
+                    + "                valid=\"" + nomeEntidade + "Form.$valid\"\n"
                     + "                continue=\"continue\">\n"
                     + "        </gumga-form-buttons>\n"
                     + "    </div>\n"
@@ -687,8 +692,8 @@ public class GeraPresentation extends AbstractMojo {
                     + "        </button>\n"
                     + "    </div>\n"
                     + "    <div class=\"col-md-7\">\n"
-                    + "        <gumga-search field=\"" + Util.primeiroAtributo(classeEntidade).getName() + "\" advanced=\"true\" search-method=\"search(field,param)\"\n"
-                    + "                      advanced-method=\"advancedSearch(param)\">\n"
+                    + "        <gumga-search fields=\"" + Util.todosAtributosSeparadosPorVirgula(classeEntidade) + "\"\n advanced=\"true\"\n search-method=\"search(field,param)\"\n"
+                    + "                      advanced-method=\"advancedSearch(param)\"\n translate-entity=\" " + classeEntidade.getSimpleName().toLowerCase() + "\">\n"
                     + "            <advanced-field name=\"id\" type=\"number\"></advanced-field>\n");
             for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
                 fw.write("            <advanced-field name=\"" + atributo.getName() + "\" type=\"" + converteTipoParaAdvanced(atributo.getType()) + "\"></advanced-field>\n");
@@ -760,14 +765,14 @@ public class GeraPresentation extends AbstractMojo {
             fw.write(Util.IDENTACAO + Util.IDENTACAO + "<!--" + atributo.getName() + " " + atributo.getType() + "-->\n");
 
             if (atributo.isAnnotationPresent(ManyToOne.class) || atributo.isAnnotationPresent(OneToOne.class)) {
-                fw.write("<div class=\"full-width-without-padding\"> "+
-                        Util.IDENTACAO + Util.IDENTACAO + "<label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\"></label>\n"
+                fw.write("<div class=\"full-width-without-padding\"> "
+                        + Util.IDENTACAO + Util.IDENTACAO + "<label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\"></label>\n"
                         + "<gumga-many-to-one "
                         + "         ng-model=\"entity." + atributo.getName() + "\"\n"
                         + "         search-method=\"searchManyToOne" + Util.primeiraMaiuscula(atributo.getName()) + "(param)\"\n"
-                        + "         typeahead-syntax=\"$value as $value[field] for $value in \"searchManyToOne" + Util.primeiraMaiuscula(atributo.getName()) + "({param: model})\"\""
-                        + "         field=\"" + Util.primeiroAtributo(atributo.getType()).getName() + "\"\n"
-                        + "         post-method=\"postManyToOne" + Util.primeiraMaiuscula(atributo.getName()) + "(value)\">"
+                        + "         typeahead-syntax=\"$value as $value[field] for $value in searchMethod({param: model})\"\n" //Não pode alterar
+                        + "         field=\"" + Util.primeiroAtributo(classeEntidade).getName() + "\"\n"
+                        + "         post-method=\"postManyToOne" + Util.primeiraMaiuscula(atributo.getName()) + "(value)\">\n"
                         + "</gumga-many-to-one>"
                         + "</div>");
 
@@ -786,11 +791,11 @@ public class GeraPresentation extends AbstractMojo {
                         + "left-list=\"" + atributo.getName() + "Availables" + "\" "
                         + "right-list=\"entity." + atributo.getName() + "\" "
                         + "left-search=\"" + atributo.getName() + "Search(param)\" "
-                                + "filter-parameters=\""+ Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() +"\""
-                                + "post-method=\"postManyToMany"+ Util.primeiraMaiuscula(atributo.getName()) +"(value)\""
+                        + "filter-parameters=\"" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "\""
+                        + "post-method=\"postManyToMany" + Util.primeiraMaiuscula(atributo.getName()) + "(value)\""
                         + ">\n"
-                        + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "    <left-field>{{$value." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</left-list-field>\n"
-                        + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "    <right-field>{{$value." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</right-list-field>\n"
+                        + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "    <left-field>{{$value." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</left-field>\n"
+                        + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "    <right-field>{{$value." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</right-field>\n"
                         + Util.IDENTACAO + Util.IDENTACAO + "</gumga-many-to-many>\n\n"
                         + "</div>\n"
                         + "");
@@ -850,13 +855,13 @@ public class GeraPresentation extends AbstractMojo {
 
                 } else if (GumgaImage.class.equals(atributo.getType())) {
                     fw.write(""
-                            + "<gumga-upload attribute=\"data.picture\"\n" +
-                            "                      upload-method=\""+ atributo.getName() +"postPicture(image)\"\n" +
-                            "                      delete-method=\""+ atributo.getName() +"deletePicture()\">\n" +
-                            "\n" +
-                            "        </gumga-upload>"
+                            + "<gumga-upload attribute=\"data.picture\"\n"
+                            + "                      upload-method=\"" + atributo.getName() + "postPicture(image)\"\n"
+                            + "                      delete-method=\"" + atributo.getName() + "deletePicture()\">\n"
+                            + "\n"
+                            + "        </gumga-upload>"
                             + "");
-                    
+
                 } else if (GumgaEMail.class.equals(atributo.getType())) {
                     fw.write(""
                             + "        <input id=\"" + atributo.getName() + "\" type=\"email\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" />\n"
@@ -919,7 +924,7 @@ public class GeraPresentation extends AbstractMojo {
                             + "\n");
                 } else {
                     fw.write(""
-                            + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + "\""+geraValidacoesDoBenValidator(atributo)+"  class=\"form-control\" />\n"
+                            + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + "\"" + geraValidacoesDoBenValidator(atributo) + "  class=\"form-control\" />\n"
                             + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
                             + "\n");
                 }
@@ -927,11 +932,11 @@ public class GeraPresentation extends AbstractMojo {
             primeiro = false;
         }
     }
-    
-    private String geraValidacoesDoBenValidator(Field atributo){
-        String aRetornar="";
-        if (atributo.getClass().isAnnotationPresent(NotNull.class)){
-            aRetornar+="required";
+
+    private String geraValidacoesDoBenValidator(Field atributo) {
+        String aRetornar = "";
+        if (atributo.getClass().isAnnotationPresent(NotNull.class)) {
+            aRetornar += "required";
         }
         return aRetornar;
     }
@@ -948,7 +953,7 @@ public class GeraPresentation extends AbstractMojo {
                     + "    require('app/modules/" + nomeEntidade.toLowerCase() + "/services/module');\n"
                     + "    require('app/modules/" + nomeEntidade.toLowerCase() + "/controllers/module');\n"
                     + "    require('gumga-core');\n"
-                    + "    var APILocation = require('api-locations');\n"
+                    + "    var APILocation = require('app/apiLocations');\n"
                     + "\n"
                     + "    angular.module('app." + nomeEntidade.toLowerCase() + "', ['ui.router', 'app." + nomeEntidade.toLowerCase() + ".controllers', 'app." + nomeEntidade.toLowerCase() + ".services', 'gumga.core'])\n"
                     + "        .config(function ($stateProvider, $httpProvider) {\n"

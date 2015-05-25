@@ -46,8 +46,10 @@ public class Util {
 
     public static List<Field> getTodosAtributosMenosIdAutomatico(Class classe) {
         List<Field> todosAtributos = getTodosAtributosNaoEstaticos(classe);
+//      TODO TRANSFORMAR EM LISTA
         Field aRemover = null;
         Field aRemoverOi = null;
+        Field aRemoverVersion = null;
         for (Field f : todosAtributos) {
             if (f.isAnnotationPresent(GeneratedValue.class)) {
                 aRemover = f;
@@ -55,7 +57,9 @@ public class Util {
             }
             if ("oi".equals(f.getName())) {
                 aRemoverOi = f;
-
+            }
+            if("version".equals(f.getName())){
+                aRemoverVersion = f;
             }
 
         }
@@ -64,6 +68,9 @@ public class Util {
         }
         if (aRemoverOi != null) {
             todosAtributos.remove(aRemoverOi);
+        }
+        if(aRemoverVersion != null){
+            todosAtributos.remove(aRemoverVersion);
         }
 
         return todosAtributos;
@@ -166,7 +173,7 @@ public class Util {
 
     public static String todosAtributosSeparadosPorVirgula(Class classeEntidade) {
         StringBuilder sb = new StringBuilder();
-        for (Field f : getTodosAtributosNaoEstaticos(classeEntidade)) {
+        for (Field f : getTodosAtributosMenosIdAutomatico(classeEntidade)) {
             sb.append(f.getName() + ",");
 
         }
