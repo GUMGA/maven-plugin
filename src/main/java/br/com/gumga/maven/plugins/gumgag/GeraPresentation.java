@@ -335,11 +335,11 @@ public class GeraPresentation extends AbstractMojo {
                 if (atributo.isAnnotationPresent(ManyToOne.class) || atributo.isAnnotationPresent(OneToOne.class)) {
                     fw.write(" "
                             + "        $scope.postManyToOne" + Util.primeiraMaiuscula(atributo.getName()) + " = function(value){\n"
-                            + "            return " + atributo.getType().getSimpleName() + "Service.update({" + atributo.getName() + ": value});\n"
+                            + "            return " + atributo.getType().getSimpleName() + "Service.update({" + Util.primeiroAtributo(atributo.getType()).getName() + ": value});\n"
                             + "        };\n"
                             + ""
                             + "        $scope.searchManyToOne" + Util.primeiraMaiuscula(atributo.getName()) + " = function(value){\n"
-                            + "            return " + atributo.getType().getSimpleName() + "Service.getSearch('" + Util.primeiroAtributo(classeEntidade).getName() + "',value)\n"
+                            + "            return " + atributo.getType().getSimpleName() + "Service.getSearch('" + Util.primeiroAtributo(atributo.getType()).getName() + "',value)\n"
                             + "                .then(function(data){\n"
                             + "                    return data.data.values;\n"
                             + "                });"
@@ -771,7 +771,7 @@ public class GeraPresentation extends AbstractMojo {
                         + "         ng-model=\"entity." + atributo.getName() + "\"\n"
                         + "         search-method=\"searchManyToOne" + Util.primeiraMaiuscula(atributo.getName()) + "(param)\"\n"
                         + "         typeahead-syntax=\"$value as $value[field] for $value in searchMethod({param: model})\"\n" //Não pode alterar
-                        + "         field=\"" + Util.primeiroAtributo(classeEntidade).getName() + "\"\n"
+                        + "         field=\"" + Util.primeiroAtributo(atributo.getType()).getName() + "\"\n"
                         + "         post-method=\"postManyToOne" + Util.primeiraMaiuscula(atributo.getName()) + "(value)\">\n"
                         + "</gumga-many-to-one>"
                         + "</div>");
