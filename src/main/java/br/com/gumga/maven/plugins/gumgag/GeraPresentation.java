@@ -440,12 +440,26 @@ public class GeraPresentation extends AbstractMojo {
                                 + "                $scope." + atributo.getName() + "Availables = data.data.values;\n"
                                 + "            })\n"
                                 + "        }\n"
-                                + ""
+                                + "" //POST MANY TO MANY -- ARRUMAR
+/*                                      Tá gerando isso aqui.
+                                        $scope.postManyToManyProdutos = function(value){
+                                            return ListService.update({-primeiroatributo-: value});
+                                        };        $scope.produtosSearch('');    }
+                                
+                                        Era pra gerar:
+                                        $scope.postManyToManyProdutos = function(value){
+                                            return ProdutoService.update({-primeiroatributo-: value});
+                                        };
+                                        $scope.produtosSearch('');
+                                        }
+                                            
+                                No HTML tenho quase certeza que tá certo.
+                                */
                                 + "        $scope.postManyToMany" + Util.primeiraMaiuscula(atributo.getName()) + " = function(value){\n"
-                                + "            return " + atributo.getType().getSimpleName() + "Service.update({descricao: value});\n"
-                                + "        };"
-                                + ""
-                                + "        $scope." + atributo.getName() + "Search('');"
+                                + "            return " + Util.getTipoGenerico(atributo).getSimpleName() + "Service.update({" + Util.primeiroAtributo(atributo.getClass()) + ": value});\n"
+                                + "        };\n"
+                                + "\n"
+                                + "        $scope." + atributo.getName() + "Search('');\n"
                                 + "");
 
                     }
@@ -788,7 +802,7 @@ public class GeraPresentation extends AbstractMojo {
 
                 fw.write("<div class=\"full-width-without-padding\">\n"
                         + Util.IDENTACAO + Util.IDENTACAO + "<gumga-many-to-many "
-                        + "left-list=\"" + atributo.getName() + "Availables" + "\" "
+                        + "left-list=\"" + atributo.getName().toLowerCase() + "Availables" + "\" "
                         + "right-list=\"entity." + atributo.getName() + "\" "
                         + "left-search=\"" + atributo.getName() + "Search(param)\" "
                         + "filter-parameters=\"" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "\""
@@ -858,8 +872,7 @@ public class GeraPresentation extends AbstractMojo {
                             + "<gumga-upload attribute=\"data.picture\"\n"
                             + "                      upload-method=\"" + atributo.getName() + "postPicture(image)\"\n"
                             + "                      delete-method=\"" + atributo.getName() + "deletePicture()\">\n"
-                            + "\n"
-                            + "        </gumga-upload>"
+                            + "        </gumga-upload>\n"
                             + "");
 
                 } else if (GumgaEMail.class.equals(atributo.getType())) {
