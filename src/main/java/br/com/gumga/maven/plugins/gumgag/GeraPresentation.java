@@ -59,6 +59,9 @@ public class GeraPresentation extends AbstractMojo {
      */
     @Parameter(property = "entidade", defaultValue = "all")
     private String nomeCompletoEntidade;
+    @Parameter(property = "override", defaultValue = "false")
+    private boolean override;
+    
     private String nomeEntidade;
 
     private Class classeEntidade;
@@ -77,6 +80,9 @@ public class GeraPresentation extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         Util.geraGumga(getLog());
+        if (override){
+            System.out.println("NAO ADICIONANDO AO MENU NEM AO INTERNACIONALIZACAO");
+        }
 
         try {
             nomeEntidade = nomeCompletoEntidade.substring(nomeCompletoEntidade.lastIndexOf('.') + 1);
@@ -123,8 +129,8 @@ public class GeraPresentation extends AbstractMojo {
             geraServices();
             geraViews();
             geraModule();
-            geraI18n();
-            adicionaAoMenu();
+            if (!override) geraI18n();
+            if (!override) adicionaAoMenu();
         } catch (Exception ex) {
             getLog().error(ex);
         }
@@ -316,15 +322,15 @@ public class GeraPresentation extends AbstractMojo {
                             + "        $scope." + atributo.getName() + "Availables = [];\n"
                             + "        $scope." + atributo.getName() + "Search = function(param){\n"
                             + "            " + Util.getTipoGenerico(atributo).getSimpleName() + "Service.getSearch('" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "', param).then(function(data){\n"
-                            + "                $scope." + Util.getTipoGenerico(atributo).getSimpleName() + "SAvailables = data.data.values;\n"
+                            + "                $scope." + atributo.getName()  + "Availables = data.data.values;\n"
                             + "            })\n"
                             + "        }\n"
                             + ""
                             + "        $scope.postManyToMany" + Util.primeiraMaiuscula(atributo.getName()) + " = function(value){\n"
-                            + "            return " + atributo.getType().getSimpleName() + "Service.update({descricao: value});\n"
-                            + "        };"
-                            + ""
-                            + "        $scope." + atributo.getName() + "Search('');"
+                            + "            return " + Util.getTipoGenerico(atributo).getSimpleName() + "Service.update({"+Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName()+": value});\n"
+                            + "        };\n"
+                            + "\n"
+                            + "        $scope." + atributo.getName() + "Search('');\n"
                             + "");
 
                 }
@@ -353,7 +359,7 @@ public class GeraPresentation extends AbstractMojo {
             for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
                 if (GumgaImage.class.equals(atributo.getType()) || GumgaFile.class.equals(atributo.getType())) {
                     fw.write(""
-                            + "     $scope." + atributo.getName() + "oPstPicture = function(image){\n"
+                            + "     $scope." + atributo.getName() + "PostPicture = function(image){\n"
                             + "            return " + nomeEntidade + "Service.postImage('picture',image);\n"
                             + "\n"
                             + "        };\n"
@@ -440,21 +446,6 @@ public class GeraPresentation extends AbstractMojo {
                                 + "                $scope." + atributo.getName() + "Availables = data.data.values;\n"
                                 + "            })\n"
                                 + "        }\n"
-                                + "" //POST MANY TO MANY -- ARRUMAR
-/*                                      Tá gerando isso aqui.
-                                        $scope.postManyToManyProdutos = function(value){
-                                            return ListService.update({-primeiroatributo-: value});
-                                        };        $scope.produtosSearch('');    }
-                                
-                                        Era pra gerar:
-                                        $scope.postManyToManyProdutos = function(value){
-                                            return ProdutoService.update({-primeiroatributo-: value});
-                                        };
-                                        $scope.produtosSearch('');
-                                        }
-                                            
-                                No HTML tenho quase certeza que tá certo.
-                                */
                                 + "        $scope.postManyToMany" + Util.primeiraMaiuscula(atributo.getName()) + " = function(value){\n"
                                 + "            return " + Util.getTipoGenerico(atributo).getSimpleName() + "Service.update({" + Util.primeiroAtributo(atributo.getClass()) + ": value});\n"
                                 + "        };\n"
@@ -470,11 +461,11 @@ public class GeraPresentation extends AbstractMojo {
                     if (atributo.isAnnotationPresent(ManyToOne.class) || atributo.isAnnotationPresent(OneToOne.class)) {
                         fw.write(" "
                                 + "        $scope.postManyToOne" + Util.primeiraMaiuscula(atributo.getName()) + " = function(param){\n"
-                                + "            return " + atributo.getType().getSimpleName() + "Service.update({" +  Util.primeiroAtributo(atributo.getClass()) + ": param});\n"
+                                + "            return " + atributo.getType().getSimpleName() + "Service.update({" +  Util.primeiroAtributo(atributo.getType()).getName() + ": param});\n"
                                 + "        };\n"
                                 + ""
                                 + "        $scope.searchManyToOne" + Util.primeiraMaiuscula(atributo.getName()) + " = function(value){\n"
-                                + "            return " + atributo.getType().getSimpleName() + "Service.getSearch('" +  Util.primeiroAtributo(atributo.getClass()) + "',value)\n"
+                                + "            return " + atributo.getType().getSimpleName() + "Service.getSearch('" +  Util.primeiroAtributo(atributo.getType()).getName() + "',value)\n"
                                 + "                .then(function(data){\n"
                                 + "                    return data.data.values;\n"
                                 + "                });"
@@ -819,7 +810,7 @@ public class GeraPresentation extends AbstractMojo {
                 fw.write("<div class=\"col-md-12\">\n"
                         + "<gumga-one-to-many\n"
                         + "     children=\"entity." + atributo.getName() + "\"\n"
-                        + "     template-url=\"app/modules/" + nomeEntidade.toLowerCase() + "/views/modal" + Util.getTipoGenerico(atributo).getSimpleName() + ".html\"\n"
+                        + "     template-url=\"app/modules/" + atributo.getDeclaringClass().getSimpleName().toLowerCase() + "/views/modal" + Util.getTipoGenerico(atributo).getSimpleName() + ".html\"\n"
                         + "     displayable-property=\"" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName().toLowerCase() + "\"\n"
                         + "     controller=\"Modal" + Util.getTipoGenerico(atributo).getSimpleName() + "Controller\">"
                         + "</gumga-one-to-many>\n"
