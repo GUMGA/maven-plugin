@@ -113,8 +113,15 @@ public class GeraAplicacao extends AbstractMojo {
                     + "import org.hibernate.Hibernate;\n"
                     + "\n"
                     + "import " + nomePacoteRepositorio + "." + nomeEntidade + "Repository;\n"
-                    + "import " + nomeCompletoEntidade + ";\n"
-                    + "\n"
+                    + "import " + nomeCompletoEntidade + ";\n");
+
+            for (Field fff : Util.getTodosAtributosNaoEstaticos(classeEntidade)) {
+                if (fff.isAnnotationPresent(OneToMany.class) || fff.isAnnotationPresent(ManyToMany.class)) {
+                    fw.write("import "+Util.getTipoGenerico(fff).getCanonicalName()+";\n");
+                }
+            }
+
+            fw.write("\n"
                     + "@Service\n"
                     + "public class " + nomeEntidade + "Service extends GumgaService<" + nomeEntidade + ", Long> {\n"
                     + "	\n"
@@ -155,6 +162,15 @@ public class GeraAplicacao extends AbstractMojo {
 
             for (Field f : atributosToMany) {
                 fw.write("        Hibernate.initialize(obj.get" + Util.primeiraMaiuscula(f.getName()) + "());\n");
+                for (Field ff : Util.getTipoGenerico(f).getDeclaredFields()) {
+                    if (ff.isAnnotationPresent(OneToMany.class) || ff.isAnnotationPresent(ManyToMany.class)) {
+                        fw.write(""
+                                + "        for(" + Util.getTipoGenerico(f).getSimpleName() + " subObj:obj.get" + Util.primeiraMaiuscula(f.getName()) + "()){\n"
+                                + "            Hibernate.initialize(subObj.get" + Util.primeiraMaiuscula(ff.getName()) + "() );\n"
+                                + "        }\n");
+                    }
+                }
+
             }
 
             fw.write("        return obj;\n"

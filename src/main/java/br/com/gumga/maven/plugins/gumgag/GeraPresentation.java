@@ -952,19 +952,19 @@ public class GeraPresentation extends AbstractMojo {
                             + "\n");
                 } else if (GumgaBoolean.class.equals(atributo.getType())) {
                     fw.write(""
-                            + "        <input type=\"checkbox\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" />\n"
+                            + "        <input style=\"width:15px\" type=\"checkbox\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" />\n"
                             + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
                             + "\n");
-//                } else if (Date.class.equals(atributo.getType())) {
-//                    fw.write(""
-//                            + "        <input id=\"" + atributo.getName() + "\" type=\"date\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + "\"" + geraValidacoesDoBenValidator(atributo) + "  class=\"form-control\" />\n"
-//                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
-//                            + "\n");
+                } else if (Date.class.equals(atributo.getType())) {
+                    fw.write(""
+                             + "        <input type=\"text\" class=\"form-control\" datepicker-popup=\"fullDate\" ng-model=\"entity."+atributo.getName()+"\" is-open=\"opened\" ng-click=\"opened= !opened\" close-text=\"Close\" />"
+                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "\n");
 
                 } else if (atributo.getType().isEnum()) {
                     Object[] constants = atributo.getType().getEnumConstants();
-                    fw.write(Util.IDENTACAO8 + "<select name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + "\" >\n");
-                    fw.write(Util.IDENTACAO12 + "<option value=\"{{value.value}}\" ng-repeat=\"value in value" + atributo.getType().getSimpleName() + "\">{{value.label}}</option>");
+                    fw.write(Util.IDENTACAO8 + "<select class='form-control' name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + "\" >\n");
+                    fw.write(Util.IDENTACAO12 + "<option  ng-selected=\"value.value === entity."+atributo.getName()+"\"  value=\"{{value.value}}\" ng-repeat=\"value in value" + atributo.getType().getSimpleName() + "\">{{value.label}}</option>");
                     fw.write(Util.IDENTACAO8 + "</select>\n");
                 } else {
                     fw.write(""
