@@ -92,7 +92,7 @@ public class GeraAPI extends AbstractMojo {
                     + "import org.springframework.web.bind.annotation.RequestMapping;\n"
                     + "import org.springframework.web.bind.annotation.RestController;\n"
                     + "import org.springframework.web.bind.annotation.PathVariable;\n"
-                    + "import javax.transaction.Transactional;\n"
+                    + "import org.springframework.transaction.annotation.Transactional;\n"
                     + "import org.springframework.web.bind.annotation.RequestMethod;\n"
                     + "import gumga.framework.presentation.RestResponse;\n"
                     + "import javax.validation.Valid;\n"
@@ -154,6 +154,8 @@ public class GeraAPI extends AbstractMojo {
                         + "        return gumgaTempFileService.find(fileName).getBytes();\n"
                         + "    }\n"
                         + "\n"
+                        + ""
+                        + ""
                 );
             }
 
@@ -174,6 +176,24 @@ public class GeraAPI extends AbstractMojo {
                         + "    }\n"
                         + "\n"
                         + "");
+
+                fw.write("\n"
+                        + "    @Override\n"
+                        + "    @Transactional\n"
+                        + "    @RequestMapping(value = \"/{id}\", method = RequestMethod.PUT, consumes = \"application/json\")\n"
+                        + "    public RestResponse<Funcionario> update(Long id, Funcionario obj, BindingResult result) {\n");
+                for (Field gi : gumgaImages) {
+                    fw.write(""
+                            + "        if (obj.get" + Util.primeiraMaiuscula(gi.getName()) + "() != null) {\n"
+                            + "            obj.set" + Util.primeiraMaiuscula(gi.getName()) + "((GumgaImage) gumgaTempFileService.find(obj.get" + Util.primeiraMaiuscula(gi.getName()) + "().getName()));\n"
+                            + "        }\n");
+                }
+                fw.write(""
+                        + "        return super.update(id, obj, result); \n"
+                        + "    }\n"
+                        + "\n"
+                        + "");
+
             }
 
             fw.write(""

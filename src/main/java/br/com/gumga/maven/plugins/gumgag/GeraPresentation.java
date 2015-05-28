@@ -69,7 +69,7 @@ public class GeraPresentation extends AbstractMojo {
     private Set<Class> dependenciasManyToOne;
     private Set<Class> dependenciasOneToMany;
     private Set<Class> dependenciasManyToMany;
-    private Set<Class> dependenciasGumgaFile;
+    private Set<Field> atributosGumgaImage;
     private Set<Class> dependenciasEnums;
 
     private String pastaApp;
@@ -109,7 +109,7 @@ public class GeraPresentation extends AbstractMojo {
             dependenciasManyToOne = new HashSet<>();
             dependenciasManyToMany = new HashSet<>();
             dependenciasOneToMany = new HashSet<>();
-            dependenciasGumgaFile = new HashSet<>();
+            atributosGumgaImage = new HashSet<>();
             dependenciasEnums = new HashSet<>();
 
             for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
@@ -127,6 +127,9 @@ public class GeraPresentation extends AbstractMojo {
                 }
                 if (atributo.getType().isEnum()) {
                     dependenciasEnums.add(atributo.getType());
+                }
+                if (atributo.getType().equals(GumgaImage.class)) {
+                    atributosGumgaImage.add(atributo);
                 }
 
             }
@@ -280,8 +283,8 @@ public class GeraPresentation extends AbstractMojo {
         }
 
         try {
-            File arquivoModule = new File(pastaControllers + "/" + nomeEntidade + "FormController.js");
-            FileWriter fw = new FileWriter(arquivoModule);
+            File arquivoFormController = new File(pastaControllers + "/" + nomeEntidade + "FormController.js");
+            FileWriter fw = new FileWriter(arquivoFormController);
 
             Set<Class> dependencias = new HashSet<>();
             dependencias.addAll(dependenciasManyToMany);
@@ -310,7 +313,7 @@ public class GeraPresentation extends AbstractMojo {
 
             for (Class dpEnum : dependenciasEnums) {
                 fw.write(""
-                        + Util.IDENTACAO8+"$scope.value" + dpEnum.getSimpleName() + " = " + nomeEntidade + "Service.value" + dpEnum.getSimpleName() + ";"
+                        + Util.IDENTACAO8 + "$scope.value" + dpEnum.getSimpleName() + " = " + nomeEntidade + "Service.value" + dpEnum.getSimpleName() + ";"
                         + "\n");
             }
 
@@ -372,27 +375,25 @@ public class GeraPresentation extends AbstractMojo {
 
             }
 
-            for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
-                if (GumgaImage.class.equals(atributo.getType()) || GumgaFile.class.equals(atributo.getType())) {
-                    fw.write(""
-                            + "     $scope." + atributo.getName() + "PostPicture = function(image){\n"
-                            + "            return " + nomeEntidade + "Service.postImage('picture',image);\n"
-                            + "\n"
-                            + "        };\n"
-                            + "        $scope." + atributo.getName() + "DeletePicture = function(){\n"
-                            + "            " + nomeEntidade + "Service.deleteImage('picture')\n"
-                            + "                .then(function(data){\n"
-                            + "                    if(data.data == 'OK'){\n"
-                            + "                        $scope.data.picture = {}\n"
-                            + "                    }\n"
-                            + "                });\n"
-                            + "        };"
-                            + ""
-                            + ""
-                            + ""
-                            + "");
-                }
+            for (Field atributoGumgaImage : atributosGumgaImage) {
+                fw.write(""
+                        + "        $scope.post" + Util.primeiraMaiuscula(atributoGumgaImage.getName()) + " = function(image){\n"
+                        + "            return " + nomeEntidade + "Service.postImage('" + (atributoGumgaImage.getName()) + "',image);\n"
+                        + "\n"
+                        + "        };\n"
+                        + "        // Gumga Image para " + (atributoGumgaImage.getName()) + "\n"
+                        + "        $scope.delete" + Util.primeiraMaiuscula(atributoGumgaImage.getName()) + " = function(){\n"
+                        + "            " + nomeEntidade + "Service.deleteImage('" + (atributoGumgaImage.getName()) + "',$scope.entity." + (atributoGumgaImage.getName()) + ")\n"
+                        + "                .then(function(data){\n"
+                        + "                    if(data.data == 'OK'){\n"
+                        + "                        $scope.entity." + (atributoGumgaImage.getName()) + " = {}\n"
+                        + "                    }\n"
+                        + "                });\n"
+                        + "        };\n"
+                        + ""
+                        + "");
             }
+
 
             fw.write("    }\n"
                     + "\n"
@@ -614,14 +615,20 @@ public class GeraPresentation extends AbstractMojo {
                     + "                start: 0,\n"
                     + "                pageSize: 10\n"
                     + "            };\n"
-                    + "        };\n"
-                    + "        this.postImage= function(attribute,model){\n"
-                    + "            return GumgaBase.postImage(url,attribute,model);\n"
-                    + "        };\n"
-                    + "\n"
-                    + "        this.deleteImage = function(attribute){\n"
-                    + "            return GumgaBase.deleteImage(url,attribute);\n"
                     + "        };\n");
+
+            if (!atributosGumgaImage.isEmpty()) {
+                fw.write("\n"
+                        + "        this.postImage= function(attribute,model){\n"
+                        + "            return GumgaBase.postImage(url,attribute,model);\n"
+                        + "        };\n"
+                        + "\n"
+                        + "        this.deleteImage = function(attribute,value){\n"
+                        + "            return GumgaBase.deleteImage(url,attribute,value);\n"
+                        + "        };\n"
+                        + "\n");
+            }
+
             for (Class dpEnum : dependenciasEnums) {
                 fw.write(Util.IDENTACAO8 + "this.value" + dpEnum.getSimpleName() + "=[");
                 Object[] constants = dpEnum.getEnumConstants();
@@ -889,9 +896,9 @@ public class GeraPresentation extends AbstractMojo {
 
                 } else if (GumgaImage.class.equals(atributo.getType())) {
                     fw.write(""
-                            + "<gumga-upload attribute=\"data.picture\"\n"
-                            + "                      upload-method=\"" + atributo.getName() + "postPicture(image)\"\n"
-                            + "                      delete-method=\"" + atributo.getName() + "deletePicture()\">\n"
+                            + "<gumga-upload attribute=\"entity." + atributo.getName()+ "\"\n"
+                            + "                      upload-method=\"post" + Util.primeiraMaiuscula(atributo.getName())+ "(image)\"\n"
+                            + "                      delete-method=\"delete" + Util.primeiraMaiuscula(atributo.getName()) + "()\">\n"
                             + "        </gumga-upload>\n"
                             + "");
 
@@ -957,14 +964,14 @@ public class GeraPresentation extends AbstractMojo {
                             + "\n");
                 } else if (Date.class.equals(atributo.getType())) {
                     fw.write(""
-                             + "        <input type=\"text\" class=\"form-control\" datepicker-popup=\"fullDate\" ng-model=\"entity."+atributo.getName()+"\" is-open=\"opened\" ng-click=\"opened= !opened\" close-text=\"Close\" />"
+                            + "        <input type=\"text\" class=\"form-control\" datepicker-popup=\"fullDate\" ng-model=\"entity." + atributo.getName() + "\" is-open=\"opened\" ng-click=\"opened= !opened\" close-text=\"Close\" />"
                             + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
                             + "\n");
 
                 } else if (atributo.getType().isEnum()) {
                     Object[] constants = atributo.getType().getEnumConstants();
                     fw.write(Util.IDENTACAO8 + "<select class='form-control' name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + "\" >\n");
-                    fw.write(Util.IDENTACAO12 + "<option  ng-selected=\"value.value === entity."+atributo.getName()+"\"  value=\"{{value.value}}\" ng-repeat=\"value in value" + atributo.getType().getSimpleName() + "\">{{value.label}}</option>");
+                    fw.write(Util.IDENTACAO12 + "<option  ng-selected=\"value.value === entity." + atributo.getName() + "\"  value=\"{{value.value}}\" ng-repeat=\"value in value" + atributo.getType().getSimpleName() + "\">{{value.label}}</option>");
                     fw.write(Util.IDENTACAO8 + "</select>\n");
                 } else {
                     fw.write(""
