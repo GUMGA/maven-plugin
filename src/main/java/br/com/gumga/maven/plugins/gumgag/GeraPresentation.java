@@ -61,7 +61,7 @@ public class GeraPresentation extends AbstractMojo {
     private String nomeCompletoEntidade;
     @Parameter(property = "override", defaultValue = "false")
     private boolean override;
-    
+
     private String nomeEntidade;
 
     private Class classeEntidade;
@@ -70,6 +70,7 @@ public class GeraPresentation extends AbstractMojo {
     private Set<Class> dependenciasOneToMany;
     private Set<Class> dependenciasManyToMany;
     private Set<Class> dependenciasGumgaFile;
+    private Set<Class> dependenciasEnums;
 
     private String pastaApp;
     private String pastaControllers;
@@ -80,7 +81,7 @@ public class GeraPresentation extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         Util.geraGumga(getLog());
-        if (override){
+        if (override) {
             System.out.println("NAO ADICIONANDO AO MENU NEM AO INTERNACIONALIZACAO");
         }
 
@@ -109,6 +110,7 @@ public class GeraPresentation extends AbstractMojo {
             dependenciasManyToMany = new HashSet<>();
             dependenciasOneToMany = new HashSet<>();
             dependenciasGumgaFile = new HashSet<>();
+            dependenciasEnums = new HashSet<>();
 
             for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
                 if (atributo.isAnnotationPresent(OneToOne.class)) {
@@ -123,14 +125,21 @@ public class GeraPresentation extends AbstractMojo {
                 if (atributo.isAnnotationPresent(OneToMany.class)) {
                     dependenciasOneToMany.add(Util.getTipoGenerico(atributo));
                 }
+                if (atributo.getType().isEnum()) {
+                    dependenciasEnums.add(atributo.getType());
+                }
 
             }
             geraControllers();
             geraServices();
             geraViews();
             geraModule();
-            if (!override) geraI18n();
-            if (!override) adicionaAoMenu();
+            if (!override) {
+                geraI18n();
+            }
+            if (!override) {
+                adicionaAoMenu();
+            }
         } catch (Exception ex) {
             getLog().error(ex);
         }
@@ -156,18 +165,18 @@ public class GeraPresentation extends AbstractMojo {
                 + "    },");
 
         Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/app.js", "//FIMROUTE", ""
-                + Util.IDENTACAO + Util.IDENTACAO + ".state('" + nomeEntidade.toLowerCase() + "', {\n"
-                + Util.IDENTACAO + Util.IDENTACAO + "data: {\n"
-                + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "id: 1\n"
-                + Util.IDENTACAO + Util.IDENTACAO + "}, \n"
-                + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "url: '/" + nomeEntidade.toLowerCase() + "',\n"
-                + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "templateUrl: 'app/modules/" + nomeEntidade.toLowerCase() + "/views/base.html'\n"
-                + Util.IDENTACAO + Util.IDENTACAO + "})\n"
+                + Util.IDENTACAO4 + Util.IDENTACAO4 + ".state('" + nomeEntidade.toLowerCase() + "', {\n"
+                + Util.IDENTACAO4 + Util.IDENTACAO4 + "data: {\n"
+                + Util.IDENTACAO4 + Util.IDENTACAO4 + Util.IDENTACAO4 + "id: 1\n"
+                + Util.IDENTACAO4 + Util.IDENTACAO4 + "}, \n"
+                + Util.IDENTACAO4 + Util.IDENTACAO4 + Util.IDENTACAO4 + "url: '/" + nomeEntidade.toLowerCase() + "',\n"
+                + Util.IDENTACAO4 + Util.IDENTACAO4 + Util.IDENTACAO4 + "templateUrl: 'app/modules/" + nomeEntidade.toLowerCase() + "/views/base.html'\n"
+                + Util.IDENTACAO4 + Util.IDENTACAO4 + "})\n"
                 + "");
 
-        Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/app.js", "//FIMREQUIRE", Util.IDENTACAO + "require('app/modules/" + nomeEntidade.toLowerCase() + "/module');");
+        Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/app.js", "//FIMREQUIRE", Util.IDENTACAO4 + "require('app/modules/" + nomeEntidade.toLowerCase() + "/module');");
 
-        Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/app.js", "//FIMINJECTIONS", Util.IDENTACAO + Util.IDENTACAO + ",'app." + nomeEntidade.toLowerCase() + "'");
+        Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/app.js", "//FIMINJECTIONS", Util.IDENTACAO4 + Util.IDENTACAO4 + ",'app." + nomeEntidade.toLowerCase() + "'");
 
         Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/keys.json", "]", ",\"CRUD-" + nomeEntidade + "\"");
 
@@ -298,6 +307,13 @@ public class GeraPresentation extends AbstractMojo {
 
             fw.write(""
                     + ") {\n");
+
+            for (Class dpEnum : dependenciasEnums) {
+                fw.write(""
+                        + Util.IDENTACAO8+"$scope.value" + dpEnum.getSimpleName() + " = " + nomeEntidade + "Service.value" + dpEnum.getSimpleName() + ";"
+                        + "\n");
+            }
+
             for (Class classe : dependencias) {
                 fw.write("        " + classe.getSimpleName() + "Service.resetDefaultState();\n");
             }
@@ -322,12 +338,12 @@ public class GeraPresentation extends AbstractMojo {
                             + "        $scope." + atributo.getName() + "Availables = [];\n"
                             + "        $scope." + atributo.getName() + "Search = function(param){\n"
                             + "            " + Util.getTipoGenerico(atributo).getSimpleName() + "Service.getSearch('" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "', param).then(function(data){\n"
-                            + "                $scope." + atributo.getName()  + "Availables = data.data.values;\n"
+                            + "                $scope." + atributo.getName() + "Availables = data.data.values;\n"
                             + "            })\n"
                             + "        }\n"
                             + ""
                             + "        $scope.postManyToMany" + Util.primeiraMaiuscula(atributo.getName()) + " = function(value){\n"
-                            + "            return " + Util.getTipoGenerico(atributo).getSimpleName() + "Service.update({"+Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName()+": value});\n"
+                            + "            return " + Util.getTipoGenerico(atributo).getSimpleName() + "Service.update({" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + ": value});\n"
                             + "        };\n"
                             + "\n"
                             + "        $scope." + atributo.getName() + "Search('');\n"
@@ -461,11 +477,11 @@ public class GeraPresentation extends AbstractMojo {
                     if (atributo.isAnnotationPresent(ManyToOne.class) || atributo.isAnnotationPresent(OneToOne.class)) {
                         fw.write(" "
                                 + "        $scope.postManyToOne" + Util.primeiraMaiuscula(atributo.getName()) + " = function(param){\n"
-                                + "            return " + atributo.getType().getSimpleName() + "Service.update({" +  Util.primeiroAtributo(atributo.getType()).getName() + ": param});\n"
+                                + "            return " + atributo.getType().getSimpleName() + "Service.update({" + Util.primeiroAtributo(atributo.getType()).getName() + ": param});\n"
                                 + "        };\n"
                                 + ""
                                 + "        $scope.searchManyToOne" + Util.primeiraMaiuscula(atributo.getName()) + " = function(value){\n"
-                                + "            return " + atributo.getType().getSimpleName() + "Service.getSearch('" +  Util.primeiroAtributo(atributo.getType()).getName() + "',value)\n"
+                                + "            return " + atributo.getType().getSimpleName() + "Service.getSearch('" + Util.primeiroAtributo(atributo.getType()).getName() + "',value)\n"
                                 + "                .then(function(data){\n"
                                 + "                    return data.data.values;\n"
                                 + "                });"
@@ -605,7 +621,20 @@ public class GeraPresentation extends AbstractMojo {
                     + "\n"
                     + "        this.deleteImage = function(attribute){\n"
                     + "            return GumgaBase.deleteImage(url,attribute);\n"
-                    + "        };"
+                    + "        };\n");
+            for (Class dpEnum : dependenciasEnums) {
+                fw.write(Util.IDENTACAO8 + "this.value" + dpEnum.getSimpleName() + "=[");
+                Object[] constants = dpEnum.getEnumConstants();
+                for (int i = 0; i < constants.length; i++) {
+                    if (i != 0) {
+                        fw.write(",");
+                    }
+                    fw.write("{value:\"" + constants[i] + "\",label:\"" + constants[i].toString().toLowerCase() + "\"}");
+                }
+                fw.write("];\n");
+
+            }
+            fw.write(""
                     + "    }\n"
                     + "\n"
                     + "    return " + nomeEntidade + "Service;\n"
@@ -767,11 +796,11 @@ public class GeraPresentation extends AbstractMojo {
             //COLOCAR OS TIPOS
             boolean requerido = false;
 
-            fw.write(Util.IDENTACAO + Util.IDENTACAO + "<!--" + atributo.getName() + " " + atributo.getType() + "-->\n");
+            fw.write(Util.IDENTACAO4 + Util.IDENTACAO4 + "<!--" + atributo.getName() + " " + atributo.getType() + "-->\n");
 
             if (atributo.isAnnotationPresent(ManyToOne.class) || atributo.isAnnotationPresent(OneToOne.class)) {
                 fw.write("<div class=\"full-width-without-padding\"> "
-                        + Util.IDENTACAO + Util.IDENTACAO + "<label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\"></label>\n"
+                        + Util.IDENTACAO4 + Util.IDENTACAO4 + "<label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\"></label>\n"
                         + "<gumga-many-to-one "
                         + "         ng-model=\"entity." + atributo.getName() + "\"\n"
                         + "         search-method=\"searchManyToOne" + Util.primeiraMaiuscula(atributo.getName()) + "(param)\"\n"
@@ -792,21 +821,21 @@ public class GeraPresentation extends AbstractMojo {
                         + "\n");
 
                 fw.write("<div class=\"full-width-without-padding\">\n"
-                        + Util.IDENTACAO + Util.IDENTACAO + "<gumga-many-to-many "
+                        + Util.IDENTACAO4 + Util.IDENTACAO4 + "<gumga-many-to-many "
                         + "left-list=\"" + atributo.getName().toLowerCase() + "Availables" + "\" "
                         + "right-list=\"entity." + atributo.getName() + "\" "
                         + "left-search=\"" + atributo.getName() + "Search(param)\" "
                         + "filter-parameters=\"" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "\""
                         + "post-method=\"postManyToMany" + Util.primeiraMaiuscula(atributo.getName()) + "(value)\""
                         + ">\n"
-                        + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "    <left-field>{{$value." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</left-field>\n"
-                        + Util.IDENTACAO + Util.IDENTACAO + Util.IDENTACAO + "    <right-field>{{$value." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</right-field>\n"
-                        + Util.IDENTACAO + Util.IDENTACAO + "</gumga-many-to-many>\n\n"
+                        + Util.IDENTACAO4 + Util.IDENTACAO4 + Util.IDENTACAO4 + "    <left-field>{{$value." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</left-field>\n"
+                        + Util.IDENTACAO4 + Util.IDENTACAO4 + Util.IDENTACAO4 + "    <right-field>{{$value." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</right-field>\n"
+                        + Util.IDENTACAO4 + Util.IDENTACAO4 + "</gumga-many-to-many>\n\n"
                         + "</div>\n"
                         + "");
 
             } else if (atributo.isAnnotationPresent(OneToMany.class)) {
-                fw.write(Util.IDENTACAO + Util.IDENTACAO + "<label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\"></label>\n");
+                fw.write(Util.IDENTACAO4 + Util.IDENTACAO4 + "<label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\"></label>\n");
                 fw.write("<div class=\"col-md-12\">\n"
                         + "<gumga-one-to-many\n"
                         + "     children=\"entity." + atributo.getName() + "\"\n"
@@ -818,7 +847,7 @@ public class GeraPresentation extends AbstractMojo {
                         + "\n");
 
             } else {
-                fw.write(Util.IDENTACAO + Util.IDENTACAO + "<label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\"></label>\n");
+                fw.write(Util.IDENTACAO4 + Util.IDENTACAO4 + "<label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\"></label>\n");
                 if (GumgaAddress.class.equals(atributo.getType())) {
                     fw.write("  <div class=\"row\">"
                             + "     <div class=\"col-md-12\">\n"
@@ -923,9 +952,20 @@ public class GeraPresentation extends AbstractMojo {
                             + "\n");
                 } else if (GumgaBoolean.class.equals(atributo.getType())) {
                     fw.write(""
-                            + "        <label><input type=\"checkbox\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" /> <span gumga-translate-tag=\"" + nomeEntidade.toLowerCase() + "." + atributo.getName() + "\"></span></label>"
+                            + "        <input type=\"checkbox\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" />\n"
                             + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
                             + "\n");
+//                } else if (Date.class.equals(atributo.getType())) {
+//                    fw.write(""
+//                            + "        <input id=\"" + atributo.getName() + "\" type=\"date\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + "\"" + geraValidacoesDoBenValidator(atributo) + "  class=\"form-control\" />\n"
+//                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+//                            + "\n");
+
+                } else if (atributo.getType().isEnum()) {
+                    Object[] constants = atributo.getType().getEnumConstants();
+                    fw.write(Util.IDENTACAO8 + "<select name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + "\" >\n");
+                    fw.write(Util.IDENTACAO12 + "<option value=\"{{value.value}}\" ng-repeat=\"value in value" + atributo.getType().getSimpleName() + "\">{{value.label}}</option>");
+                    fw.write(Util.IDENTACAO8 + "</select>\n");
                 } else {
                     fw.write(""
                             + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + "\"" + geraValidacoesDoBenValidator(atributo) + "  class=\"form-control\" />\n"
@@ -939,7 +979,9 @@ public class GeraPresentation extends AbstractMojo {
 
     private String geraValidacoesDoBenValidator(Field atributo) {
         String aRetornar = "";
-        if (atributo.getClass().isAnnotationPresent(NotNull.class)) {
+
+        if (atributo.getClass().isAnnotationPresent(NotNull.class
+        )) {
             aRetornar += "required";
         }
         return aRetornar;
@@ -1012,52 +1054,82 @@ public class GeraPresentation extends AbstractMojo {
 
     private void geraI18n() {
         try {
-            String texto = Util.IDENTACAO + ",\"" + nomeEntidade.toLowerCase() + "\":{\n"
-                    + Util.IDENTACAO + Util.IDENTACAO + "\"title\":\"" + nomeEntidade + "\"\n"
-                    + Util.IDENTACAO + Util.IDENTACAO + ",\"menulabel\": \"" + nomeEntidade + "\"\n"
-                    + Util.IDENTACAO + Util.IDENTACAO + ",\"edit\": \"Editar " + nomeEntidade + "\"\n"
-                    + Util.IDENTACAO + Util.IDENTACAO + ",\"insert\": \"Inserir " + nomeEntidade + "\"\n"
-                    + Util.IDENTACAO + Util.IDENTACAO + ",\"list\": \"Consulta " + nomeEntidade + "\"\n"
-                    + Util.IDENTACAO + Util.IDENTACAO + ",\"id\": \"id\"\n";
+            String texto = Util.IDENTACAO4 + ",\"" + nomeEntidade.toLowerCase() + "\":{\n"
+                    + Util.IDENTACAO4 + Util.IDENTACAO4 + "\"title\":\"" + nomeEntidade + "\"\n"
+                    + Util.IDENTACAO4 + Util.IDENTACAO4 + ",\"menulabel\": \"" + nomeEntidade + "\"\n"
+                    + Util.IDENTACAO4 + Util.IDENTACAO4 + ",\"edit\": \"Editar " + nomeEntidade + "\"\n"
+                    + Util.IDENTACAO4 + Util.IDENTACAO4 + ",\"insert\": \"Inserir " + nomeEntidade + "\"\n"
+                    + Util.IDENTACAO4 + Util.IDENTACAO4 + ",\"list\": \"Consulta " + nomeEntidade + "\"\n"
+                    + Util.IDENTACAO4 + Util.IDENTACAO4 + ",\"id\": \"id\"\n";
             for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
-                texto += Util.IDENTACAO + Util.IDENTACAO + ",\"" + atributo.getName().toLowerCase() + "\":\"" + atributo.getName() + "\"\n";
+                texto += Util.IDENTACAO4 + Util.IDENTACAO4 + ",\"" + atributo.getName().toLowerCase() + "\":\"" + atributo.getName() + "\"\n";
             }
-            texto += Util.IDENTACAO + "}\n";
+            texto += Util.IDENTACAO4 + "}\n";
             Util.adicionaLinha(pastaI18n + "/pt-br.json", ",\"address\":", texto);
         } catch (Exception ex) {
             ex.printStackTrace();
+
         }
     }
 
     private String converteTipoParaAdvanced(Class<?> type) {  //TODO OUTROS TIPOS JAVA
-        if (type.equals(String.class)) {
+        if (type.equals(String.class
+        )) {
+
             return "string";
         }
-        if (type.equals(BigDecimal.class)) {
+
+        if (type.equals(BigDecimal.class
+        )) {
+
             return "number";
         }
-        if (type.equals(Double.class)) {
+
+        if (type.equals(Double.class
+        )) {
+
             return "number";
         }
-        if (type.equals(Integer.class)) {
+
+        if (type.equals(Integer.class
+        )) {
+
             return "number";
         }
-        if (type.equals(Long.class)) {
+
+        if (type.equals(Long.class
+        )) {
+
             return "number";
         }
-        if (type.equals(Byte.class)) {
+
+        if (type.equals(Byte.class
+        )) {
+
             return "number";
         }
-        if (type.equals(Boolean.class)) {
+
+        if (type.equals(Boolean.class
+        )) {
+
             return "boolean";
         }
-        if (type.equals(GumgaBoolean.class)) {
+
+        if (type.equals(GumgaBoolean.class
+        )) {
+
             return "boolean";
         }
-        if (type.equals(Date.class)) {
+
+        if (type.equals(Date.class
+        )) {
+
             return "date";
         }
-        if (type.equals(GumgaMoney.class)) {
+
+        if (type.equals(GumgaMoney.class
+        )) {
+
             return "money";
         }
         return "string";

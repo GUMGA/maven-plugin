@@ -107,8 +107,8 @@ public class GeraEntidade extends AbstractMojo {
 
     private void declaraConstrutor(FileWriter fw) throws IOException {
         fw.write(""
-                + Util.IDENTACAO + "public " + nomeEntidade + "(){\n"
-                + Util.IDENTACAO + "}\n"
+                + Util.IDENTACAO4 + "public " + nomeEntidade + "(){\n"
+                + Util.IDENTACAO4 + "}\n"
                 + "\n");
     }
 
@@ -121,7 +121,7 @@ public class GeraEntidade extends AbstractMojo {
 
     public void declaraAtributos(String[] atributos, FileWriter fw) throws IOException {
         for (String atributo : atributos) {
-            fw.write(Util.IDENTACAO + "//@Field //Descomente para ser utilizado na busca multientidades\n");
+            fw.write(Util.IDENTACAO4 + "//@Field //Descomente para ser utilizado na busca multientidades\n");
             String partes[] = atributo.split(":");
             if (partes[1].trim().endsWith("GumgaAddress")) {
                 fw.write(""
@@ -169,7 +169,7 @@ public class GeraEntidade extends AbstractMojo {
                 }
                 fw.write("\n");
             }
-            fw.write(Util.IDENTACAO + "private " + partes[1] + " " + partes[0] + ";\n");
+            fw.write(Util.IDENTACAO4 + "private " + partes[1] + " " + partes[0] + ";\n");
         }
         fw.write("\n");
     }
