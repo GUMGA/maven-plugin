@@ -809,11 +809,10 @@ public class GeraPresentation extends AbstractMojo {
                 fw.write("<div class=\"full-width-without-padding\"> "
                         + Util.IDENTACAO4 + Util.IDENTACAO4 + "<label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\"></label>\n"
                         + "<gumga-many-to-one "
-                        + "         ng-model=\"entity." + atributo.getName() + "\"\n"
+                        + "         value=\"entity." + atributo.getName() + "\"\n"
                         + "         search-method=\"searchManyToOne" + Util.primeiraMaiuscula(atributo.getName()) + "(param)\"\n"
-                        + "         typeahead-syntax=\"$value as $value[field] for $value in searchMethod({param: model})\"\n" //Não pode alterar
                         + "         field=\"" + Util.primeiroAtributo(atributo.getType()).getName() + "\"\n"
-                        + "         post-method=\"postManyToOne" + Util.primeiraMaiuscula(atributo.getName()) + "(value)\">\n"
+                        + "         add-method=\"postManyToOne" + Util.primeiraMaiuscula(atributo.getName()) + "(value)\">\n"
                         + "</gumga-many-to-one>"
                         + "</div>");
 
