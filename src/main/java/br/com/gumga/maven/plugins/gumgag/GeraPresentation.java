@@ -464,7 +464,7 @@ public class GeraPresentation extends AbstractMojo {
                                 + "            })\n"
                                 + "        }\n"
                                 + "        $scope.postManyToMany" + Util.primeiraMaiuscula(atributo.getName()) + " = function(value){\n"
-                                + "            return " + Util.getTipoGenerico(atributo).getSimpleName() + "Service.update({" + Util.primeiroAtributo(atributo.getClass()) + ": value});\n"
+                                + "            return " + Util.getTipoGenerico(atributo).getSimpleName() + "Service.update({" + Util.primeiroAtributo(atributo.getType()) + ": value});\n"
                                 + "        };\n"
                                 + "\n"
                                 + "        $scope." + atributo.getName() + "Search('');\n"
@@ -1046,7 +1046,7 @@ public class GeraPresentation extends AbstractMojo {
                 || atributo.isAnnotationPresent(NotBlank.class)) {
             aRetornar += " required";
         }
-        System.out.println("----------------------> "+atributo.getName()+aRetornar);
+        System.out.println("----------------------> " + atributo.getName() + aRetornar);
 
         return aRetornar;
     }

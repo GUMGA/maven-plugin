@@ -84,7 +84,12 @@ public class GeraEntidade extends AbstractMojo {
             fw.write("@Indexed\n");
             fw.write("@Audited\n");
             fw.write("@Entity\n");
-            fw.write("public class " + nomeEntidade + " extends " + superClasse + " implements Serializable {\n\n");
+            fw.write("public class " + nomeEntidade + " extends " + superClasse + " implements Serializable {\n"
+                    + "\n"
+                    + "    @Version\n"
+                    + "    private Integer version;\n"
+                    + "\n"
+                    + "\n");
 
             escreveAtributos(fw);
 
