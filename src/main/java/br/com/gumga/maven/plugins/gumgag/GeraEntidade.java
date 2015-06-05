@@ -65,7 +65,9 @@ public class GeraEntidade extends AbstractMojo {
         try {
             FileWriter fw = new FileWriter(arquivoClasse);
             Util.escreveCabecario(fw);
-            fw.write("package " + nomePacote + ";\n\n");
+            fw.write(""
+                    + "\n"
+                    + "package " + nomePacote + ";\n\n");
             fw.write("import gumga.framework.domain.GumgaModel;\n" //TODO RETIRAR OS IMPORTS DESNECESSÁRIOS
                     + "import gumga.framework.domain.GumgaMultitenancy;\n"
                     + "import java.io.Serializable;\n"
