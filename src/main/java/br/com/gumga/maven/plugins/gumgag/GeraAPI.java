@@ -181,7 +181,7 @@ public class GeraAPI extends AbstractMojo {
                         + "    @Override\n"
                         + "    @Transactional\n"
                         + "    @RequestMapping(value = \"/{id}\", method = RequestMethod.PUT, consumes = \"application/json\")\n"
-                        + "    public RestResponse<Funcionario> update(Long id, Funcionario obj, BindingResult result) {\n");
+                        + "    public RestResponse<"+nomeEntidade+"> update(Long id, "+nomeEntidade+" obj, BindingResult result) {\n");
                 for (Field gi : gumgaImages) {
                     fw.write(""
                             + "        if (obj.get" + Util.primeiraMaiuscula(gi.getName()) + "() != null) {\n"
