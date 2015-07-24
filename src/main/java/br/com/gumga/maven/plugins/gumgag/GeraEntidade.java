@@ -87,10 +87,14 @@ public class GeraEntidade extends AbstractMojo {
             fw.write("@Audited\n");
             fw.write("@Entity\n");
             fw.write("public class " + nomeEntidade + " extends " + superClasse + " implements Serializable {\n"
-                    + "\n"
-                    + "    @Version\n"
-                    + "    private Integer version;\n"
-                    + "\n"
+                    + "\n");
+            if ("GumgaModel<Long>".equals(superClasse)) {
+                fw.write(""
+                        + "    @Version\n"
+                        + "    private Integer version;\n"
+                        + "\n");
+            }
+            fw.write(""
                     + "\n");
 
             escreveAtributos(fw);
@@ -146,12 +150,12 @@ public class GeraEntidade extends AbstractMojo {
                         + "\n");
             }
             if (partes[1].trim().endsWith("GumgaTime")) {
-                fw.write("     @Columns(columns = {\n"
-                        + "     @Column(name = \"" + partes[0] + "_hour\"),\n"
-                        + "     @Column(name = \"" + partes[0] + "_minute\"),\n"
-                        + "     @Column(name = \"" + partes[0] + "_second\")\n"
-                        + "     })"
-                        + "\n");
+//                fw.write("     @Columns(columns = {\n"
+//                        + "     @Column(name = \"" + partes[0] + "_hour\"),\n"
+//                        + "     @Column(name = \"" + partes[0] + "_minute\"),\n"
+//                        + "     @Column(name = \"" + partes[0] + "_second\")\n"
+//                        + "     })"
+//                        + "\n");
             }
             if (partes[1].trim().endsWith("GumgaGeoLocation")) {
                 fw.write("     @Columns(columns = {\n"

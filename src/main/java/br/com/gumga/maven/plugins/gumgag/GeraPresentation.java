@@ -91,7 +91,7 @@ public class GeraPresentation extends AbstractMojo {
 
             pastaApp = Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/modules/" + (nomeEntidade.toLowerCase());
 
-            getLog().info("Iniciando plugin Gerador de Html e JavaScript de Apresentação oi ");
+            getLog().info("Iniciando plugin Gerador de Html e JavaScript de Apresentação oi");
             getLog().info("Gerando para " + nomeEntidade);
 
             File f = new File(pastaApp);
@@ -156,7 +156,11 @@ public class GeraPresentation extends AbstractMojo {
                 + "        \"label\": \"" + nomeEntidade + "\",\n"
                 + "        \"URL\": \"" + nomeEntidade.toLowerCase() + ".list\",\n"
                 + "        \"key\": \"CRUD-" + nomeEntidade + "\",\n"
-                + "         \"icon\": \"glyphicon glyphicon-user\",\n"
+                + "        \"icon\": \"glyphicon glyphicon-user\",\n"
+                + "        \"icon_color\": \"\",\n"
+                + "        \"imageUrl\": \"\",\n"
+                + "        \"imageWidth\": \"\",\n"
+                + "        \"imageHeight\": \"\",\n"
                 + "        \"filhos\": [\n"
                 + "             {\n"
                 + "             \"label\": \" Inserir \",\n"
@@ -193,11 +197,10 @@ public class GeraPresentation extends AbstractMojo {
             fw.write(""
                     + "define(function (require) {\n"
                     + "    var angular = require('angular');\n"
-                    + "     require('gumga-core')/\n"
                     + "    require('app/modules/" + nomeEntidade.toLowerCase() + "/services/module');\n"
                     + "    require('angular-ui-router');\n"
                     + "\n"
-                    + "    return angular.module('app." + nomeEntidade.toLowerCase() + ".controllers', ['app." + nomeEntidade.toLowerCase() + ".services','ui.router','gumga.core'])\n"
+                    + "    return angular.module('app." + nomeEntidade.toLowerCase() + ".controllers', ['app." + nomeEntidade.toLowerCase() + ".services','ui.router'])\n"
                     + "        .controller('" + nomeEntidade + "FormController', require('app/modules/" + nomeEntidade.toLowerCase() + "/controllers/" + nomeEntidade + "FormController'))\n"
                     + "        .controller('" + nomeEntidade + "ListController', require('app/modules/" + nomeEntidade.toLowerCase() + "/controllers/" + nomeEntidade + "ListController'))\n");
 
@@ -662,10 +665,9 @@ public class GeraPresentation extends AbstractMojo {
                     + " */\n"
                     + "\n"
                     + "define(function(require){\n"
-                    + "    require('gumga-core');\n"
                     + "    var angular = require('angular');"
                     + "    var " + nomeEntidade + "Service = require('app/modules/" + nomeEntidade.toLowerCase() + "/services/" + nomeEntidade + "Service');\n"
-                    + "    return angular.module('app." + nomeEntidade.toLowerCase() + ".services',['gumga.core'])\n"
+                    + "    return angular.module('app." + nomeEntidade.toLowerCase() + ".services',[])\n"
                     + "        .service('" + nomeEntidade + "Service'," + nomeEntidade + "Service);\n"
                     + "});"
                     + "");
@@ -1062,10 +1064,9 @@ public class GeraPresentation extends AbstractMojo {
                     + "    require('angular-ui-router');\n"
                     + "    require('app/modules/" + nomeEntidade.toLowerCase() + "/services/module');\n"
                     + "    require('app/modules/" + nomeEntidade.toLowerCase() + "/controllers/module');\n"
-                    + "    require('gumga-core');\n"
                     + "    var APILocation = require('app/apiLocations');\n"
                     + "\n"
-                    + "    angular.module('app." + nomeEntidade.toLowerCase() + "', ['ui.router', 'app." + nomeEntidade.toLowerCase() + ".controllers', 'app." + nomeEntidade.toLowerCase() + ".services', 'gumga.core'])\n"
+                    + "    angular.module('app." + nomeEntidade.toLowerCase() + "', ['ui.router', 'app." + nomeEntidade.toLowerCase() + ".controllers', 'app." + nomeEntidade.toLowerCase() + ".services'])\n"
                     + "        .config(function ($stateProvider, $httpProvider) {\n"
                     + "            $stateProvider\n"
                     + "                .state('" + nomeEntidade.toLowerCase() + ".list', {\n"
