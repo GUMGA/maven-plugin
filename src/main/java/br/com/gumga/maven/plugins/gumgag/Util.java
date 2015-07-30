@@ -48,7 +48,6 @@ public class Util {
 
     public static List<Field> getTodosAtributosMenosIdAutomatico(Class classe) {
         List<Field> todosAtributos = getTodosAtributosNaoEstaticos(classe);
-//      TODO TRANSFORMAR EM LISTA
         Field aRemover = null;
         Field aRemoverOi = null;
         Field aRemoverVersion = null;
