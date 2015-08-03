@@ -48,7 +48,6 @@ public class Util {
 
     public static List<Field> getTodosAtributosMenosIdAutomatico(Class classe) {
         List<Field> todosAtributos = getTodosAtributosNaoEstaticos(classe);
-//      TODO TRANSFORMAR EM LISTA
         Field aRemover = null;
         Field aRemoverOi = null;
         Field aRemoverVersion = null;
@@ -130,6 +129,8 @@ public class Util {
 
     public static void geraGumga(Log log) {
         log.info("\n"
+                + "VERSAO 1.1.1-SNAPSHOT\n"
+                + "\n"
                 + "   _____ _    _ __  __  _____          \n"
                 + "  / ____| |  | |  \\/  |/ ____|   /\\    \n"
                 + " | |  __| |  | | \\  / | |  __   /  \\   \n"
