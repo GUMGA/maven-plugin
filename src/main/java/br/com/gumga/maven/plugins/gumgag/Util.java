@@ -129,7 +129,6 @@ public class Util {
 
     public static void geraGumga(Log log) {
         log.info("\n"
-                + "VERSAO 1.1.1-SNAPSHOT\n"
                 + "\n"
                 + "   _____ _    _ __  __  _____          \n"
                 + "  / ____| |  | |  \\/  |/ ____|   /\\    \n"
