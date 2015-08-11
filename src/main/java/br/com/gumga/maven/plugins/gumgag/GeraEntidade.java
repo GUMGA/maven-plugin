@@ -79,6 +79,7 @@ public class GeraEntidade extends AbstractMojo {
                     + "import org.hibernate.search.annotations.Field;\n"
                     + "import org.hibernate.search.annotations.Indexed;\n"
                     + "import org.hibernate.envers.Audited;\n"
+                    + "import com.fasterxml.jackson.annotation.JsonIgnore;\n"
                     + "\n");
 
             fw.write("@GumgaMultitenancy\n");
@@ -175,10 +176,16 @@ public class GeraEntidade extends AbstractMojo {
             }
             if (partes.length > 2) {
                 fw.write("    " + partes[2]);
+                
+                
                 if (partes[2].trim().equals("@OneToMany")) {
                     fw.write("(cascade = CascadeType.ALL, orphanRemoval = true)");
                 }
+                
                 fw.write("\n");
+                if (partes[2].trim().contains("mappedBy")) {
+                    fw.write("@JsonIgnore\n");
+                }
             }
             fw.write(Util.IDENTACAO4 + "private " + partes[1] + " " + partes[0] + ";\n");
         }

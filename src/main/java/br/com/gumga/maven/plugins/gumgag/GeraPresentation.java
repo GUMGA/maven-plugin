@@ -533,7 +533,7 @@ public class GeraPresentation extends AbstractMojo {
             File arquivoModule = new File(pastaViews + "/form.html");
             FileWriter fw = new FileWriter(arquivoModule);
             fw.write(""
-                    + "<form name=\"" + nomeEntidade + "Form\" novalidate>\n"
+                    + "<form name=\"" + nomeEntidade + "Form\" gumga-form novalidate>\n"
                     + "    <div class=\"full-width-without-padding\">\n"
                     + "\n");
 
@@ -541,6 +541,7 @@ public class GeraPresentation extends AbstractMojo {
             geraCampos(fw, this.classeEntidade);
             fw.write(""
                     + "\n"
+                    + "        <gumga-errors placement=\"right\" icon=\"glyphicon glyphicon-question-sign\" label=\"Lista de erros\" title=\"Lista de erros\"></gumga-errors>\n"
                     + "        <gumga-form-buttons\n"
                     + "                back=\"" + nomeEntidade.toLowerCase() + ".list\"\n"
                     + "                submit=\"" + nomeEntidade.toLowerCase() + "Update(entity)\"\n"
@@ -734,43 +735,37 @@ public class GeraPresentation extends AbstractMojo {
                 } else if (GumgaBarCode.class.equals(atributo.getType())) {
                     fw.write(""
                             + "        <div ng-class=\"{'form-group':"+nomeEntidade+"Form."+atributo.getName()+".$pristine,'form-group has-error': "+nomeEntidade+"Form."+atributo.getName()+".$invalid,'form-group has-success': "+nomeEntidade+"Form."+atributo.getName()+".$valid}\">\n"
-                            + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" />\n"
-                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "        <input id=\"" + atributo.getName() + "\" gumga-error  type=\"text\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" />\n"
                             + "        </div>\n"
                             + "\n");
                 } else if (GumgaCEP.class.equals(atributo.getType())) { //TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR A DEPENDENCIA EXTERNA
                     fw.write(""
                             + "        <div ng-class=\"{'form-group':"+nomeEntidade+"Form."+atributo.getName()+".$pristine,'form-group has-error': "+nomeEntidade+"Form."+atributo.getName()+".$invalid,'form-group has-success': "+nomeEntidade+"Form."+atributo.getName()+".$valid}\">\n"
-                            + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\"  gumga-pattern=\"(\\d{5})\\-(\\d{3})\" placeholder=\"00000-000\"/>\n"
-                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "        <input id=\"" + atributo.getName() + "\"  gumga-error type=\"text\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\"  gumga-pattern=\"(\\d{5})\\-(\\d{3})\" placeholder=\"00000-000\" pattern-alias=\"00000-000\"/>\n"
                             + "        </div>"
                             + "\n");
                 } else if (GumgaCNPJ.class.equals(atributo.getType())) { //TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR A DEPENDENCIA EXTERNA
                     fw.write(""
                             + "        <div ng-class=\"{'form-group':"+nomeEntidade+"Form."+atributo.getName()+".$pristine,'form-group has-error': "+nomeEntidade+"Form."+atributo.getName()+".$invalid,'form-group has-success': "+nomeEntidade+"Form."+atributo.getName()+".$valid}\">\n"
-                            + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" gumga-pattern=\"(\\d{2})\\.(\\d{3}).(\\d{3})/(\\d{4})-(\\d{2})\" placeholder=\"00.000.000/0000-00\" />\n"
-                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "        <input id=\"" + atributo.getName() + "\" pattern-alias=\"00.000.000/0000-00\" gumga-error type=\"text\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" gumga-pattern=\"(\\d{2})\\.(\\d{3}).(\\d{3})/(\\d{4})-(\\d{2})\" placeholder=\"00.000.000/0000-00\" />\n"
                             + "        </div>"
                             + "\n");
                 } else if (GumgaCPF.class.equals(atributo.getType())) { //TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR A DEPENDENCIA EXTERNA
                     fw.write(""
                             + "        <div ng-class=\"{'form-group':"+nomeEntidade+"Form."+atributo.getName()+".$pristine,'form-group has-error': "+nomeEntidade+"Form."+atributo.getName()+".$invalid,'form-group has-success': "+nomeEntidade+"Form."+atributo.getName()+".$valid}\">\n"
-                            + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" gumga-pattern=\"(\\d{3})\\.(\\d{3}).(\\d{3})-(\\d{2})\" placeholder=\"000.000.000-00\"/>\n"
-                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "        <input id=\"" + atributo.getName() + "\" gumga-error type=\"text\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" gumga-pattern=\"(\\d{3})\\.(\\d{3}).(\\d{3})-(\\d{2})\" placeholder=\"000.000.000-00\" pattern-alias=\"000.000.000-00\"/>\n"
                             + "        </div>"
                             + "\n");
                 } else if (GumgaIP4.class.equals(atributo.getType())) { //TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR O GUMGAMAX E GUMGAMIN
                     fw.write(""
                             + "        <div ng-class=\"{'form-group':"+nomeEntidade+"Form."+atributo.getName()+".$pristine,'form-group has-error': "+nomeEntidade+"Form."+atributo.getName()+".$invalid,'form-group has-success': "+nomeEntidade+"Form."+atributo.getName()+".$valid}\">\n"
-                            + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" gumga-min=\"12\" gumga-max=\"12\"/>\n"
-                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "        <input id=\"" + atributo.getName() + "\" gumga-error type=\"text\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" gumga-min=\"12\" gumga-max=\"12\"/>\n"
                             + "        </div>"
                             + "\n");
                 } else if (GumgaIP6.class.equals(atributo.getType())) { //TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR O GUMGAMAX E GUMGAMIN
                     fw.write(""
                             + "        <div ng-class=\"{'form-group':"+nomeEntidade+"Form."+atributo.getName()+".$pristine,'form-group has-error': "+nomeEntidade+"Form."+atributo.getName()+".$invalid,'form-group has-success': "+nomeEntidade+"Form."+atributo.getName()+".$valid}\">\n"
-                            + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" gumga-min=\"12\" gumga-max=\"12\"/>\n"
-                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "        <input id=\"" + atributo.getName() + "\" gumga-error type=\"text\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" gumga-min=\"12\" gumga-max=\"12\"/>\n"
                             + "        </div>"
                             + "\n");
                 } else if (GumgaFile.class.equals(atributo.getType())) {//TODO SUBSTITUIR PELA DIRETIVA DE IMPORTAÇÃO E ARQUIVO QUANDO ESTIVER PRONTA
@@ -786,29 +781,25 @@ public class GeraPresentation extends AbstractMojo {
                 } else if (GumgaEMail.class.equals(atributo.getType())) {
                     fw.write(""
                             + "        <div ng-class=\"{'form-group':"+nomeEntidade+"Form."+atributo.getName()+".$pristine,'form-group has-error': "+nomeEntidade+"Form."+atributo.getName()+".$invalid,'form-group has-success': "+nomeEntidade+"Form."+atributo.getName()+".$valid}\">\n"
-                            + "        <input id=\"" + atributo.getName() + "\" type=\"email\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" />\n"
-                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "        <input id=\"" + atributo.getName() + "\" gumga-error type=\"email\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" />\n"
                             + "        </div>"
                             + "\n");
                 } else if (GumgaMoney.class.equals(atributo.getType())) {//TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR A DEPENDENCIA EXTERNA
                     fw.write(""
                             + "        <div ng-class=\"{'form-group':"+nomeEntidade+"Form."+atributo.getName()+".$pristine,'form-group has-error': "+nomeEntidade+"Form."+atributo.getName()+".$invalid,'form-group has-success': "+nomeEntidade+"Form."+atributo.getName()+".$valid}\">\n"
-                            + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" ui-money-mask=\"2\"/>\n"
-                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "        <input id=\"" + atributo.getName() + "\" gumga-error type=\"text\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" ui-money-mask=\"2\"/>\n"
                             + "        </div>"
                             + "\n");
                 } else if (GumgaPhoneNumber.class.equals(atributo.getType())) {//TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR A DEPENDENCIA EXTERNA
                     fw.write(""
                             + "        <div ng-class=\"{'form-group':"+nomeEntidade+"Form."+atributo.getName()+".$pristine,'form-group has-error': "+nomeEntidade+"Form."+atributo.getName()+".$invalid,'form-group has-success': "+nomeEntidade+"Form."+atributo.getName()+".$valid}\">\n"
-                            + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" ui-br-phone-number/>\n"
-                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "        <input id=\"" + atributo.getName() + "\" gumga-error type=\"text\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" ui-br-phone-number/>\n"
                             + "        </div>"
                             + "\n");
                 } else if (GumgaURL.class.equals(atributo.getType())) {
                     fw.write(""
                             + "        <div ng-class=\"{'form-group':"+nomeEntidade+"Form."+atributo.getName()+".$pristine,'form-group has-error': "+nomeEntidade+"Form."+atributo.getName()+".$invalid,'form-group has-success': "+nomeEntidade+"Form."+atributo.getName()+".$valid}\">\n"
-                            + "        <input id=\"" + atributo.getName() + "\" type=\"url\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" />\n"
-                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "        <input id=\"" + atributo.getName() + "\" gumga-error type=\"url\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" />\n"
                             + "        </div>"
                             + "\n");
                 } else if (GumgaTime.class.equals(atributo.getType())) {
@@ -817,7 +808,6 @@ public class GeraPresentation extends AbstractMojo {
                     fw.write(""
                             + "        <div ng-class=\"{'form-group':"+nomeEntidade+"Form."+atributo.getName()+".$pristine,'form-group has-error': "+nomeEntidade+"Form."+atributo.getName()+".$invalid,'form-group has-success': "+nomeEntidade+"Form."+atributo.getName()+".$valid}\">\n"
                             + "        <textarea ng-model=\"entity." + atributo.getName() + ".value\" " + geraValidacoesDoBenValidator(atributo) + " class=\"form-control\" placeholder=\"Digite " + Util.etiqueta(atributo) + ".\" rows=\"4\" cols=\"50\"></textarea>\n\n"
-                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
                             + "        </div>"
                             + "\n");
                 } else if (GumgaGeoLocation.class.equals(atributo.getType())) { //TODO SUBSTITUIR PELO COMPONENTE GUMGAMAPS QUANDO ELE ESTIVER PRONTO
@@ -826,14 +816,12 @@ public class GeraPresentation extends AbstractMojo {
                             + "     <div class=\"col-md-12\">\n"
                             + "        <label for=\"" + atributo.getName() + ".latitude\">Latitude</label>\n"
                             + "        <div ng-class=\"{'form-group':"+nomeEntidade+"Form."+atributo.getName()+".$pristine,'form-group has-error': "+nomeEntidade+"Form."+atributo.getName()+".$invalid,'form-group has-success': "+nomeEntidade+"Form."+atributo.getName()+".$valid}\">\n"
-                            + "        <input id=\"" + atributo.getName() + ".latitude\" type=\"text\" name=\"" + atributo.getName() + ".latitude\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".latitude\" class=\"form-control\" />\n"
+                            + "        <input id=\"" + atributo.getName() + ".latitude\" gumga-error type=\"text\" name=\"" + atributo.getName() + ".latitude\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".latitude\" class=\"form-control\" />\n"
                             + "        </div>"
-                            + "        <gumga-errors name=\"" + atributo.getName() + ".latitude\"></gumga-errors>\n"
                             + "        <label for=\"" + atributo.getName() + ".longitude\">Longitude</label>\n"
                             + "        <div ng-class=\"{'form-group':"+nomeEntidade+"Form."+atributo.getName()+".$pristine,'form-group has-error': "+nomeEntidade+"Form."+atributo.getName()+".$invalid,'form-group has-success': "+nomeEntidade+"Form."+atributo.getName()+".$valid}\">\n"
-                            + "        <input id=\"" + atributo.getName() + ".longitude\" type=\"text\" name=\"" + atributo.getName() + ".longitude\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".longitude\" class=\"form-control\" />\n"
+                            + "        <input id=\"" + atributo.getName() + ".longitude\" gumga-error type=\"text\" name=\"" + atributo.getName() + ".longitude\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".longitude\" class=\"form-control\" />\n"
                             + "        </div>"
-                            + "        <gumga-errors name=\"" + atributo.getName() + ".longitude\"></gumga-errors>\n"
                             + "        <a class=\"btn btn-default\" ng-href=\"http://maps.google.com/maps?q={{entity." + atributo.getName() + ".latitude + ',' + entity." + atributo.getName() + ".longitude}}\" target=\"_blank\"> <p class=\"glyphicon glyphicon-globe\"></p> GOOGLE MAPS</a>\n"
                             + "     </div>\n"
                             + " </div>\n"
@@ -841,28 +829,25 @@ public class GeraPresentation extends AbstractMojo {
                 } else if (GumgaBoolean.class.equals(atributo.getType())) {
                     fw.write(""
                             + "        <div ng-class=\"{'form-group':"+nomeEntidade+"Form."+atributo.getName()+".$pristine,'form-group has-error': "+nomeEntidade+"Form."+atributo.getName()+".$invalid,'form-group has-success': "+nomeEntidade+"Form."+atributo.getName()+".$valid}\">\n"
-                            + "        <input style=\"width:15px\" type=\"checkbox\" " + geraValidacoesDoBenValidator(atributo) + " name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" />\n"
-                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "        <input style=\"width:15px\" gumga-error type=\"checkbox\" " + geraValidacoesDoBenValidator(atributo) + " name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" />\n"
                             + "        </div>"
                             + "\n");
                 } else if (Date.class.equals(atributo.getType())) {
                     fw.write(""
                             + "        <div ng-class=\"{'form-group':"+nomeEntidade+"Form."+atributo.getName()+".$pristine,'form-group has-error': "+nomeEntidade+"Form."+atributo.getName()+".$invalid,'form-group has-success': "+nomeEntidade+"Form."+atributo.getName()+".$valid}\">\n"
-                            + "        <input type=\"text\" class=\"form-control\" " + geraValidacoesDoBenValidator(atributo) + " datepicker-popup=\"fullDate\" ng-model=\"entity." + atributo.getName() + "\" is-open=\"opened\" ng-click=\"opened= !opened\" close-text=\"Close\" />"
-                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "        <input type=\"text\" gumga-error class=\"form-control\" " + geraValidacoesDoBenValidator(atributo) + " datepicker-popup=\"fullDate\" ng-model=\"entity." + atributo.getName() + "\" is-open=\"opened\" ng-click=\"opened= !opened\" close-text=\"Close\" />"
                             + "        </div>"
                             + "\n");
 
                 } else if (atributo.getType().isEnum()) {
                     Object[] constants = atributo.getType().getEnumConstants();
-                    fw.write(Util.IDENTACAO8 + "<select class='form-control' name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + "\" >\n");
+                    fw.write(Util.IDENTACAO8 + "<select class='form-control' gumga-error name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + "\" >\n");
                     fw.write(Util.IDENTACAO12 + "<option  ng-selected=\"value.value === entity." + atributo.getName() + "\"  value=\"{{value.value}}\" ng-repeat=\"value in value" + atributo.getType().getSimpleName() + "\">{{value.label}}</option>");
                     fw.write(Util.IDENTACAO8 + "</select>\n");
                 } else {
                     fw.write(""
                             + "        <div ng-class=\"{'form-group':"+nomeEntidade+"Form."+atributo.getName()+".$pristine,'form-group has-error': "+nomeEntidade+"Form."+atributo.getName()+".$invalid,'form-group has-success': "+nomeEntidade+"Form."+atributo.getName()+".$valid}\">\n"
-                            + "        <input id=\"" + atributo.getName() + "\" type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + "\"" + geraValidacoesDoBenValidator(atributo) + "  class=\"form-control\" />\n"
-                            + "        <gumga-errors name=\"" + atributo.getName() + "\"></gumga-errors>\n"
+                            + "        <input id=\"" + atributo.getName() + "\" gumga-error type=\"text\" name=\"" + atributo.getName() + "\" ng-model=\"entity." + atributo.getName() + "\"" + geraValidacoesDoBenValidator(atributo) + "  class=\"form-control\" />\n"
                             + "        </div>"
                             + "\n");
                 }
@@ -898,7 +883,7 @@ public class GeraPresentation extends AbstractMojo {
         if (atributo.isAnnotationPresent(NotNull.class)
                 || atributo.isAnnotationPresent(NotEmpty.class)
                 || atributo.isAnnotationPresent(NotBlank.class) ) {
-            aRetornar += " required minlength=\"1\"";
+            aRetornar += " gumga-required gumga-min-length=\"1\"";
         }
         
         System.out.println("----------------------> " + atributo.getName() + aRetornar);
