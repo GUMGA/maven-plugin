@@ -184,7 +184,7 @@ public class GeraEntidade extends AbstractMojo {
                 
                 fw.write("\n");
                 if (partes[2].trim().contains("mappedBy")) {
-                    fw.write("@JsonIgnore\n");
+                    fw.write("    @JsonIgnore\n");
                 }
             }
             fw.write(Util.IDENTACAO4 + "private " + partes[1] + " " + partes[0] + ";\n");

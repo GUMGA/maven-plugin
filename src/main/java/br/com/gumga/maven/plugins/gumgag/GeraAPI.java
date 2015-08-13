@@ -184,9 +184,13 @@ public class GeraAPI extends AbstractMojo {
                         + "    public RestResponse<"+nomeEntidade+"> update(Long id, "+nomeEntidade+" obj, BindingResult result) {\n");
                 for (Field gi : gumgaImages) {
                     fw.write(""
-                            + "        if (obj.get" + Util.primeiraMaiuscula(gi.getName()) + "() != null) {\n"
+                            + "      if (obj.getFoto()!= null) {\n"
+                            + "        if (\"null\".equals(obj.get" + Util.primeiraMaiuscula(gi.getName()) + "().getName())) {\n"
+                            + "            obj.set" + Util.primeiraMaiuscula(gi.getName()) + "(null);\n"
+                            + "        }else if (obj.get" + Util.primeiraMaiuscula(gi.getName()) + "().getSize() == 0) {\n"
                             + "            obj.set" + Util.primeiraMaiuscula(gi.getName()) + "((GumgaImage) gumgaTempFileService.find(obj.get" + Util.primeiraMaiuscula(gi.getName()) + "().getName()));\n"
-                            + "        }\n");
+                            + "        }\n"
+                            + "      }\n");
                 }
                 fw.write(""
                         + "        return super.update(id, obj, result); \n"
