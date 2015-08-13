@@ -282,7 +282,7 @@ public class GeraPresentation extends AbstractMojo {
                     + "       $scope.continue = {};"
                     + "\n"
                     + "       populateScope($scope, "+nomeEntidade+"Service, '"+nomeEntidade+"', 'base-form');\n"
-                    + "      $scope.$on('afterUpdate',function(){\n" 
+                    + "       $scope.$on('afterUpdate',function(){\n" 
                     + "             $scope.continue.value ? $scope.entity = angular.copy(entity.data) : $state.go('"+nomeEntidade.toLowerCase()+".list');\n" 
                     + "       })"
                     + "\n");
@@ -308,7 +308,7 @@ public class GeraPresentation extends AbstractMojo {
                 }
                 
                 if (atributo.isAnnotationPresent(ManyToMany.class)) {
-                    fw.write("        $scope.entity." + atributo.getName() + " = $scope.entity." + atributo.getName() + "  || [];\n\n");
+                    fw.write("         $scope.entity." + atributo.getName() + " = $scope.entity." + atributo.getName() + "  || [];\n\n");
                     
                     fw.write(""
                             + "        populateScope($scope, " + Util.getTipoGenerico(atributo).getSimpleName() + "Service, '" + Util.getTipoGenerico(atributo).getSimpleName() + "', 'many-to-many');\n"
@@ -321,7 +321,7 @@ public class GeraPresentation extends AbstractMojo {
                 }
                 
                 if (atributo.isAnnotationPresent(OneToMany.class)) {
-                    fw.write("        $scope.entity." + atributo.getName() + " = $scope.entity." + atributo.getName() + "  || [];\n\n");
+                    fw.write("         $scope.entity." + atributo.getName() + " = $scope.entity." + atributo.getName() + "  || [];\n\n");
                 }
                 if (atributo.isAnnotationPresent(ManyToOne.class) || atributo.isAnnotationPresent(OneToOne.class)) {
                     fw.write(" "
@@ -395,7 +395,7 @@ public class GeraPresentation extends AbstractMojo {
                         + "");
                 for (Field atributo : Util.getTodosAtributosNaoEstaticos(classe)) {
                     if (atributo.isAnnotationPresent(ManyToMany.class)) {
-                        fw.write("        $scope.entity." + atributo.getName() + " = $scope.entity." + atributo.getName() + "  || [];\n\n");
+                        fw.write("         $scope.entity." + atributo.getName() + " = $scope.entity." + atributo.getName() + "  || [];\n\n");
 
                         fw.write(""
                                 + "        populateScope($scope, " + Util.getTipoGenerico(atributo).getSimpleName() + "Service, '" + Util.getTipoGenerico(atributo).getSimpleName() + "', 'many-to-many');\n"
@@ -408,7 +408,7 @@ public class GeraPresentation extends AbstractMojo {
                     }
 
                     if (atributo.isAnnotationPresent(OneToMany.class)) {
-                        fw.write("        $scope.entity." + atributo.getName() + " = $scope.entity." + atributo.getName() + "  || [];\n\n");
+                        fw.write("         $scope.entity." + atributo.getName() + " = $scope.entity." + atributo.getName() + "  || [];\n\n");
                     }
                     if (atributo.isAnnotationPresent(ManyToOne.class) || atributo.isAnnotationPresent(OneToOne.class)) {
                         fw.write(" "
@@ -561,27 +561,28 @@ public class GeraPresentation extends AbstractMojo {
             FileWriter fw = new FileWriter(arquivoModule);
             fw.write(""
                     + "<div class=\"col-md-12\">\n"
-                    + "   <h3 style=\"margin-top: 0\" gumga-translate-tag=\""+nomeEntidade.toLowerCase()+".title\"></h3>"
+                    + "   <h3 style=\"margin-top: 0\" gumga-translate-tag=\""+nomeEntidade.toLowerCase()+".title\"></h3>\n"
                     + "    <div class=\"col-md-5\" style=\"padding-left: 0\">\n"
                     + "        <a ui-sref=\"" + nomeEntidade.toLowerCase() + ".insert\" class=\"btn btn-primary\"><i class=\"glyphicon glyphicon-plus\"></i> New</a>\n"
-                    + "        <button type=\"button\" class=\"btn btn-danger\" ng-click=\"" + nomeEntidade.toLowerCase() + "Delete(selectedEntities)\"><i class=\"glyphicon glyphicon-trash\"></i> Delete\n"
+                    + "        <button type=\"button\" class=\"btn btn-danger\" ng-click=\"" + nomeEntidade.toLowerCase() + "Delete(selectedEntities)\"><i class=\"glyphicon glyphicon-trash\"></i> Delete"
                     + "        </button>\n"
                     + "    </div>\n"
                     + "    <div class=\"col-md-7\" style=\"padding-right: 0\">\n"
                     + "        <gumga-search fields=\"" + Util.todosAtributosSeparadosPorVirgula(classeEntidade) + "\"\n "
                     + "                      advanced=\"true\"\n "
-                    + "                      search-method=\"" + classeEntidade.getSimpleName().toLowerCase() + "Search(field,param)\n\""
-                    + "                      advanced-method=\"" + classeEntidade.getSimpleName().toLowerCase() + "AdvancedSearch(param)\"\n translate-entity=\" " + classeEntidade.getSimpleName().toLowerCase() + "\">\n"
+                    + "                      search-method=\"" + classeEntidade.getSimpleName().toLowerCase() + "Search(field,param)\"\n"
+                    + "                      advanced-method=\"" + classeEntidade.getSimpleName().toLowerCase() + "AdvancedSearch(param)\"\n "
+                    + "                      translate-entity=\" " + classeEntidade.getSimpleName().toLowerCase() + "\">\n"
                     + "            <advanced-field name=\"id\" type=\"number\"></advanced-field>\n");
             for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
-                fw.write("            <advanced-field name=\"" + atributo.getName() + "\" type=\"" + converteTipoParaAdvanced(atributo.getType()) + "\"></advanced-field>\n");
+                fw.write("         <advanced-field name=\"" + atributo.getName() + "\" type=\"" + converteTipoParaAdvanced(atributo.getType()) + "\"></advanced-field>\n");
             }
             fw.write(""
                     + "        </gumga-search>\n"
                     + "    </div>\n"
                     + "        <gumga-table\n"
-                    + "            translate-entity=\"" + nomeEntidade.toLowerCase() + "\""
-                    + "            name=\"" + nomeEntidade.toLowerCase() + "\""
+                    + "            translate-entity=\"" + nomeEntidade.toLowerCase() + "\"\n"
+                    + "            name=\"" + nomeEntidade.toLowerCase() + "\"\n"
                     + "            values=\"" + classeEntidade.getSimpleName() + ".content.data.values\"\n");
             fw.write("            columns=\"" + Util.todosAtributosSeparadosPorVirgula(classeEntidade) + "\"\n");
             fw.write(""
@@ -589,38 +590,38 @@ public class GeraPresentation extends AbstractMojo {
                     + "            >\n");
             for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
                 if (GumgaEMail.class.equals(atributo.getType())) {
-                    fw.write("<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".value\"></object-column>\n");
+                    fw.write(Util.IDENTACAO12+"<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".value\"></object-column>\n");
                 } else if (GumgaPhoneNumber.class.equals(atributo.getType())) {
-                    fw.write("<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".value\"></object-column>\n");
+                    fw.write(Util.IDENTACAO12+"<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".value\"></object-column>\n");
                 } else if (GumgaBoolean.class.equals(atributo.getType())) {
-                    fw.write("<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".value\"></object-column>\n");
+                    fw.write(Util.IDENTACAO12+"<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".value\"></object-column>\n");
                 } else if (GumgaCNPJ.class.equals(atributo.getType())) {
-                    fw.write("<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".value\"></object-column>\n");
+                    fw.write(Util.IDENTACAO12+"<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".value\"></object-column>\n");
                 } else if (GumgaURL.class.equals(atributo.getType())) {
-                    fw.write("<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".value\"></object-column>\n");
+                    fw.write(Util.IDENTACAO12+"<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".value\"></object-column>\n");
                 } else if (GumgaAddress.class.equals(atributo.getType())) {
-                    fw.write("<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".localization\"></object-column>\n");
+                    fw.write(Util.IDENTACAO12+"<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".localization\"></object-column>\n");
                 } else if (GumgaBarCode.class.equals(atributo.getType())) {
-                    fw.write("<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".value\"></object-column>\n");
+                    fw.write(Util.IDENTACAO12+"<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".value\"></object-column>\n");
                 } else if (GumgaCEP.class.equals(atributo.getType())) {
-                    fw.write("<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".value\"></object-column>\n");
+                    fw.write(Util.IDENTACAO12+"<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".value\"></object-column>\n");
                 } else if (GumgaCPF.class.equals(atributo.getType())) {
-                    fw.write("<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".value\"></object-column>\n");
+                    fw.write(Util.IDENTACAO12+"<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".value\"></object-column>\n");
                 } else if (GumgaFile.class.equals(atributo.getType())) {
-                    fw.write("<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".name\"></object-column>\n");
+                    fw.write(Util.IDENTACAO12+"<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".name\"></object-column>\n");
                 } else if (GumgaImage.class.equals(atributo.getType())) {
-                    fw.write("<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".name\"></object-column>\n");
+                    fw.write(Util.IDENTACAO12+"<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".name\"></object-column>\n");
                 } else if (GumgaMultiLineString.class.equals(atributo.getType())) {
-                    fw.write("<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".value\"></object-column>\n");
+                    fw.write(Util.IDENTACAO12+"<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".value\"></object-column>\n");
                 } else if (GumgaTime.class.equals(atributo.getType())) {
-                    fw.write("<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".hour\"></object-column>\n");
+                    fw.write(Util.IDENTACAO12+"<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".hour\"></object-column>\n");
                 } else if (GumgaURL.class.equals(atributo.getType())) {
-                    fw.write("<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".value\"></object-column>\n");
+                    fw.write(Util.IDENTACAO12+"<object-column column=\"" + atributo.getName().toLowerCase() + "\" property=\"" + atributo.getName().toLowerCase() + ".value\"></object-column>\n");
                 }
             }
-            fw.write("        <buttons-column>\n"
-                    + "            <a ui-sref=\"" + nomeEntidade.toLowerCase() + ".edit({id: entity.id})\" class=\"btn btn-link pull-right\">Edit</a>\n"
-                    + "        </buttons-column>\n"
+            fw.write( Util.IDENTACAO12+"<buttons-column>\n"
+                    + Util.IDENTACAO12+"<a ui-sref=\"" + nomeEntidade.toLowerCase() + ".edit({id: entity.id})\" class=\"btn btn-link pull-right\">Edit</a>\n"
+                    + Util.IDENTACAO12+"</buttons-column>\n"
                     + "        </gumga-table>\n"
                     + "\n"
                     + "    <div class=\"full-width-without-padding\">\n"
@@ -675,16 +676,16 @@ public class GeraPresentation extends AbstractMojo {
             fw.write(Util.IDENTACAO4 + Util.IDENTACAO4 + "<!--" + atributo.getName() + " " + atributo.getType() + "-->\n");
 
             if (atributo.isAnnotationPresent(ManyToOne.class) || atributo.isAnnotationPresent(OneToOne.class)) {
-                fw.write("<div class=\"full-width-without-padding\"> "
-                        + Util.IDENTACAO4 + Util.IDENTACAO4 + "<label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\"></label>\n"
-                        + "<gumga-many-to-one "
-                        + "         value=\"entity." + atributo.getName() + "\"\n"
-                        + "         search-method=\"" + atributo.getName() + "AsyncSearch('" + Util.primeiroAtributo(atributo.getType()).getName() + "',param)\"\n"
-                        + "         field=\"" + Util.primeiroAtributo(atributo.getType()).getName() + "\"\n"
-                        + "         authorize-add=\"true\""
-                        + "         add-method=\"" + atributo.getName() + "AsyncSave(value,'" + Util.primeiroAtributo(atributo.getType()).getName() + "')\">\n"
-                        + "</gumga-many-to-one>\n"
-                        + "</div>\n");
+                fw.write( Util.IDENTACAO8+"<div class=\"full-width-without-padding\">\n "
+                        + Util.IDENTACAO12+"<label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\"></label>\n"
+                        + Util.IDENTACAO12+"<gumga-many-to-one "
+                        + Util.IDENTACAO12+"value=\"entity." + atributo.getName() + "\"\n"
+                        + Util.IDENTACAO12+"search-method=\"" + atributo.getName() + "AsyncSearch('" + Util.primeiroAtributo(atributo.getType()).getName() + "',param)\"\n"
+                        + Util.IDENTACAO12+"field=\"" + Util.primeiroAtributo(atributo.getType()).getName() + "\"\n"
+                        + Util.IDENTACAO12+"authorize-add=\"true\""
+                        + Util.IDENTACAO12+"add-method=\"" + atributo.getName() + "AsyncSave(value,'" + Util.primeiroAtributo(atributo.getType()).getName() + "')\">\n"
+                        + Util.IDENTACAO12+"</gumga-many-to-one>\n"
+                        + Util.IDENTACAO8+"</div>\n");
 
             } else if (atributo.isAnnotationPresent(ManyToMany.class)) {
                 fw.write(""
@@ -696,18 +697,18 @@ public class GeraPresentation extends AbstractMojo {
                         + "        </div>"
                         + "\n");
 
-                fw.write("<div class=\"full-width-without-padding\">\n"
-                        + Util.IDENTACAO4 + Util.IDENTACAO4 + "<gumga-many-to-many \n"
-                        + Util.IDENTACAO4 + Util.IDENTACAO4 + Util.IDENTACAO4+"left-list=\"" + Util.getTipoGenerico(atributo).getSimpleName() + ".content.data.values\" \n"
-                        + Util.IDENTACAO4 + Util.IDENTACAO4 + Util.IDENTACAO4+"right-list=\"entity." + atributo.getName() + "\" \n"
-                        + Util.IDENTACAO4 + Util.IDENTACAO4 + Util.IDENTACAO4+"left-search=\"" + Util.getTipoGenerico(atributo).getSimpleName().toLowerCase() + "Search(param)\" \n"
-                        + Util.IDENTACAO4 + Util.IDENTACAO4 + Util.IDENTACAO4+"filter-parameters=\"" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "\"\n"
-                        + Util.IDENTACAO4 + Util.IDENTACAO4 + Util.IDENTACAO4+"post-method=\"" + Util.getTipoGenerico(atributo).getSimpleName().toLowerCase() + "Save(value,'" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "')\"\n"
-                        + Util.IDENTACAO4 + Util.IDENTACAO4 + Util.IDENTACAO4+"authorize-add=\"true\">\n"
-                        + Util.IDENTACAO4 + Util.IDENTACAO4 + Util.IDENTACAO4 + "    <left-field>{{$value." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</left-field>\n"
-                        + Util.IDENTACAO4 + Util.IDENTACAO4 + Util.IDENTACAO4 + "    <right-field>{{$value." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</right-field>\n"
-                        + Util.IDENTACAO4 + Util.IDENTACAO4 + "</gumga-many-to-many>\n\n"
-                        + "</div>\n"
+                fw.write(Util.IDENTACAO8+"<div class=\"full-width-without-padding\">\n"
+                        + Util.IDENTACAO4 + Util.IDENTACAO8 + "<gumga-many-to-many \n"
+                        + Util.IDENTACAO4 + Util.IDENTACAO4 + Util.IDENTACAO8+"left-list=\"" + Util.getTipoGenerico(atributo).getSimpleName() + ".content.data.values\" \n"
+                        + Util.IDENTACAO4 + Util.IDENTACAO4 + Util.IDENTACAO8+"right-list=\"entity." + atributo.getName() + "\" \n"
+                        + Util.IDENTACAO4 + Util.IDENTACAO4 + Util.IDENTACAO8+"left-search=\"" + Util.getTipoGenerico(atributo).getSimpleName().toLowerCase() + "Search(param)\" \n"
+                        + Util.IDENTACAO4 + Util.IDENTACAO4 + Util.IDENTACAO8+"filter-parameters=\"" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "\"\n"
+                        + Util.IDENTACAO4 + Util.IDENTACAO4 + Util.IDENTACAO8+"post-method=\"" + Util.getTipoGenerico(atributo).getSimpleName().toLowerCase() + "Save(value,'" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "')\"\n"
+                        + Util.IDENTACAO4 + Util.IDENTACAO4 + Util.IDENTACAO8+"authorize-add=\"true\">\n"
+                        + Util.IDENTACAO4 + Util.IDENTACAO4 + Util.IDENTACAO8 + "    <left-field>{{$value." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</left-field>\n"
+                        + Util.IDENTACAO4 + Util.IDENTACAO4 + Util.IDENTACAO8 + "    <right-field>{{$value." + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName() + "}}</right-field>\n"
+                        + Util.IDENTACAO4 + Util.IDENTACAO8 + "</gumga-many-to-many>\n\n"
+                        + Util.IDENTACAO8+"</div>\n"
                         + "");
 
             } else if (atributo.isAnnotationPresent(OneToMany.class)) {
@@ -726,11 +727,11 @@ public class GeraPresentation extends AbstractMojo {
             } else {
                 fw.write(Util.IDENTACAO4 + Util.IDENTACAO4 + "<label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\"></label>\n");
                 if (GumgaAddress.class.equals(atributo.getType())) {
-                    fw.write("  <div class=\"row\">"
-                            + "     <div class=\"col-md-12\">\n"
-                            + "         <gumga-address name=\"" + atributo.getName() + "\" value=\"entity." + atributo.getName() + "\"> </gumga-address>\n"
-                            + "     </div>\n"
-                            + " </div>\n"
+                    fw.write(Util.IDENTACAO8+"<div class=\"row\">\n"
+                            + Util.IDENTACAO12+"<div class=\"col-md-12\">\n"
+                            + Util.IDENTACAO12+Util.IDENTACAO4+"<gumga-address name=\"" + atributo.getName() + "\" value=\"entity." + atributo.getName() + "\"> </gumga-address>\n"
+                            + Util.IDENTACAO12+"</div>\n"
+                            + Util.IDENTACAO8+"</div>\n"
                             + "\n");
                 } else if (GumgaBarCode.class.equals(atributo.getType())) {
                     fw.write(""
@@ -773,8 +774,8 @@ public class GeraPresentation extends AbstractMojo {
                 } else if (GumgaImage.class.equals(atributo.getType())) {
                     fw.write(""
                             + "<gumga-upload attribute=\"entity." + atributo.getName() + "\"\n"
-                            + "                      upload-method=\"post" + Util.primeiraMaiuscula(atributo.getName()) + "(image)\"\n"
-                            + "                      delete-method=\"delete" + Util.primeiraMaiuscula(atributo.getName()) + "()\">\n"
+                            + "                      upload-method=\""+nomeEntidade.toLowerCase()+"SaveImage(image)\"\n"
+                            + "                      delete-method=\""+nomeEntidade.toLowerCase()+"DeleteImage(image)\"\n"
                             + "        </gumga-upload>\n"
                             + "");
 
@@ -812,19 +813,19 @@ public class GeraPresentation extends AbstractMojo {
                             + "\n");
                 } else if (GumgaGeoLocation.class.equals(atributo.getType())) { //TODO SUBSTITUIR PELO COMPONENTE GUMGAMAPS QUANDO ELE ESTIVER PRONTO
                     fw.write(""
-                            + " <div class=\"row\">\n"
-                            + "     <div class=\"col-md-12\">\n"
-                            + "        <label for=\"" + atributo.getName() + ".latitude\">Latitude</label>\n"
-                            + "        <div ng-class=\"{'form-group':"+nomeEntidade+"Form."+atributo.getName()+".$pristine,'form-group has-error': "+nomeEntidade+"Form."+atributo.getName()+".$invalid,'form-group has-success': "+nomeEntidade+"Form."+atributo.getName()+".$valid}\">\n"
-                            + "        <input id=\"" + atributo.getName() + ".latitude\" gumga-error type=\"text\" name=\"" + atributo.getName() + ".latitude\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".latitude\" class=\"form-control\" />\n"
-                            + "        </div>"
-                            + "        <label for=\"" + atributo.getName() + ".longitude\">Longitude</label>\n"
-                            + "        <div ng-class=\"{'form-group':"+nomeEntidade+"Form."+atributo.getName()+".$pristine,'form-group has-error': "+nomeEntidade+"Form."+atributo.getName()+".$invalid,'form-group has-success': "+nomeEntidade+"Form."+atributo.getName()+".$valid}\">\n"
-                            + "        <input id=\"" + atributo.getName() + ".longitude\" gumga-error type=\"text\" name=\"" + atributo.getName() + ".longitude\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".longitude\" class=\"form-control\" />\n"
-                            + "        </div>"
-                            + "        <a class=\"btn btn-default\" ng-href=\"http://maps.google.com/maps?q={{entity." + atributo.getName() + ".latitude + ',' + entity." + atributo.getName() + ".longitude}}\" target=\"_blank\"> <p class=\"glyphicon glyphicon-globe\"></p> GOOGLE MAPS</a>\n"
-                            + "     </div>\n"
-                            + " </div>\n"
+                            + Util.IDENTACAO8+"<div class=\"row\">\n"
+                            + Util.IDENTACAO12+"<div class=\"col-md-12\">\n"
+                            + Util.IDENTACAO12+Util.IDENTACAO4+"<label for=\"" + atributo.getName() + ".latitude\">Latitude</label>\n"
+                            + Util.IDENTACAO12+Util.IDENTACAO4+"<div ng-class=\"{'form-group':"+nomeEntidade+"Form."+atributo.getName()+".$pristine,'form-group has-error': "+nomeEntidade+"Form."+atributo.getName()+".$invalid,'form-group has-success': "+nomeEntidade+"Form."+atributo.getName()+".$valid}\">\n"
+                            + Util.IDENTACAO12+Util.IDENTACAO4+"<input id=\"" + atributo.getName() + ".latitude\" gumga-error type=\"text\" name=\"" + atributo.getName() + ".latitude\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".latitude\" class=\"form-control\" />\n"
+                            + Util.IDENTACAO12+Util.IDENTACAO4+"</div>"
+                            + Util.IDENTACAO12+Util.IDENTACAO4+"<label for=\"" + atributo.getName() + ".longitude\">Longitude</label>\n"
+                            + Util.IDENTACAO12+Util.IDENTACAO4+"<div ng-class=\"{'form-group':"+nomeEntidade+"Form."+atributo.getName()+".$pristine,'form-group has-error': "+nomeEntidade+"Form."+atributo.getName()+".$invalid,'form-group has-success': "+nomeEntidade+"Form."+atributo.getName()+".$valid}\">\n"
+                            + Util.IDENTACAO12+Util.IDENTACAO4+"<input id=\"" + atributo.getName() + ".longitude\" gumga-error type=\"text\" name=\"" + atributo.getName() + ".longitude\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".longitude\" class=\"form-control\" />\n"
+                            + Util.IDENTACAO12+Util.IDENTACAO4+"</div>"
+                            + Util.IDENTACAO12+Util.IDENTACAO4+"<a class=\"btn btn-default\" ng-href=\"http://maps.google.com/maps?q={{entity." + atributo.getName() + ".latitude + ',' + entity." + atributo.getName() + ".longitude}}\" target=\"_blank\"> <p class=\"glyphicon glyphicon-globe\"></p> GOOGLE MAPS</a>\n"
+                            + Util.IDENTACAO12+"</div>\n"
+                            + Util.IDENTACAO8+"</div>\n"
                             + "\n");
                 } else if (GumgaBoolean.class.equals(atributo.getType())) {
                     fw.write(""
@@ -835,7 +836,7 @@ public class GeraPresentation extends AbstractMojo {
                 } else if (Date.class.equals(atributo.getType())) {
                     fw.write(""
                             + "        <div ng-class=\"{'form-group':"+nomeEntidade+"Form."+atributo.getName()+".$pristine,'form-group has-error': "+nomeEntidade+"Form."+atributo.getName()+".$invalid,'form-group has-success': "+nomeEntidade+"Form."+atributo.getName()+".$valid}\">\n"
-                            + "        <input type=\"text\" gumga-error class=\"form-control\" " + geraValidacoesDoBenValidator(atributo) + " datepicker-popup=\"fullDate\" ng-model=\"entity." + atributo.getName() + "\" is-open=\"opened\" ng-click=\"opened= !opened\" close-text=\"Close\" />"
+                            + "        <input type=\"text\" name=\"" + atributo.getName() + "\" class=\"form-control\" " + geraValidacoesDoBenValidator(atributo) + " datepicker-popup=\"fullDate\" ng-model=\"entity." + atributo.getName() + "\" is-open=\"opened\" ng-click=\"opened= !opened\" close-text=\"Close\" />"
                             + "        </div>"
                             + "\n");
 
