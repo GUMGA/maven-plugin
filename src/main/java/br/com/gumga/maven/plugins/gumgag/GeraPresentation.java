@@ -742,19 +742,19 @@ public class GeraPresentation extends AbstractMojo {
                 } else if (GumgaCEP.class.equals(atributo.getType())) { //TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR A DEPENDENCIA EXTERNA
                     fw.write(""
                             + "        <div ng-class=\"{'form-group':"+nomeEntidade+"Form."+atributo.getName()+".$pristine,'form-group has-error': "+nomeEntidade+"Form."+atributo.getName()+".$invalid,'form-group has-success': "+nomeEntidade+"Form."+atributo.getName()+".$valid}\">\n"
-                            + "        <input id=\"" + atributo.getName() + "\"  gumga-error type=\"text\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\"  gumga-pattern=\"(\\d{5})\\-(\\d{3})\" placeholder=\"00000-000\" pattern-alias=\"00000-000\"/>\n"
+                            + "        <input id=\"" + atributo.getName() + "\"  gumga-error type=\"text\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\"/>\n"
                             + "        </div>"
                             + "\n");
                 } else if (GumgaCNPJ.class.equals(atributo.getType())) { //TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR A DEPENDENCIA EXTERNA
                     fw.write(""
                             + "        <div ng-class=\"{'form-group':"+nomeEntidade+"Form."+atributo.getName()+".$pristine,'form-group has-error': "+nomeEntidade+"Form."+atributo.getName()+".$invalid,'form-group has-success': "+nomeEntidade+"Form."+atributo.getName()+".$valid}\">\n"
-                            + "        <input id=\"" + atributo.getName() + "\" pattern-alias=\"00.000.000/0000-00\" gumga-error type=\"text\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" gumga-pattern=\"(\\d{2})\\.(\\d{3}).(\\d{3})/(\\d{4})-(\\d{2})\" placeholder=\"00.000.000/0000-00\" />\n"
+                            + "        <input id=\"" + atributo.getName() + "\" gumga-error type=\"text\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\"  />\n"
                             + "        </div>"
                             + "\n");
                 } else if (GumgaCPF.class.equals(atributo.getType())) { //TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR A DEPENDENCIA EXTERNA
                     fw.write(""
                             + "        <div ng-class=\"{'form-group':"+nomeEntidade+"Form."+atributo.getName()+".$pristine,'form-group has-error': "+nomeEntidade+"Form."+atributo.getName()+".$invalid,'form-group has-success': "+nomeEntidade+"Form."+atributo.getName()+".$valid}\">\n"
-                            + "        <input id=\"" + atributo.getName() + "\" gumga-error type=\"text\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" gumga-pattern=\"(\\d{3})\\.(\\d{3}).(\\d{3})-(\\d{2})\" placeholder=\"000.000.000-00\" pattern-alias=\"000.000.000-00\"/>\n"
+                            + "        <input id=\"" + atributo.getName() + "\" gumga-error type=\"text\" name=\"" + atributo.getName() + "\" " + geraValidacoesDoBenValidator(atributo) + " ng-model=\"entity." + atributo.getName() + ".value\" class=\"form-control\" />\n"
                             + "        </div>"
                             + "\n");
                 } else if (GumgaIP4.class.equals(atributo.getType())) { //TODO INCLUIR A MASCARA PARA O INPUT QUANDO O COMPONENTE ESTIVER PRONTO E RETIRAR O GUMGAMAX E GUMGAMIN
