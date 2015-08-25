@@ -516,7 +516,7 @@ public class GeraPresentation extends AbstractMojo {
         try {
             File arquivoModule = new File(pastaViews + "/base.html");
             FileWriter fw = new FileWriter(arquivoModule);
-            fw.write("<gumga-nav title=\"" + nomeEntidade + "\" state=\"login.log\"></gumga-nav>\n"
+            fw.write("<gumga-nav multi-entity=\"true\" put-url=\"http://www.gumga.com.br/security-api/publicoperations/token/\" title=\"" + nomeEntidade + "\" state=\"login.log\"></gumga-nav>\n"
                     + "<gumga-menu menu-url=\"gumga-menu.json\" keys-url=\"keys.json\"  image=\"resources/images/gumga.png\"></gumga-menu>\n"
                     + "<div class=\"gumga-container\" gumga-alert>\n"
                     + "    <gumga-breadcrumb></gumga-breadcrumb>\n"
@@ -584,9 +584,9 @@ public class GeraPresentation extends AbstractMojo {
                     + "            translate-entity=\"" + nomeEntidade.toLowerCase() + "\"\n"
                     + "            name=\"" + nomeEntidade.toLowerCase() + "\"\n"
                     + "            values=\"" + classeEntidade.getSimpleName() + ".content.data.values\"\n");
-            fw.write("            columns=\"" + Util.todosAtributosSeparadosPorVirgula(classeEntidade) + "\"\n");
+            fw.write("             columns=\"" + Util.todosAtributosSeparadosPorVirgula(classeEntidade) + "\"\n");
             fw.write(""
-                    + "            sort-function=\"sort(field,way)\"\n"
+                    + "            sort-function=\"" + nomeEntidade.toLowerCase() + "Sort(field,way)\"\n"
                     + "            >\n");
             for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
                 if (GumgaEMail.class.equals(atributo.getType())) {
@@ -628,7 +628,7 @@ public class GeraPresentation extends AbstractMojo {
                     + "        <pagination ng-model=\"page\"\n"
                     + "                    items-per-page=\"" + classeEntidade.getSimpleName() + ".content.data.pageSize\"\n"
                     + "                    total-items=\"" + classeEntidade.getSimpleName() + ".content.data.count\"\n"
-                    + "                    ng-change=\"get()\"></pagination>\n"
+                    + "                    ng-change=\"" + classeEntidade.getSimpleName().toLowerCase() + "Get()\"></pagination>\n"
                     + "    </div>\n"
                     + "\n"
                     + "</div>\n"
@@ -775,8 +775,8 @@ public class GeraPresentation extends AbstractMojo {
                     fw.write(""
                             + "<gumga-upload attribute=\"entity." + atributo.getName() + "\"\n"
                             + "                      upload-method=\""+nomeEntidade.toLowerCase()+"SaveImage(image)\"\n"
-                            + "                      delete-method=\""+nomeEntidade.toLowerCase()+"DeleteImage(image)\"\n"
-                            + "        </gumga-upload>\n"
+                            + "                      delete-method=\""+nomeEntidade.toLowerCase()+"DeleteImage(image)\">\n" 
+                            + "</gumga-upload>\n"
                             + "");
 
                 } else if (GumgaEMail.class.equals(atributo.getType())) {
@@ -886,8 +886,6 @@ public class GeraPresentation extends AbstractMojo {
                 || atributo.isAnnotationPresent(NotBlank.class) ) {
             aRetornar += " gumga-required gumga-min-length=\"1\"";
         }
-        
-        System.out.println("----------------------> " + atributo.getName() + aRetornar);
 
         return aRetornar;
     }
