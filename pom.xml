@@ -21,7 +21,7 @@
         <dependency>
             <groupId>gumga.framework</groupId>
             <artifactId>gumga-domain</artifactId>
-            <version>1.2.0</version>
+            <version>1.2.3-SNAPSHOT</version>
         </dependency>
         
         <!-- DEPENDENCIAS OUTRAS  -->

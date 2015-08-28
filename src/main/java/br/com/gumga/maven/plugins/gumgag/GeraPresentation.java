@@ -570,6 +570,7 @@ public class GeraPresentation extends AbstractMojo {
                     + "    <div class=\"col-md-7\" style=\"padding-right: 0\">\n"
                     + "        <gumga-search fields=\"" + Util.todosAtributosSeparadosPorVirgula(classeEntidade) + "\"\n "
                     + "                      advanced=\"true\"\n "
+                    + "                      get-queries=\""+classeEntidade.getSimpleName().toLowerCase()+"GetQuery(page)\" \n "
                     + "                      search-method=\"" + classeEntidade.getSimpleName().toLowerCase() + "Search(field,param)\"\n"
                     + "                      advanced-method=\"" + classeEntidade.getSimpleName().toLowerCase() + "AdvancedSearch(param)\"\n "
                     + "                      translate-entity=\" " + classeEntidade.getSimpleName().toLowerCase() + "\">\n"
