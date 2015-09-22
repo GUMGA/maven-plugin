@@ -93,12 +93,11 @@ public class GeraEntidade extends AbstractMojo {
                 fw.write(""
                         + "    @Version\n"
                         + "    @JsonIgnore\n"
-                        + "    private Integer version;\n"
-                        + "\n");
-            }
+                        + "    private Integer version;\n");
+            }else{
             fw.write(""
                     + "\n");
-
+            }
             escreveAtributos(fw);
 
             fw.write("}\n");

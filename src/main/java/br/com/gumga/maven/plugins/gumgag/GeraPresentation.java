@@ -294,7 +294,7 @@ public class GeraPresentation extends AbstractMojo {
                 if (atributo.getType().equals(GumgaTime.class)) {
                     if (!formatDateInserido) {
                         fw.write(
-                                "         var formatDate = function (array) {\n"
+                                  "        var formatDate = function (array) {\n"
                                 + "            var date = new Date();\n"
                                 + "            date.setHours(array[0]);\n"
                                 + "            date.setMinutes(array[1]);\n"
@@ -328,7 +328,7 @@ public class GeraPresentation extends AbstractMojo {
                 }
                 if (atributo.isAnnotationPresent(ManyToOne.class) || atributo.isAnnotationPresent(OneToOne.class)) {
                     fw.write(" "
-                            + "        populateScope($scope, " + Util.primeiraMaiuscula(atributo.getName()) + "Service, '" + Util.primeiraMaiuscula(atributo.getName()) + "', 'many-to-one');\n"
+                            + "        populateScope($scope, " + Util.getTipoGenerico(atributo).getSimpleName() + "Service, '" + Util.primeiraMaiuscula(atributo.getName()) + "', 'many-to-one');\n"
                             + "\n");
                 }
 
@@ -393,11 +393,11 @@ public class GeraPresentation extends AbstractMojo {
 
                 fw.write(
                         "		entity = entity || {};\n"
-                        + "             $scope.entity = angular.copy(entity)\n"
+                        + "                $scope.entity = angular.copy(entity)\n"
                         + "");
                 for (Field atributo : Util.getTodosAtributosNaoEstaticos(classe)) {
                     if (atributo.isAnnotationPresent(ManyToMany.class)) {
-                        fw.write("         $scope.entity." + atributo.getName() + " = $scope.entity." + atributo.getName() + "  || [];\n\n");
+                        fw.write("        $scope.entity." + atributo.getName() + " = $scope.entity." + atributo.getName() + "  || [];\n\n");
 
                         fw.write(""
                                 + "        populateScope($scope, " + Util.getTipoGenerico(atributo).getSimpleName() + "Service, '" + Util.getTipoGenerico(atributo).getSimpleName() + "', 'many-to-many');\n"
@@ -414,7 +414,7 @@ public class GeraPresentation extends AbstractMojo {
                     }
                     if (atributo.isAnnotationPresent(ManyToOne.class) || atributo.isAnnotationPresent(OneToOne.class)) {
                         fw.write(" "
-                                + "        populateScope($scope, " + Util.primeiraMaiuscula(atributo.getName()) + "Service, '" + Util.primeiraMaiuscula(atributo.getName()) + "', 'many-to-one');\n"
+                                + "        populateScope($scope, " + Util.getTipoGenerico(atributo).getSimpleName() + "Service, '" + Util.primeiraMaiuscula(atributo.getName()) + "', 'many-to-one');\n"
                                 + ""
                                 + "\n");
                     }

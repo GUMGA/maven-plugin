@@ -14,6 +14,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
+import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 /**
  *
