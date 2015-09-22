@@ -121,9 +121,14 @@ public class Util {
     }
 
     public static Class getTipoGenerico(Field atributo) {
-        ParameterizedType type = (ParameterizedType) atributo.getGenericType();
-        Type[] typeArguments = type.getActualTypeArguments();
-        Class tipoGenerico = (Class) typeArguments[atributo.getType().equals(Map.class) ? 1 : 0];
+        Class tipoGenerico;
+        if (atributo.getGenericType() instanceof ParameterizedType) {
+            ParameterizedType type = (ParameterizedType) atributo.getGenericType();
+            Type[] typeArguments = type.getActualTypeArguments();
+            tipoGenerico = (Class) typeArguments[atributo.getType().equals(Map.class) ? 1 : 0];
+        }else{
+            tipoGenerico = atributo.getType();
+        }
         return tipoGenerico;
     }
 

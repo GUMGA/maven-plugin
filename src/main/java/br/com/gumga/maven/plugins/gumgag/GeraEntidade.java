@@ -87,11 +87,12 @@ public class GeraEntidade extends AbstractMojo {
             fw.write("@Indexed\n");
             fw.write("@Audited\n");
             fw.write("@Entity\n");
-            fw.write("public class " + nomeEntidade + " extends " + superClasse + " implements Serializable {\n"
+            fw.write("public class " + nomeEntidade + " extends " + superClasse + " {\n"
                     + "\n");
             if ("GumgaModel<Long>".equals(superClasse)) {
                 fw.write(""
                         + "    @Version\n"
+                        + "    @JsonIgnore\n"
                         + "    private Integer version;\n"
                         + "\n");
             }
