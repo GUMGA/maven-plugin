@@ -307,7 +307,7 @@ public class GeraPresentation extends AbstractMojo {
                 }
 
                 if (atributo.getType().equals(Date.class)) {
-                        fw.write("          $scope.entity.id && $scope.entity." + atributo.getName() + " ? $scope.entity." + atributo.getName() + " = new Date($scope.entity." + atributo.getName() + ") : angular.noop;\n");
+                    fw.write("          $scope.entity.id && $scope.entity." + atributo.getName() + " ? $scope.entity." + atributo.getName() + " = new Date($scope.entity." + atributo.getName() + ") : angular.noop;\n");
                 }
 
                 if (atributo.isAnnotationPresent(ManyToMany.class)) {
