@@ -14,6 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <gumga.framework.version>1.2.3</gumga.framework.version>
     </properties>
 
     <dependencies>
@@ -21,7 +22,7 @@
         <dependency>
             <groupId>gumga.framework</groupId>
             <artifactId>gumga-domain</artifactId>
-            <version>1.2.3-SNAPSHOT</version>
+            <version>${gumga.framework.version}</version>
         </dependency>
         
         <!-- DEPENDENCIAS OUTRAS  -->
