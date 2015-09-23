@@ -837,9 +837,10 @@ public class GeraPresentation extends AbstractMojo {
                             + "        </div>"
                             + "\n");
                 } else if (Date.class.equals(atributo.getType())) {
+                    String varOpened = "opened"+ Util.primeiraMaiuscula(atributo.getName());
                     fw.write(""
                             + "        <div ng-class=\"{'form-group':" + nomeEntidade + "Form." + atributo.getName() + ".$pristine,'form-group has-error': " + nomeEntidade + "Form." + atributo.getName() + ".$invalid,'form-group has-success': " + nomeEntidade + "Form." + atributo.getName() + ".$valid}\">\n"
-                            + "        <input type=\"text\" name=\"" + atributo.getName() + "\" class=\"form-control\" " + geraValidacoesDoBenValidator(atributo) + " datepicker-popup=\"fullDate\" ng-model=\"entity." + atributo.getName() + "\" is-open=\"opened\" ng-click=\"opened= !opened\" close-text=\"Close\" />"
+                            + "        <input type=\"text\" name=\"" + atributo.getName() + "\" class=\"form-control\" " + geraValidacoesDoBenValidator(atributo) + " datepicker-popup=\"fullDate\" ng-model=\"entity." + atributo.getName() + "\" is-open=\""+varOpened+"\" ng-click=\""+varOpened+"= !"+varOpened+"\" close-text=\"Close\" />"
                             + "        </div>"
                             + "\n");
 

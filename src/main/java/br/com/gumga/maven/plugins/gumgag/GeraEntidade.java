@@ -82,7 +82,7 @@ public class GeraEntidade extends AbstractMojo {
                     + "import com.fasterxml.jackson.annotation.JsonIgnore;\n"
                     + "\n");
 
-            fw.write("@GumgaMultitenancy\n");
+            fw.write("//@GumgaMultitenancy\n"); 
             fw.write("@SequenceGenerator(name = GumgaModel.SEQ_NAME, sequenceName = \"SEQ_" + nomeEntidade.toUpperCase() + "\")\n");
             fw.write("@Indexed\n");
             fw.write("@Audited\n");
