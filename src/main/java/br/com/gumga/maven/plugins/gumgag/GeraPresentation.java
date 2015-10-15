@@ -30,6 +30,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.Column;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -670,11 +671,19 @@ public class GeraPresentation extends AbstractMojo {
 
     }
 
+//    private boolean isCampoObrigatorio(Field atributo){
+//        boolean obrigatorio = false;
+//        if (atributo.isAnnotationPresent(Column.class)) {
+//            obrigatorio = atributo.getAnnotation(Column.class).nullable();
+//        }
+//        return obrigatorio;
+//    }
+    
     public void geraCampos(FileWriter fw, Class classeEntidade) throws IOException {
         boolean primeiro;
         for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
             //COLOCAR OS TIPOS
-            boolean requerido = false;
+//            boolean requerido = isCampoObrigatorio(atributo);
 
             fw.write(Util.IDENTACAO4 + Util.IDENTACAO4 + "<!--" + atributo.getName() + " " + atributo.getType() + "-->\n");
 
@@ -860,7 +869,7 @@ public class GeraPresentation extends AbstractMojo {
             primeiro = false;
         }
     }
-
+    
     private String geraValidacoesDoBenValidator(Field atributo) {
         String aRetornar = "";
 

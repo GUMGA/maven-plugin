@@ -74,6 +74,7 @@ public class GeraEntidade extends AbstractMojo {
                     + "import java.util.*;\n"
                     + "import java.math.BigDecimal;\n"
                     + "import javax.persistence.*;\n"
+                    + "import javax.validation.constraints.*;\n"
                     + "import gumga.framework.domain.domains.*;\n"
                     + "import org.hibernate.annotations.Columns;\n"
                     + "import org.hibernate.search.annotations.Field;\n"
@@ -174,17 +175,25 @@ public class GeraEntidade extends AbstractMojo {
                         + "     })"
                         + "\n");
             }
-            if (partes.length > 2) {
-                fw.write("    " + partes[2]);
-                
-                
-                if (partes[2].trim().equals("@OneToMany")) {
-                    fw.write("(cascade = CascadeType.ALL, orphanRemoval = true)");
-                }
-                
-                fw.write("\n");
-                if (partes[2].trim().contains("mappedBy")) {
-                    fw.write("    @JsonIgnore\n");
+            if (partes.length > 2 ) {
+                //Verifica se eh required
+                if ("true".equalsIgnoreCase(partes[2]) || "false".equalsIgnoreCase(partes[2])){
+                    Boolean required = Boolean.valueOf(partes[2]);
+                    if (required){
+                        fw.write("    @NotNull\n");
+                    }    
+                }else{
+                    //Adiciona o mapeamento
+                    fw.write("    " + partes[2]);
+
+                    if (partes[2].trim().equals("@OneToMany")) {
+                        fw.write("(cascade = CascadeType.ALL, orphanRemoval = true)");
+                    }
+
+                    fw.write("\n");
+                    if (partes[2].trim().contains("mappedBy")) {
+                        fw.write("    @JsonIgnore\n");
+                    }
                 }
             }
             fw.write(Util.IDENTACAO4 + "private " + partes[1] + " " + partes[0] + ";\n");
