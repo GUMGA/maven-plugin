@@ -93,7 +93,6 @@ public class GeraEntidade extends AbstractMojo {
             if ("GumgaModel<Long>".equals(superClasse)) {
                 fw.write(""
                         + "    @Version\n"
-                        + "    @JsonIgnore\n"
                         + "    private Integer version;\n");
             }else{
             fw.write(""
