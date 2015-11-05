@@ -33,9 +33,12 @@ import org.apache.maven.project.MavenProject;
  */
 public class Util {
 
-    public final static String IDENTACAO4 = "    ";
-    public final static String IDENTACAO8 = "        ";
+    public final static String IDENTACAO04 = "    ";
+    public final static String IDENTACAO08 = "        ";
     public final static String IDENTACAO12 = "            ";
+    public final static String IDENTACAO16 = "                ";
+    public final static String IDENTACAO20 = "                    ";
+    public final static String IDENTACAO24 = "                        ";
     public final static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
     public static String primeiraMaiuscula(String s) {
