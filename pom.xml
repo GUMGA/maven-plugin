@@ -14,7 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <gumga.framework.version>1.2.3</gumga.framework.version>
+        <gumga.framework.version>1.2.4-SNAPSHOT</gumga.framework.version>
     </properties>
 
     <dependencies>

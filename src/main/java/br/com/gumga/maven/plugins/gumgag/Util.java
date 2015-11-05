@@ -59,7 +59,7 @@ public class Util {
             if ("oi".equals(f.getName())) {
                 aRemoverOi = f;
             }
-            if("version".equals(f.getName())){
+            if ("version".equals(f.getName())) {
                 aRemoverVersion = f;
             }
 
@@ -70,7 +70,7 @@ public class Util {
         if (aRemoverOi != null) {
             todosAtributos.remove(aRemoverOi);
         }
-        if(aRemoverVersion != null){
+        if (aRemoverVersion != null) {
             todosAtributos.remove(aRemoverVersion);
         }
 
@@ -79,18 +79,23 @@ public class Util {
 
     public static List<Field> getTodosAtributosNaoEstaticos(Class classe) throws SecurityException {
         List<Field> aRetornar = new ArrayList<Field>();
-        List<Field> estaticos = new ArrayList<Field>();
+        List<Field> aRemover = new ArrayList<Field>();
         if (!classe.getSuperclass().equals(Object.class)) {
             aRetornar.addAll(getTodosAtributosNaoEstaticos(classe.getSuperclass()));
         }
         aRetornar.addAll(Arrays.asList(classe.getDeclaredFields()));
         for (Field f : aRetornar) {
             if (Modifier.isStatic(f.getModifiers())) {
-                estaticos.add(f);
+                aRemover.add(f);
+            }
+            if (f.getName().equals("version")) {
+                aRemover.add(f);
+            }
+            if (f.getName().equals("oi")) {
+                aRemover.add(f);
             }
         }
-
-        aRetornar.removeAll(estaticos);
+        aRetornar.removeAll(aRemover);
         return aRetornar;
     }
 
@@ -126,7 +131,7 @@ public class Util {
             ParameterizedType type = (ParameterizedType) atributo.getGenericType();
             Type[] typeArguments = type.getActualTypeArguments();
             tipoGenerico = (Class) typeArguments[atributo.getType().equals(Map.class) ? 1 : 0];
-        }else{
+        } else {
             tipoGenerico = atributo.getType();
         }
         return tipoGenerico;
