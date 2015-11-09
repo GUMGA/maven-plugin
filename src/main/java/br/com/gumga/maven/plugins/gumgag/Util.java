@@ -54,10 +54,10 @@ public class Util {
         Field aRemover = null;
         Field aRemoverOi = null;
         Field aRemoverVersion = null;
+        Field aRemoverGumgaCustomFields = null;
         for (Field f : todosAtributos) {
             if (f.isAnnotationPresent(GeneratedValue.class)) {
                 aRemover = f;
-
             }
             if ("oi".equals(f.getName())) {
                 aRemoverOi = f;
@@ -65,7 +65,9 @@ public class Util {
             if ("version".equals(f.getName())) {
                 aRemoverVersion = f;
             }
-
+            if ("gumgaCustomFields".equals(f.getName())) {
+                aRemoverGumgaCustomFields = f;
+            }
         }
         if (aRemover != null) {
             todosAtributos.remove(aRemover);
@@ -75,6 +77,11 @@ public class Util {
         }
         if (aRemoverVersion != null) {
             todosAtributos.remove(aRemoverVersion);
+        }
+        if (aRemoverGumgaCustomFields!=null){
+            todosAtributos.remove(aRemoverGumgaCustomFields);
+            todosAtributos.add(aRemoverGumgaCustomFields);
+            System.out.println(todosAtributos);
         }
 
         return todosAtributos;
