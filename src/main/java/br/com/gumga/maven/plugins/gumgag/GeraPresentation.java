@@ -401,7 +401,18 @@ public class GeraPresentation extends AbstractMojo {
                     + "    </gumga-list>\n"
                     + "</div>\n"
                     + "\n"
-                    + "<pagination ng-model=\"page\" items-per-page=\"" + nomeEntidade.toLowerCase() + ".pageSize\" total-items=\"" + nomeEntidade.toLowerCase() + ".count\" ng-change=\"" + nomeEntidade.toLowerCase() + ".methods.get(page)\"></pagination>"
+                    + "<pagination ng-model=\"page\"\n"
+                    + "max-size=\"10\"\n"
+                    + "boundary-links=\"true\"\n"
+                    + "previous-text=\"‹\"\n"
+                    + "next-Text=\"›\"\n"
+                    + "first-text=\"«\"\n"
+                    + "last-text=\"»\"\n"
+                    + "items-per-page=\"" + nomeEntidade.toLowerCase() + ".pageSize\"\n"
+                    + "total-items=\"" + nomeEntidade.toLowerCase() + ".count\"\n"
+                    + "ng-change=\"" + nomeEntidade.toLowerCase() + ".methods.get(page)\n"
+                    + "\">\n"
+                    + "</pagination>"
             );
             fw.close();
         } catch (Exception ex) {
