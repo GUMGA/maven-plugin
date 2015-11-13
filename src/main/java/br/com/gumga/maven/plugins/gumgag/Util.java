@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.persistence.GeneratedValue;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
@@ -208,11 +209,19 @@ public class Util {
         return sdf.format(new Date());
     }
 
-    static void escreveCabecario(FileWriter fw) throws IOException {
+    public static void escreveCabecario(FileWriter fw) throws IOException {
         fw.write("/*\n"
                 + "* Gerado automaticamente por GUMGAGenerator em " + hoje() + "\n"
                 + "*/\n"
                 + "\n");
+    }
+
+    public static String dependenciasSeparadasPorVirgula(Set<Class> dependencias,String sufixo,boolean apostrofe) {
+        StringBuilder sb = new StringBuilder();
+        for (Class clazz:dependencias) {
+            sb.append(", "+(apostrofe?"'":"")+clazz.getSimpleName()+sufixo+(apostrofe?"'":"") );
+        }
+        return sb.toString();
     }
 
 }
