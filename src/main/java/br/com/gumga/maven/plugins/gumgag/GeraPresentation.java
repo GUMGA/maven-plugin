@@ -264,7 +264,7 @@ public class GeraPresentation extends AbstractMojo {
                     + "\n"
                     + "  " + nomeEntidade + "FormController.$inject = ['" + nomeEntidade + "Service', '$state', 'entity', '$scope', 'gumgaController'" + Util.dependenciasSeparadasPorVirgula(dependenciasManyToX, "Service", true) + "];\n"
                     + "\n"
-                    + "  function " + nomeEntidade + "FormController(" + nomeEntidade + "Service, $state, entity, $scope, gumgaController" + Util.dependenciasSeparadasPorVirgula(dependenciasManyToOne, "Service", false) + Util.dependenciasSeparadasPorVirgula(dependenciasManyToX, "Service", false) + ") {\n"
+                    + "  function " + nomeEntidade + "FormController(" + nomeEntidade + "Service, $state, entity, $scope, gumgaController" + Util.dependenciasSeparadasPorVirgula(dependenciasManyToX, "Service", false) + ") {\n"
                     + "\n"
                     + "    gumgaController.createRestMethods($scope, " + nomeEntidade + "Service, '" + nomeEntidade.toLowerCase() + "');\n\n");
 
