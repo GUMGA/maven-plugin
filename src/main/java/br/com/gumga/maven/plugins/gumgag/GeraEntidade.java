@@ -67,8 +67,8 @@ public class GeraEntidade extends AbstractMojo {
 
 		getLog().info("Iniciando plugin Gerador de Entidade GUMGA ");
 		getLog().info("Gerando " + nomePacote + "." + nomeEntidade);
-		// File f = new File(pastaClasse);
-		// f.mkdirs();
+		 File f = new File(pastaClasse);
+		 f.mkdirs();
 		// File arquivoClasse = new File(pastaClasse + "/" + nomeEntidade +
 		// ".java");
 		try {

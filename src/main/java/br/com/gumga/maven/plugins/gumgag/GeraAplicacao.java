@@ -23,6 +23,10 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import br.com.gumga.freemarker.Attribute;
+import br.com.gumga.freemarker.ConfigurationFreeMarker;
+import br.com.gumga.freemarker.TemplateFreeMarker;
+
 /**
  *
  * @author munif
@@ -63,6 +67,7 @@ public class GeraAplicacao extends AbstractMojo {
             getLog().info("Iniciando plugin Gerador de Classes de Aplicação ");
             getLog().info("Gerando para " + nomeEntidade);
 
+            getLog().info("entity name:" + nomeCompletoEntidade);
             classeEntidade = Util.getClassLoader(project).loadClass(nomeCompletoEntidade);
 
             geraRepositorio();
@@ -76,21 +81,30 @@ public class GeraAplicacao extends AbstractMojo {
     private void geraRepositorio() {
         File f = new File(pastaRepositorios);
         f.mkdirs();
-        File arquivoClasse = new File(pastaRepositorios + "/" + nomeEntidade + "Repository.java");
+//        File arquivoClasse = new File(pastaRepositorios + "/" + nomeEntidade + "Repository.java");
         try {
-            FileWriter fw = new FileWriter(arquivoClasse);
-            fw.write(""
-                    + "package " + nomePacoteRepositorio + ";\n"
-                    + "\n"
-                    + "import gumga.framework.domain.repository.GumgaCrudRepository;\n"
-                    + "import " + nomeCompletoEntidade + ";\n"
-                    + "\n"
-                    + "public interface " + nomeEntidade + "Repository extends GumgaCrudRepository<" + nomeEntidade + ", Long> {\n"
-                    + "\n"
-                    + "}\n"
-                    + "\n");
-
-            fw.close();
+//            FileWriter fw = new FileWriter(arquivoClasse);
+//            fw.write(""
+//                    + "package " + nomePacoteRepositorio + ";\n"
+//                    + "\n"
+//                    + "import gumga.framework.domain.repository.GumgaCrudRepository;\n"
+//                    + "import " + nomeCompletoEntidade + ";\n"
+//                    + "\n"
+//                    + "public interface " + nomeEntidade + "Repository extends GumgaCrudRepository<" + nomeEntidade + ", Long> {\n"
+//                    + "\n"
+//                    + "}\n"
+//                    + "\n");
+//
+//            fw.close();
+			ConfigurationFreeMarker config = new ConfigurationFreeMarker();
+			TemplateFreeMarker template = new TemplateFreeMarker("repository.ftl", config);
+			template.add("package", this.nomePacoteRepositorio);
+			template.add("repositoryName", this.nomeEntidade);
+			template.add("packageEntity", this.nomeCompletoEntidade);
+			
+			template.generateTemplate(this.pastaRepositorios + "/" + this.nomeEntidade + "Repository.java");
+		
+			
         } catch (Exception ex) {
             getLog().error(ex);
         }
@@ -99,48 +113,92 @@ public class GeraAplicacao extends AbstractMojo {
     private void geraService() {
         File f = new File(pastaServices);
         f.mkdirs();
-        File arquivoClasse = new File(pastaServices + "/" + nomeEntidade + "Service.java");
+//        File arquivoClasse = new File(pastaServices + "/" + nomeEntidade + "Service.java");
         try {
-            FileWriter fw = new FileWriter(arquivoClasse);
-            fw.write(""
-                    + "package " + nomePacoteService + ";\n"
-                    + ""
-                    + "import gumga.framework.application.GumgaService;\n"
-                    + "\n"
-                    + "import org.springframework.beans.factory.annotation.Autowired;\n"
-                    + "import org.springframework.stereotype.Service;\n"
-                    + "import javax.transaction.Transactional;\n"
-                    + "import org.hibernate.Hibernate;\n"
-                    + "\n"
-                    + "import " + nomePacoteRepositorio + "." + nomeEntidade + "Repository;\n"
-                    + "import " + nomeCompletoEntidade + ";\n");
-
+//            FileWriter fw = new FileWriter(arquivoClasse);
+//            fw.write(""
+//                    + "package " + nomePacoteService + ";\n"
+//                    + ""
+//                    + "import gumga.framework.application.GumgaService;\n"
+//                    + "\n"
+//                    + "import org.springframework.beans.factory.annotation.Autowired;\n"
+//                    + "import org.springframework.stereotype.Service;\n"
+//                    + "import javax.transaction.Transactional;\n"
+//                    + "import org.hibernate.Hibernate;\n"
+//                    + "\n"
+//                    + "import " + nomePacoteRepositorio + "." + nomeEntidade + "Repository;\n"
+//                    + "import " + nomeCompletoEntidade + ";\n");
+//
+//            for (Field fff : Util.getTodosAtributosNaoEstaticos(classeEntidade)) {
+//                if (fff.isAnnotationPresent(OneToMany.class) || fff.isAnnotationPresent(ManyToMany.class)) {
+//                    fw.write("import "+Util.getTipoGenerico(fff).getCanonicalName()+";\n");
+//                }
+//            }
+//
+//            fw.write("\n"
+//                    + "@Service\n"
+//                    + "public class " + nomeEntidade + "Service extends GumgaService<" + nomeEntidade + ", Long> {\n"
+//                    + "	\n"
+//                    + "	private " + nomeEntidade + "Repository repository;\n"
+//                    + "	\n"
+//                    + "	@Autowired\n"
+//                    + "	public " + nomeEntidade + "Service(" + nomeEntidade + "Repository repository) {\n"
+//                    + "		super(repository);\n"
+//                    + "		this.repository = repository;\n"
+//                    + "	}\n"
+//                    + "\n");
+//
+//            geraLoadFat(fw);
+//
+//            fw.write(""
+//                    + "}\n"
+//                    + "\n");
+//
+//            fw.close();
+            
+			ConfigurationFreeMarker config = new ConfigurationFreeMarker();
+			TemplateFreeMarker template = new TemplateFreeMarker("service.ftl", config);
+			template.add("package", this.nomePacoteService);
+			template.add("serviceName", this.nomeEntidade);
+			template.add("packageRepository", this.nomePacoteRepositorio + "." + this.nomeEntidade + "Repository");
+			template.add("packageEntity", this.nomeCompletoEntidade);
+			
+			List<String> imports = new ArrayList<>();
             for (Field fff : Util.getTodosAtributosNaoEstaticos(classeEntidade)) {
                 if (fff.isAnnotationPresent(OneToMany.class) || fff.isAnnotationPresent(ManyToMany.class)) {
-                    fw.write("import "+Util.getTipoGenerico(fff).getCanonicalName()+";\n");
+                	imports.add("import "+Util.getTipoGenerico(fff).getCanonicalName()+";");
                 }
             }
-
-            fw.write("\n"
-                    + "@Service\n"
-                    + "public class " + nomeEntidade + "Service extends GumgaService<" + nomeEntidade + ", Long> {\n"
-                    + "	\n"
-                    + "	private " + nomeEntidade + "Repository repository;\n"
-                    + "	\n"
-                    + "	@Autowired\n"
-                    + "	public " + nomeEntidade + "Service(" + nomeEntidade + "Repository repository) {\n"
-                    + "		super(repository);\n"
-                    + "		this.repository = repository;\n"
-                    + "	}\n"
-                    + "\n");
-
-            geraLoadFat(fw);
-
-            fw.write(""
-                    + "}\n"
-                    + "\n");
-
-            fw.close();
+                        
+            template.add("imports", imports);
+         
+            List<Field> attributesToMany = new ArrayList<>();
+            List<Attribute> hibernate01 = new ArrayList<>();
+            List<Attribute> hibernate02 = new ArrayList<>();
+            for(Field field : Util.getTodosAtributosNaoEstaticos(classeEntidade)) {
+            	if (field.isAnnotationPresent(OneToMany.class) || field.isAnnotationPresent(ManyToMany.class)) {
+            		attributesToMany.add(field);
+            	}
+            	
+            	if(!attributesToMany.isEmpty()) {
+            		for (Field fieldToMany : attributesToMany) {
+            			hibernate01.add(new Attribute(fieldToMany.getName(), "", Util.primeiraMaiuscula(fieldToMany.getName()), false, false, false, false, false));
+            			
+            			for(Field fieldToMany02 : Util.getTipoGenerico(fieldToMany).getDeclaredFields()) {
+            				if(fieldToMany02.isAnnotationPresent(OneToMany.class) || fieldToMany02.isAnnotationPresent(ManyToMany.class)) {
+            					hibernate02.add(new Attribute(Util.getTipoGenerico(fieldToMany).getSimpleName(), Util.primeiraMaiuscula(fieldToMany.getName()), Util.primeiraMaiuscula(fieldToMany02.getName()), false, false, false, false, false));
+            				}
+            			}
+					}
+            	}
+            }
+            
+            template.add("attributesToMany", !attributesToMany.isEmpty());                        
+            template.add("hibernate01", hibernate01);
+            template.add("hibernate02", hibernate02);
+			template.generateTemplate(this.pastaServices + "/" + this.nomeEntidade + "Service.java");
+	
+            
         } catch (Exception ex) {
             getLog().error(ex);
         }
@@ -170,7 +228,6 @@ public class GeraAplicacao extends AbstractMojo {
                                 + "        }\n");
                     }
                 }
-
             }
 
             fw.write("        return obj;\n"

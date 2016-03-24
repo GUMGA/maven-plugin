@@ -65,8 +65,8 @@ public class GeraEnum extends AbstractMojo {
         getLog().info("Iniciando plugin Gerador de Enum GUMGA ");
         getLog().info("Gerando " + nomePacote + "." + nomeEnum);
         
-//        File f = new File(pastaEnum);
-//        f.mkdirs();
+        File f = new File(pastaEnum);
+        f.mkdirs();
 //        File arquivoClasse = new File(pastaEnum + "/" + nomeEnum + ".java");
 //
         try {
@@ -204,7 +204,7 @@ public class GeraEnum extends AbstractMojo {
 			template.add("simpleValue", false);
 			template.add("simpleValueAndDescription", false);
 			template.add("multValue", false);
-			template.add("multValueAndDescription", true);
+			template.add("multValueAndDescription", false);
 			
 			List<ValueEnum> values = new ArrayList<>();
 			if (rich.equals("false") && multi.equals("false")) {
@@ -236,10 +236,15 @@ public class GeraEnum extends AbstractMojo {
 				String[] descriptions = valuesPossible[i].split(":");
 				
 				if(i == (valuesPossible.length -1))
-					values.add(new ValueEnum(descriptions[0] + "(\""+descriptions[1] + "\"" + "," + x +");"));
+					values.add(new ValueEnum(descriptions[0] + "(\""+descriptions[1] + "\"" + ", " + x +");"));
 				else
-					values.add(new ValueEnum(descriptions[0] + "(\""+descriptions[1] + "\"" + "," + x + "),"));
-			} else values.add(new ValueEnum(valuesPossible[i] + "(\""+"" + "\"" + "," + x + "),"));
+					values.add(new ValueEnum(descriptions[0] + "(\""+descriptions[1] + "\"" + ", " + x + "),"));
+			} else {
+				if(i == (valuesPossible.length -1))
+					values.add(new ValueEnum(valuesPossible[i] + "(\""+"" + "\"" + ", " + x + ");"));
+				else
+					values.add(new ValueEnum(valuesPossible[i] + "(\""+"" + "\"" + ", " + x + "),"));
+			}
 			x *= 2;
 		}
 	}
@@ -249,10 +254,18 @@ public class GeraEnum extends AbstractMojo {
 		String[] valuesPossible = this.valoresPossiveis.split(",");
 		int x = 1;
 		for (int i = 0; i < valuesPossible.length; i++) {
-			if(i == (valuesPossible.length -1))
-				values.add(new ValueEnum(valuesPossible[i] + "(" +x+ ");"));
-			else
-				values.add(new ValueEnum(valuesPossible[i] + "(" +x+ "),"));
+			if(!valuesPossible[i].trim().contains(":")) {
+				if(i == (valuesPossible.length -1))
+					values.add(new ValueEnum(valuesPossible[i] + "(" +x+ ");"));
+				else
+					values.add(new ValueEnum(valuesPossible[i] + "(" +x+ "),"));
+			} else {
+				String[] parts = valuesPossible[i].split(":");
+				if(i == (valuesPossible.length -1))
+					values.add(new ValueEnum(parts[0] + "(" +x+ ");"));
+				else
+					values.add(new ValueEnum(parts[0] + "(" +x+ "),"));
+			}
 			x *= 2;
 		}
 	}
