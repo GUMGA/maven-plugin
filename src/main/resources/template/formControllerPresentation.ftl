@@ -24,6 +24,9 @@ define([], function() {
 		<#list attributes as attribute>
 		$scope.${attribute.nameGettterAndSetter}.data.${attribute.name} = new Date($scope.${attribute.nameGettterAndSetter}.data.${attribute.name});
 		</#list>      
+		<#list oneToManys as oneToMany>
+		$scope.${entityNameLowerCase}.data.${oneToMany} = [];
+		</#list>
 		$scope.continue = {};
 	
 		$scope.${entityNameLowerCase}.on('putSuccess',function(data){

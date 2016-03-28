@@ -7,7 +7,7 @@
 	            search-method="${attribute.fieldSimpleNameLowerCase}.methods.asyncSearch('${attribute.firstAttributeOfField}', param)"
 	            field="${attribute.firstAttributeOfField}"
 	            authorize-add="true"
-	            add-method="${attribute.fieldSimpleNameLowerCase}.methods.asyncPost(value, '${attribute.firstAttributeOfField}')">
+	            post-method="${attribute.fieldSimpleNameLowerCase}.methods.asyncPost(value, '${attribute.firstAttributeOfField}')">
 	    </gumga-many-to-one>
 	</div>
 

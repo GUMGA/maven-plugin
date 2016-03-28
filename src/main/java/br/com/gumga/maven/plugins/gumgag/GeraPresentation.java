@@ -216,8 +216,14 @@ public class GeraPresentation extends AbstractMojo {
 			ConfigurationFreeMarker config = new ConfigurationFreeMarker();
 			TemplateFreeMarker template = new TemplateFreeMarker("moduleControllerPresentation.ftl", config);
 			template.add("entityName", this.nomeEntidade);
-			template.add("entityNameLowerCase", this.nomeEntidade.toLowerCase());
+			template.add("entityNameLowerCase", this.nomeEntidade.toLowerCase());			
+			List<String> controllers = new ArrayList<>();
+			for (Class classe : dependenciasOneToMany) {
+				controllers.add(classe.getSimpleName().trim());
+			}
+			template.add("controllers", controllers);
 			template.generateTemplate(this.pastaControllers + "/module.js");
+			
 			
 //            File arquivoModule = new File(pastaControllers + "/module.js");
 //            FileWriter fw = new FileWriter(arquivoModule);
@@ -243,6 +249,15 @@ public class GeraPresentation extends AbstractMojo {
 			template.add("entityNameLowerCase", this.nomeEntidade.toLowerCase());
 			template.add("firstAttribute", Util.primeiroAtributo(classeEntidade).getName());
 			template.generateTemplate(this.pastaControllers + "/" + this.nomeEntidade + "ListController.js");  
+			
+        	for (Class classe : dependenciasOneToMany) {
+            	config = new ConfigurationFreeMarker();
+    			template = new TemplateFreeMarker("modalControllerPresentation.ftl", config);
+    			
+            	template.add("entityName", classe.getSimpleName().trim());
+            	
+            	template.generateTemplate(this.pastaControllers + "/Modal" + classe.getSimpleName() + "Controller.js");          		
+        	}
 			
 //            File arquivoModule = new File(pastaControllers + "/" + nomeEntidade + "ListController.js");
 //            FileWriter fw = new FileWriter(arquivoModule);
@@ -339,6 +354,14 @@ public class GeraPresentation extends AbstractMojo {
 				dependenciesEnums.add(value);				
 			}
             template.add("dependenciesEnums", dependenciesEnums);            
+            
+            List<String> oneToManys = new ArrayList<>();
+            
+            for (Field field : Util.getTodosAtributosMenosIdAutomatico(this.classeEntidade)) {
+            	if(field.isAnnotationPresent(OneToMany.class))
+            		oneToManys.add(field.getName().toLowerCase());
+            }
+            template.add("oneToManys", oneToManys);
 			
 			template.generateTemplate(this.pastaControllers + "/" + this.nomeEntidade + "FormController.js");  
 				
@@ -464,6 +487,16 @@ public class GeraPresentation extends AbstractMojo {
         	
         	template.generateTemplate(this.pastaServices + "/" + this.nomeEntidade + "Service.js");  
         	
+//        	for (Class classe : dependenciasOneToMany) {
+//            	config = new ConfigurationFreeMarker();
+//    			template = new TemplateFreeMarker("servicePresentation.ftl", config);
+//    			
+//            	template.add("entityName", classe.getSimpleName());
+//            	template.add("entityNameLowerCase", classe.getSimpleName().toLowerCase());
+//            	
+//            	template.generateTemplate(this.pastaServices + "/" + classe.getSimpleName() + "Service.js");          		
+//        	}
+        	
 //            File arquivoService = new File(pastaServices + "/" + nomeEntidade + "Service.js");
 //            FileWriter fw = new FileWriter(arquivoService);
 //
@@ -518,7 +551,7 @@ public class GeraPresentation extends AbstractMojo {
 			template.add("entityName", this.nomeEntidade);
 			template.add("entityNameLowerCase", this.nomeEntidade.toLowerCase());
 	       	List<AttributePresentation> attributes = new ArrayList<>();
-            generateFields(attributes);
+            generateFields(attributes, this.classeEntidade);
             template.add("attributes", attributes);     	
         	
 			
@@ -624,11 +657,22 @@ public class GeraPresentation extends AbstractMojo {
 //                    + "</pagination>"
 //            );
 //            fw.close();
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//        }
-//        for (Class classe : dependenciasOneToMany) {
-//            try {
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        for (Class classe : dependenciasOneToMany) {
+            try {
+            	
+            	ConfigurationFreeMarker config = new ConfigurationFreeMarker();
+    			TemplateFreeMarker template = new TemplateFreeMarker("modalViewPresentation.ftl", config);
+    			template.add("entityNameLowerCase", classe.getSimpleName().toLowerCase());
+    			template.add("entityName", this.nomeEntidade.toLowerCase());
+    	       	List<AttributePresentation> attributes = new ArrayList<>();
+                generateFields(attributes, classe);
+                template.add("attributes", attributes); 
+    			
+    			template.generateTemplate(this.pastaViews + "/modal" + classe.getSimpleName() + ".html");
+    			
 //                File arquivoModalHtml = new File(pastaViews + "/modal" + classe.getSimpleName() + ".html");
 //                FileWriter fw = new FileWriter(arquivoModalHtml);
 //                fw.write("<form name=\"Modal\">\n"
@@ -651,11 +695,11 @@ public class GeraPresentation extends AbstractMojo {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-
         }
-
-	private void generateFields(List<AttributePresentation> attributes) {
-		for (Field field : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
+    }
+	private void generateFields(List<AttributePresentation> attributes, Class entity) {
+//		for (Field field : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
+		for (Field field : Util.getTodosAtributosMenosIdAutomatico(entity)) {
 			
 			String type = getAttributeType(field);
 	    	String typeField = "";
@@ -668,11 +712,11 @@ public class GeraPresentation extends AbstractMojo {
 	    	String required  = "";  
 	    	String firstAttributeTypeGeneric = "";
 	    	String firstAttributeTypeGenericNameLowerCase = "";
-			String typeGenericSimpleNameOfField = "";
-			String declaringClassSimpleNameLowerCase = "";
-			String entityNameLowerCase = "";
-			String opened = "";
-			String tag = "";
+            String typeGenericSimpleNameOfField = "";
+            String declaringClassSimpleNameLowerCase = "";
+            String entityNameLowerCase = "";
+            String opened = "";
+            String tag = "";
 			
 			switch (type) {
 			case "manyToOne":
@@ -707,9 +751,9 @@ public class GeraPresentation extends AbstractMojo {
 		    	fieldName = field.getName();
 		    	entitySimpleNameLowerCase  = this.classeEntidade.getSimpleName().toLowerCase();
 		    	typeGenericSimpleNameOfField = Util.getTipoGenerico(field).getSimpleName();
-				declaringClassSimpleNameLowerCase = field.getDeclaringClass().getSimpleName().toLowerCase();
-				firstAttributeTypeGenericNameLowerCase = Util.primeiroAtributo(Util.getTipoGenerico(field)).getName().toLowerCase(); 
-				break;
+                declaringClassSimpleNameLowerCase = field.getDeclaringClass().getSimpleName().toLowerCase();
+                firstAttributeTypeGenericNameLowerCase = Util.primeiroAtributo(Util.getTipoGenerico(field)).getName().toLowerCase(); 
+                break;
 			case "gumgaCustomFields" :
 				typeField = type;
 				entitySimpleNameLowerCase = this.classeEntidade.getSimpleName().toLowerCase();
@@ -852,13 +896,13 @@ public class GeraPresentation extends AbstractMojo {
     public String getAttributeType(Field field){
     
     	return field.isAnnotationPresent(ManyToOne.class) ? "manyToOne" : 
-    		   field.isAnnotationPresent(OneToOne.class) ? "oneToOne" : 
-    		   field.isAnnotationPresent(ManyToMany.class) ? "manyToMany" :
-   			   field.isAnnotationPresent(OneToMany.class) ? "oneToMany" : 
-   			   "gumgaCustomFields".equals(field.getName()) ? "gumgaCustomFields" :
-   			   GumgaAddress.class.equals(field.getType()) ? "gumgaAddress" : 
-   			   GumgaBarCode.class.equals(field.getType()) ? "gumgaBarCode" :  
-   			   GumgaCEP.class.equals(field.getType()) ? "gumgaCEP" :
+               field.isAnnotationPresent(OneToOne.class) ? "oneToOne" : 
+               field.isAnnotationPresent(ManyToMany.class) ? "manyToMany" :
+               field.isAnnotationPresent(OneToMany.class) ? "oneToMany" : 
+               "gumgaCustomFields".equals(field.getName()) ? "gumgaCustomFields" :
+               GumgaAddress.class.equals(field.getType()) ? "gumgaAddress" : 
+               GumgaBarCode.class.equals(field.getType()) ? "gumgaBarCode" :  
+               GumgaCEP.class.equals(field.getType()) ? "gumgaCEP" :
                GumgaCNPJ.class.equals(field.getType()) ? "gumgaCNPJ" :  
                GumgaCPF.class.equals(field.getType()) ? "gumgaCPF" :  
                GumgaIP4.class.equals(field.getType()) ? "gumgaIP4" :  
@@ -890,11 +934,11 @@ public class GeraPresentation extends AbstractMojo {
     	private String firstAttributeTypeGeneric;
     	private String required;  	   	 	
     	private String firstAttributeTypeGenericNameLowerCase;
-		private String typeGenericSimpleNameOfField;
-		private String declaringClassSimpleNameLowerCase;
-		private String entityNameLowerCase;
-		private String opened;
-		private String tag;
+        private String typeGenericSimpleNameOfField;
+        private String declaringClassSimpleNameLowerCase;
+        private String entityNameLowerCase;
+        private String opened;
+        private String tag;
     	
     	
     	public String getType() {
