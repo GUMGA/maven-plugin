@@ -141,6 +141,7 @@ public class GeraPresentation extends AbstractMojo {
                 }
                 if (atributo.isAnnotationPresent(OneToMany.class)) {
                     dependenciasOneToMany.add(Util.getTipoGenerico(atributo));
+                    
                 }
                 if (atributo.getType().isEnum()) {
                     dependenciasEnums.add(atributo.getType());
@@ -150,6 +151,9 @@ public class GeraPresentation extends AbstractMojo {
                 }
 
             }
+            
+            
+            
             geraModule();
             geraServices();
             geraControllers();
@@ -248,16 +252,73 @@ public class GeraPresentation extends AbstractMojo {
 			template.add("entityName", this.nomeEntidade);
 			template.add("entityNameLowerCase", this.nomeEntidade.toLowerCase());
 			template.add("firstAttribute", Util.primeiroAtributo(classeEntidade).getName());
-			template.generateTemplate(this.pastaControllers + "/" + this.nomeEntidade + "ListController.js");  
+			template.generateTemplate(this.pastaControllers + "/" + this.nomeEntidade + "ListController.js"); 
+				
 			
+			for (Field field : Util.getTodosAtributosMenosIdAutomatico(this.classeEntidade)) {
+				if(getAttributeType(field).equals("oneToMany")) {
+	            	config = new ConfigurationFreeMarker();
+	    			template = new TemplateFreeMarker("modalControllerPresentation.ftl", config);
+	            	template.add("entityName", Util.getTipoGenerico(field).getSimpleName().trim());
+
+				}
+			}
+			
+
         	for (Class classe : dependenciasOneToMany) {
+        	    Set<Class> dependenciasManyToOneModal=new HashSet<>();
+        	    Set<Class> dependenciasOneToManyModal=new HashSet<>();
+        	    Set<Class> dependenciasManyToManyModal=new HashSet<>();
+        	    Set<Field> atributosGumgaImageModal=new HashSet<>();
+        	    Set<Class> dependenciasEnumsModal=new HashSet<>();
+    			List<Attribute> attributesOneToMany = new ArrayList<>();
+        	    String fieldName = "";
+    			String entitySimpleNameLowerCase = "";
+        	    
+                for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classe)) {
+                    if (atributo.isAnnotationPresent(OneToOne.class)) {
+                        dependenciasManyToOneModal.add(atributo.getType());
+                    }
+                    if (atributo.isAnnotationPresent(ManyToOne.class)) {
+                        dependenciasManyToOneModal.add(atributo.getType());
+                    }
+                    if (atributo.isAnnotationPresent(ManyToMany.class)) {
+                        dependenciasManyToManyModal.add(Util.getTipoGenerico(atributo));
+                    }
+                    if (atributo.isAnnotationPresent(OneToMany.class)) {
+                        dependenciasOneToManyModal.add(Util.getTipoGenerico(atributo));   
+                        attributesOneToMany.add(new Attribute(atributo.getName(), "", this.classeEntidade.getSimpleName().toLowerCase(), false, false, false, false, false));                        
+                    }
+                    if (atributo.getType().isEnum()) {
+                        dependenciasEnumsModal.add(atributo.getType());
+                    }
+                    if (atributo.getType().equals(GumgaImage.class)) {
+                        atributosGumgaImageModal.add(atributo);
+                    }
+                }
+
+
+                String injectManyToOne = "";
+                String injectControllerManyToOne = "";
+                for(Class dp : dependenciasManyToOneModal) {
+                	injectManyToOne += ",'"+dp.getSimpleName()+"Service'";
+                	injectControllerManyToOne += ","+dp.getSimpleName()+"Service";
+                }
+
+
             	config = new ConfigurationFreeMarker();
     			template = new TemplateFreeMarker("modalControllerPresentation.ftl", config);
-    			
             	template.add("entityName", classe.getSimpleName().trim());
-            	
-            	template.generateTemplate(this.pastaControllers + "/Modal" + classe.getSimpleName() + "Controller.js");          		
+            	template.add("dpManyToOne", dependenciasManyToOneModal);
+                template.add("injectManyToOne", injectManyToOne);
+                template.add("injectControllerManyToOne", injectControllerManyToOne);
+                template.add("fieldName", fieldName);
+                template.add("entitySimpleNameLowerCase", entitySimpleNameLowerCase);
+                template.add("attributesOneToMany", attributesOneToMany);
+                template.add("entity", this.classeEntidade.getSimpleName().toLowerCase());
+                template.generateTemplate(this.pastaControllers + "/Modal" + classe.getSimpleName() + "Controller.js");          		
         	}
+        	
 			
 //            File arquivoModule = new File(pastaControllers + "/" + nomeEntidade + "ListController.js");
 //            FileWriter fw = new FileWriter(arquivoModule);
@@ -361,6 +422,8 @@ public class GeraPresentation extends AbstractMojo {
             	if(field.isAnnotationPresent(OneToMany.class))
             		oneToManys.add(field.getName().toLowerCase());
             }
+            
+            
             template.add("oneToManys", oneToManys);
 			
 			template.generateTemplate(this.pastaControllers + "/" + this.nomeEntidade + "FormController.js");  
@@ -698,7 +761,6 @@ public class GeraPresentation extends AbstractMojo {
         }
     }
 	private void generateFields(List<AttributePresentation> attributes, Class entity) {
-//		for (Field field : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
 		for (Field field : Util.getTodosAtributosMenosIdAutomatico(entity)) {
 			
 			String type = getAttributeType(field);

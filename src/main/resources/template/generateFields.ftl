@@ -8,9 +8,13 @@
 		
 		<#include "oneToOneField.ftl">
 		<#break>
+		<#case "gumgaURL">
+		<#include "gumgaURLField.ftl">
+		<#break>
+
 		<#case "gumgaEmail">
 		
-		<#include "gumgaEmail.ftl">
+		<#include "gumgaEmailField.ftl">
 		<#break>
 		<#case "manyToMany">
 		

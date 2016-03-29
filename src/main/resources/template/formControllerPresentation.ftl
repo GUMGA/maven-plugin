@@ -22,10 +22,11 @@ define([], function() {
     
     	$scope.${entityNameLowerCase}.data = entity.data || {};
 		<#list attributes as attribute>
-		$scope.${attribute.nameGettterAndSetter}.data.${attribute.name} = new Date($scope.${attribute.nameGettterAndSetter}.data.${attribute.name});
+		$scope.${attribute.nameGettterAndSetter}.data.${attribute.name} = ($scope.${attribute.nameGettterAndSetter}.data.${attribute.name} == undefined || $scope.${attribute.nameGettterAndSetter}.data.${attribute.name} == "") ? new Date() : new Date($scope.${attribute.nameGettterAndSetter}.data.${attribute.name});
+		
 		</#list>      
 		<#list oneToManys as oneToMany>
-		$scope.${entityNameLowerCase}.data.${oneToMany} = [];
+		$scope.${entityNameLowerCase}.data.${oneToMany} = $scope.${entityNameLowerCase}.data.${oneToMany} || [];
 		</#list>
 		$scope.continue = {};
 	

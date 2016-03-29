@@ -1,8 +1,24 @@
 define([], function() {
 
-  Modal${entityName}Controller.$inject = ['$scope', 'gumgaController', '$uibModal', '$uibModalInstance'];
+  Modal${entityName}Controller.$inject = ['$scope', 'gumgaController', '$uibModal', '$uibModalInstance', 'gumgaController','entity'${injectManyToOne}];
 
-  function Modal${entityName}Controller($scope, gumgaController, $uibModal, $uibModalInstance) {
+  function Modal${entityName}Controller($scope, gumgaController, $uibModal, $uibModalInstance, gumgaController, entity${injectControllerManyToOne}) {
+  
+  	   $scope.${entity} = entity|| {};
+  	   $scope.${entity}.data = entity.data || {};
+  	   
+  	  <#list attributesOneToMany as attr>
+  	  	$scope.${attr.nameGettterAndSetter}.data.${attr.name} = $scope.${attr.nameGettterAndSetter}.data.${attr.name} || [];
+  	  </#list>
+  
+  	  <#list dpManyToOne as dp>
+
+      gumgaController.createRestMethods($scope, ${dp.simpleName}Service, '${dp.simpleName?lower_case}');
+      $scope.${dp.simpleName?lower_case}.methods.search('','')
+
+	  </#list>
+  
+
   
  	  $scope.ok = function (obj) {
           $uibModalInstance.close(obj);
@@ -44,3 +60,6 @@ define([], function() {
   };
   return Modal${entityName}Controller;
 });
+
+
+
