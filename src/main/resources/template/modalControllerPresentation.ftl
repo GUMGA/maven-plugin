@@ -4,8 +4,8 @@ define([], function() {
 
   function Modal${entityName}Controller($scope, gumgaController, $uibModal, $uibModalInstance, gumgaController, entity${injectControllerManyToOne}) {
   
-  	   $scope.${entity} = entity|| {};
-  	   $scope.${entity}.data = entity.data || {};
+  	   $scope.${entity} = {};
+  	   $scope.${entity}.data = angular.copy(entity) || {};
   	   
   	  <#list attributesOneToMany as attr>
   	  	$scope.${attr.nameGettterAndSetter}.data.${attr.name} = $scope.${attr.nameGettterAndSetter}.data.${attr.name} || [];

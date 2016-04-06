@@ -12,7 +12,7 @@
 		<#include "gumgaURLField.ftl">
 		<#break>
 
-		<#case "gumgaEmail">
+		<#case "gumgaEMail">
 		
 		<#include "gumgaEmailField.ftl">
 		<#break>
