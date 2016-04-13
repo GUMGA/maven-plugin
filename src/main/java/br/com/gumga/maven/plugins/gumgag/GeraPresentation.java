@@ -660,8 +660,10 @@ public class GeraPresentation extends AbstractMojo {
 			List<Attribute> attributesSearchField = new ArrayList<>();
 			List<Attribute> attributesAdvancedSearchField = new ArrayList<>();
 			for (Field field : Util.getTodosAtributosNaoEstaticos(classeEntidade)) {
-				attributesSearchField.add(new Attribute(field.getName(), converteTipoParaAdvanced(field.getType()), field.getName().toLowerCase(), false, false, false, false, false));
-				attributesAdvancedSearchField.add(new Attribute(field.getName(), converteTipoParaAdvanced(field.getType()), field.getName().toLowerCase(), false, false, false, false, false));
+				if(!field.getName().equalsIgnoreCase("id")) {
+					attributesSearchField.add(new Attribute(field.getName(), converteTipoParaAdvanced(field.getType()), field.getName().toLowerCase(), false, false, false, false, false));
+					attributesAdvancedSearchField.add(new Attribute(field.getName(), converteTipoParaAdvanced(field.getType()), field.getName().toLowerCase(), false, false, false, false, false));
+				}
 			}
 			template.add("attributesSearchField", attributesSearchField);
 			template.add("attributesAdvancedSearchField", attributesAdvancedSearchField);
@@ -932,7 +934,7 @@ public class GeraPresentation extends AbstractMojo {
 				required = geraValidacoesDoBenValidator(field);
 				break;
 			}
-			
+
 			if(typeField != "") {
 				attributes.add(AttributePresentation
 						.create()
