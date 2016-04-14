@@ -30,7 +30,7 @@
 	    </gumga-list>
 	</div>
 
-	<pagination ng-model="page"
+	<uib-pagination ng-model="page"
 	            max-size="10"
 	            boundary-links="true"
 	            previous-text="‹"
@@ -40,4 +40,4 @@
 	            items-per-page="${entityNameLowerCase}.pageSize"
 	            total-items="${entityNameLowerCase}.count"
 	            ng-change="${entityNameLowerCase}.methods.get(page)">
-	</pagination>
+	</uib-pagination>
