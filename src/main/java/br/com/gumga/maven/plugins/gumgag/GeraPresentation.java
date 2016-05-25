@@ -389,9 +389,10 @@ public class GeraPresentation extends AbstractMojo {
             List<Attribute> attributes = new ArrayList<>();
             for (Field field : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
                 if (field.getType().equals(Date.class)) {
-                	attributes.add(new Attribute(field.getName(), "", this.classeEntidade.getSimpleName().toLowerCase(), false, false, false, false, false));
+                	attributes.add(new Attribute(field.getName(), "opened" + Util.primeiraMaiuscula(field.getName()), this.classeEntidade.getSimpleName().toLowerCase(), false, false, false, false, false));
                 }
             }
+
             
             template.add("attributes", attributes);
             
