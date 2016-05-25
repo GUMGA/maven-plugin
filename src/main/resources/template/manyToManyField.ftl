@@ -11,7 +11,7 @@
 	    <gumga-many-to-many 
 	            left-list="${attribute.typeGenericSimpleNameOfFieldLowerCase}.data" 
 	            right-list="${attribute.entitySimpleNameLowerCase}.data.${attribute.fieldName}" 
-	            left-search="${attribute.typeGenericSimpleNameOfFieldLowerCase}.methods.advancedSearch('${attribute.firstAttributeTypeGeneric}', param)"
+	            left-search="${attribute.typeGenericSimpleNameOfFieldLowerCase}.methods.asyncSearch('${attribute.firstAttributeTypeGeneric}', param)"
 	            filter-parameters="${attribute.firstAttributeTypeGeneric}"
 	            post-method="${attribute.typeGenericSimpleNameOfFieldLowerCase}.methods.save(value)"
 	            authorize-add="true">

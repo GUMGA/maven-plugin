@@ -23,7 +23,10 @@ define([], function() {
     	$scope.${entityNameLowerCase}.data = entity.data || {};
 		<#list attributes as attribute>
 		$scope.${attribute.nameGettterAndSetter}.data.${attribute.name} = ($scope.${attribute.nameGettterAndSetter}.data.${attribute.name} == undefined || $scope.${attribute.nameGettterAndSetter}.data.${attribute.name} == "") ? new Date() : new Date($scope.${attribute.nameGettterAndSetter}.data.${attribute.name});
-		
+        $scope.open${attribute.name} = function() {
+        	$scope.${attribute.type} = !$scope.${attribute.type};
+        };
+
 		</#list>      
 		<#list oneToManys as oneToMany>
 		$scope.${entityNameLowerCase}.data.${oneToMany} = $scope.${entityNameLowerCase}.data.${oneToMany} || [];
