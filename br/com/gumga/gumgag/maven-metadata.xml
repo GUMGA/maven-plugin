@@ -3,10 +3,10 @@
   <groupId>br.com.gumga</groupId>
   <artifactId>gumgag</artifactId>
   <versioning>
-    <latest>1.2.6-SNAPSHOT</latest>
+    <latest>1.2.8-SNAPSHOT</latest>
     <versions>
-      <version>1.2.6-SNAPSHOT</version>
+      <version>1.2.8-SNAPSHOT</version>
     </versions>
-    <lastUpdated>20160404185133</lastUpdated>
+    <lastUpdated>20160531134537</lastUpdated>
   </versioning>
 </metadata>
