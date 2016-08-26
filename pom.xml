@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>br.com.gumga</groupId>
     <artifactId>gumgag</artifactId>
-    <version>1.2.8-SNAPSHOT</version>
+    <version>1.2.12-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
     
     <name>gumgag Maven Plugin</name>
@@ -14,7 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <gumga.framework.version>1.2.8-SNAPSHOT</gumga.framework.version>
+        <gumga.framework.version>1.2.12-SNAPSHOT</gumga.framework.version>
         <github.global.server>github</github.global.server>
     </properties>
 

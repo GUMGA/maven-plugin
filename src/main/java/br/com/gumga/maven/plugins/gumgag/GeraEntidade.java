@@ -207,6 +207,7 @@ public class GeraEntidade extends AbstractMojo {
 
 	public void declaraAtributos(String[] atributos, FileWriter fw) throws IOException {
 		for (String atributo : atributos) {
+                    System.out.println("---->"+atributo);
 			fw.write(Util.IDENTACAO04 + "//@Field //Descomente para ser utilizado na busca multientidades\n");
 			String partes[] = atributo.split(":");
 			if (partes[1].trim().endsWith("GumgaAddress")) {
