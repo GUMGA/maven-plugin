@@ -144,7 +144,7 @@
             <url>https://raw.github.com/GUMGA/framework-backend/mvn-repo/</url>
             <snapshots>
                 <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
+                <updatePolicy>always</updatePolicy>
             </snapshots>
         </repository>
     </repositories>
