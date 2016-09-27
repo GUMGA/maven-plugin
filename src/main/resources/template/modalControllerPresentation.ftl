@@ -1,8 +1,8 @@
 define([], function() {
 
-  Modal${entityName}Controller.$inject = ['$scope', 'gumgaController', '$uibModal', '$uibModalInstance', 'gumgaController','entity'${injectManyToOne}];
+  Modal${entityName}Controller.$inject = ['$scope', 'gumgaController', '$uibModal', '$uibModalInstance', 'entity'${injectManyToOne}];
 
-  function Modal${entityName}Controller($scope, gumgaController, $uibModal, $uibModalInstance, gumgaController, entity${injectControllerManyToOne}) {
+  function Modal${entityName}Controller($scope, gumgaController, $uibModal, $uibModalInstance, entity${injectControllerManyToOne}) {
   
   	   $scope.${entity} = {};
   	   $scope.${entity}.data = angular.copy(entity) || {};
