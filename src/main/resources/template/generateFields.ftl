@@ -72,6 +72,10 @@
 		
 		<#include "gumgaGeoLocationField.ftl">
 		<#break>
+		<#case "gumgaMultiLineString">
+		
+		<#include "gumgaMultiLineString.ftl">
+		<#break>
 		<#case "gumgaBoolean">
 		
 		<#include "gumgaBooleanField.ftl">
