@@ -71,7 +71,7 @@ public class ${entityName}API extends GumgaAPI<${entityName}, Long> {
     <#if "${gumgaImage?c}" == "true">
     @Transactional
     @RequestMapping(method = RequestMethod.POST)
-    public RestResponse<${entityName}> save(@RequestBody @Valid " + nomeEntidade + " obj, BindingResult result) {
+    public RestResponse<${entityName}> save(@RequestBody @Valid ${entityName} obj, BindingResult result) {
     <#list gumgaImages as gumgaImage>
         if (obj.get${gumgaImage.nameGettterAndSetter}() != null) {
             obj.set${gumgaImage.nameGettterAndSetter}((GumgaImage) gumgaTempFileService.find(obj.get${gumgaImage.nameGettterAndSetter}().getName()));
