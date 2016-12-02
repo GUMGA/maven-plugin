@@ -83,7 +83,7 @@ public class ${entityName}API extends GumgaAPI<${entityName}, Long> {
     @Override
     @Transactional
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = "application/json")
-    public RestResponse<${entityName}> update(Long id, ${entityName} obj, BindingResult result) {
+    public RestResponse<${entityName}> update(Long id, @RequestBody @Valid ${entityName} obj, BindingResult result) {
         <#list gumgaImages as gumgaImage>
         if (obj.getFoto()!= null) {
             if ("null".equals(obj.get${gumgaImage.nameGettterAndSetter}().getName())) {
