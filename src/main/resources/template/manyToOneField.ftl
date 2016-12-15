@@ -6,7 +6,8 @@
 	            value="${attribute.entitySimpleNameLowerCase}.data.${attribute.fieldName}"
 	            search-method="${attribute.fieldSimpleNameLowerCase}.methods.asyncSearch('${attribute.firstAttributeOfField}', param)"
 	            field="${attribute.firstAttributeOfField}"
-	            authorize-add="true"
+	            authorize-add="false"
+              display-info="false"
 	            post-method="${attribute.fieldSimpleNameLowerCase}.methods.asyncPost(value, '${attribute.firstAttributeOfField}')">
 	    </gumga-many-to-one>
 	</div>

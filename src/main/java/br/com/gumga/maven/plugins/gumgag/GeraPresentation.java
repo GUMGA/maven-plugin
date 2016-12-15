@@ -1384,7 +1384,7 @@ public class GeraPresentation extends AbstractMojo {
                 fw.write(Util.IDENTACAO08 + "<div gumga-form-class=\"" + atributo.getName() + "\">\n");
                 fw.write(Util.IDENTACAO12 + "<label gumga-translate-tag=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\">" + atributo.getName() + "</label>\n");
                 fw.write(Util.IDENTACAO12 + "<select class='form-control' gumga-error name=\"" + atributo.getName() + "\" ng-model=\"" + classeEntidade.getSimpleName().toLowerCase() + ".data." + atributo.getName() + "\" >\n");
-                fw.write(Util.IDENTACAO12 + "  <option  ng-selected=\"value.value === entity." + atributo.getName() + "\"  value=\"{{value.value}}\" ng-repeat=\"value in value" + atributo.getType().getSimpleName() + "\">{{value.label}}</option>\n");
+                fw.write(Util.IDENTACAO12 + "  <option ng-selected=\"value.value === entity." + atributo.getName() + "\"  value=\"{{value.value}}\" ng-repeat=\"value in value" + atributo.getType().getSimpleName() + "\">{{value.label}}</option>\n");
                 fw.write(Util.IDENTACAO12 + "</select>\n");
                 fw.write(Util.IDENTACAO08 + "</div>\n");
             } else {
