@@ -1,9 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package br.com.gumga.maven.plugins.gumgag;
+package io.gumga.maven.plugins.gumgag;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -30,7 +25,6 @@ import org.apache.maven.project.MavenProject;
  */
 @Mojo(name = "gateway", requiresDependencyResolution = ResolutionScope.RUNTIME)
 public class GeraGateway extends AbstractMojo {
-    
 
     @Parameter(property = "project", required = true, readonly = true)
     private MavenProject project;
@@ -93,7 +87,7 @@ public class GeraGateway extends AbstractMojo {
                     + "\n"
                     + "import org.springframework.stereotype.Component;\n"
                     + "\n"
-                    + "import gumga.framework.presentation.GumgaGateway;\n"
+                    + "import io.gumga.presentation.GumgaGateway;\n"
                     + "\n"
                     + "@Component\n"
                     + "public class " + nomeEntidade + "Gateway extends GumgaGateway<" + nomeCompletoEntidade + ", Long, " + nomePacoteDto + "." + nomeEntidade + "DTO> {\n"
@@ -205,7 +199,7 @@ public class GeraGateway extends AbstractMojo {
                     + ""
                     + "package " + nomePacoteTranslator + ";\n"
                     + "\n"
-                    + "import gumga.framework.presentation.GumgaTranslator;\n"
+                    + "import io.gumga.presentation.GumgaTranslator;\n"
                     + "\n"
                     + "import org.springframework.stereotype.Component;\n"
                     + "\n"
