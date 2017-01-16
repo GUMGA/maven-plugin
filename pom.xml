@@ -7,7 +7,13 @@
     <packaging>maven-plugin</packaging>
     
     <name>gumgag Maven Plugin</name>
-
+    <description>
+        gumgag Maven Plugin
+    </description>
+    <organization>
+        <name>Gumga</name>
+        <url>http://gumga.io</url>
+    </organization>
     <url>http://www.gumga.io/plugin/gumgag</url>
 
     <properties>
@@ -15,7 +21,35 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <io.gumga.version>[1.3.0,)</io.gumga.version>
+	<java.versao>1.8</java.versao>
     </properties>
+
+    <scm>
+        <connection>scm:git:git@github.com:GUMGA/maven-plugin.git</connection>
+        <developerConnection>scm:git:git@github.com:GUMGA/maven-plugin.git</developerConnection>
+        <url>https://github.com/GUMGA/maven-plugin</url>
+    </scm>
+    <licenses>
+        <license>
+            <name>GNU General Public License (GPL)</name>
+            <url>http://www.gnu.org/licenses/gpl.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>gumga</id>
+            <name>Gumga</name>
+            <email>gumgait@gmail.com</email>
+            <organization>Gumga</organization>
+            <organizationUrl>http://gumga.io</organizationUrl>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
 
     <dependencies>
         <!-- DEPENDENCIAS do Framework GUMGA    -->
@@ -81,6 +115,126 @@
     </dependencies>
     
     <build>
+<resources>
+					<resource>
+						<directory>resources/templates</directory>
+						<includes>
+							<include>**/*.ftl</include>
+						</includes>
+					</resource>
+				</resources>
+				<plugins>
+					<plugin>
+						<groupId>org.sonatype.plugins</groupId>
+						<artifactId>nexus-staging-maven-plugin</artifactId>
+						<version>1.6.3</version>
+						<extensions>true</extensions>
+						<configuration>
+							<serverId>nexus-releases</serverId>
+							<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+							<autoReleaseAfterClose>true</autoReleaseAfterClose>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-plugin-plugin</artifactId>
+                <version>3.3</version>
+                <configuration>
+                    <goalPrefix>gumgag</goalPrefix>
+                    <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>mojo-descriptor</id>
+                        <goals>
+                            <goal>descriptor</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>help-goal</id>
+                        <goals>
+                            <goal>helpmojo</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+				</plugins>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.sonatype.plugins</groupId>
+							<artifactId>nexus-staging-maven-plugin</artifactId>
+							<version>1.6.3</version>
+							<extensions>true</extensions>
+							<configuration>
+								<serverId>nexus-releases</serverId>
+								<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+								<autoReleaseAfterClose>true</autoReleaseAfterClose>
+							</configuration>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-compiler-plugin</artifactId>
+							<version>3.1</version>
+							<configuration>
+								<target>${java.versao}</target>
+								<source>${java.versao}</source>
+							</configuration>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-source-plugin</artifactId>
+							<executions>
+								<execution>
+									<id>attach-sources</id>
+									<goals>
+										<goal>jar</goal>
+									</goals>
+								</execution>
+							</executions>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-javadoc-plugin</artifactId>
+							<executions>
+								<execution>
+									<id>attach-javadocs</id>
+									<goals>
+										<goal>jar</goal>
+									</goals>
+
+								</execution>
+							</executions>
+							<configuration>
+								<additionalparam>-Xdoclint:none</additionalparam>
+							</configuration>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+
+			<distributionManagement>
+				<repository>
+					<id>nexus-releases</id>
+					<name>Nexus Release Repository</name>
+					<url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+				</repository>
+			</distributionManagement>
+	<!--
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -119,7 +273,8 @@
                 </executions>
             </plugin> 
         </plugins>
-    </build>
+	-->
+    
 
   
          
