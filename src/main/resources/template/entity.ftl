@@ -15,9 +15,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @GumgaMultitenancy
 @SequenceGenerator(name = GumgaModel.SEQ_NAME, sequenceName = "SEQ_${entityName}")
-//@Indexed
 @Audited
 @Entity
+@Table(name = "${entityName}")
 public class ${entityName} extends ${superClass} {
 
 <#if "GumgaModel<Long>" == "${superClass}">

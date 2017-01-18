@@ -47,6 +47,7 @@
 	</#if>
 	<#if "${attribute.manyToMany?c}" == "true">
 	@ManyToMany
-	</#if>				
+	</#if>
+	@Column(name = "${attribute.name}")
 	private ${attribute.type} ${attribute.name};
 </#list>
