@@ -28,7 +28,7 @@ public class ${serviceName}Service extends GumgaService<${serviceName}, Long> {
 	<#if "${attributesToMany?c}" == "true">
 	@Transactional
 	public ${serviceName} load${serviceName}Fat(Long id) {
-		${serviceName} obj = repository.findOne(id);	
+		${serviceName} obj = view(id);	
 		
 		<#list hibernate01 as h1>
 		Hibernate.initialize(obj.get${h1.nameGettterAndSetter}());
