@@ -1,4 +1,4 @@
-package br.com.gumga.maven.plugins.gumgag;
+package io.gumga.maven.plugins.gumgag;
 
 /*
  * Copyright 2001-2005 The Apache Software Foundation.
@@ -96,24 +96,22 @@ public class GeraDiagrama extends AbstractMojo {
         for (File f : pasta.listFiles()) {
             if (f.isDirectory()) {
                 aRetornar.addAll(pesquisaClasses(f));
-            } else {
-                if (f.getName().endsWith(".class")) {
-                    if (f.getName().endsWith("Coisa.class")) {  //PUlA COISA
-                        continue;
+            } else if (f.getName().endsWith(".class")) {
+                if (f.getName().endsWith("Coisa.class")) {  //PUlA COISA
+                    continue;
+                }
+
+                String nomeClasse = transformaEmNomeDeClasse(f);
+                try {
+                    //Class classe = Class.forName(nomeClasse);
+                    Class classe = classLoader.loadClass(nomeClasse);
+
+                    if (classe.isAnnotationPresent(Entity.class)) {
+                        aRetornar.add(classe);
                     }
+                } catch (Exception ex) {
 
-                    String nomeClasse = transformaEmNomeDeClasse(f);
-                    try {
-                        //Class classe = Class.forName(nomeClasse);
-                        Class classe = classLoader.loadClass(nomeClasse);
-
-                        if (classe.isAnnotationPresent(Entity.class)) {
-                            aRetornar.add(classe);
-                        }
-                    } catch (Exception ex) {
-
-                        getLog().error(PREFIXO + " Erro carregando classe " + nomeClasse);
-                    }
+                    getLog().error(PREFIXO + " Erro carregando classe " + nomeClasse);
                 }
             }
         }

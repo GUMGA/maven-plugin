@@ -47,6 +47,17 @@
 	</#if>
 	<#if "${attribute.manyToMany?c}" == "true">
 	@ManyToMany
-	</#if>				
+	</#if>
+	<#if "${attribute.type}" != "GumgaAddress" &&
+		 "${attribute.type}" != "GumgaFile" &&
+	     "${attribute.type}" != "GumgaImage" &&
+		 "${attribute.type}" != "GumgaGeoLocation" &&
+		 "${attribute.type}" != "GumgaTime" &&
+		 "${attribute.oneToMany?c}" != "true" &&
+  	     "${attribute.oneToOne?c}" != "true" &&
+		 "${attribute.manyToOne?c}" != "true" &&
+		 "${attribute.manyToMany?c}" != "true">
+    @Column(name = "${attribute.name}")
+	</#if>
 	private ${attribute.type} ${attribute.name};
 </#list>

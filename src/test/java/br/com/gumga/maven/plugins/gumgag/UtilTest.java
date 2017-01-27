@@ -5,6 +5,7 @@
  */
 package br.com.gumga.maven.plugins.gumgag;
 
+import io.gumga.maven.plugins.gumgag.Util;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;

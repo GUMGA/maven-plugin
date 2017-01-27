@@ -1,22 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package br.com.gumga.maven.plugins.gumgag;
+package io.gumga.maven.plugins.gumgag;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -58,8 +47,8 @@ public class LerJava extends AbstractMojo {
 
                     saida += "<";
                     for (Type t : typeArguments) {
-                        String tn=t.getTypeName();
-                        tn=tn.substring(tn.lastIndexOf(".")+1);
+                        String tn = t.getTypeName();
+                        tn = tn.substring(tn.lastIndexOf(".") + 1);
                         saida += tn + ",";
                     }
                     saida = saida.substring(0, saida.length() - 1);
@@ -70,10 +59,10 @@ public class LerJava extends AbstractMojo {
                 if (annotations.length > 0) {
                     saida += ":";
                     for (Annotation an : annotations) {
-                        String na=an.toString();
-                        na=na.substring(na.lastIndexOf(".")+1,na.indexOf("("));
+                        String na = an.toString();
+                        na = na.substring(na.lastIndexOf(".") + 1, na.indexOf("("));
 
-                        saida += "@"+na + " ";
+                        saida += "@" + na + " ";
                     }
 
                 }
@@ -82,7 +71,7 @@ public class LerJava extends AbstractMojo {
             saida = saida.substring(0, saida.length() - 1);
             saida += "\"";
 
-            if ((!classeEntidade.getSuperclass().equals(Object.class)) && (!classeEntidade.getSuperclass().getCanonicalName().equals("gumga.framework.domain.GumgaModel"))) {
+            if ((!classeEntidade.getSuperclass().equals(Object.class)) && (!classeEntidade.getSuperclass().getCanonicalName().equals("io.gumga.domain.GumgaModel"))) {
                 saida += " -Dsuper=\"" + classeEntidade.getSuperclass().getCanonicalName() + "\"";
             }
 

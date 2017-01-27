@@ -1,6 +1,6 @@
 package ${package};
 
-import gumga.framework.application.GumgaService;
+import io.gumga.application.GumgaService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ public class ${serviceName}Service extends GumgaService<${serviceName}, Long> {
 	<#if "${attributesToMany?c}" == "true">
 	@Transactional
 	public ${serviceName} load${serviceName}Fat(Long id) {
-		${serviceName} obj = repository.findOne(id);	
+		${serviceName} obj = view(id);	
 		
 		<#list hibernate01 as h1>
 		Hibernate.initialize(obj.get${h1.nameGettterAndSetter}());
