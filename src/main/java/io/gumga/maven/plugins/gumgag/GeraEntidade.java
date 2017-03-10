@@ -1,13 +1,15 @@
 package io.gumga.maven.plugins.gumgag;
 
-import io.gumga.domain.GumgaModel;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import javax.persistence.SequenceGenerator;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -85,13 +87,15 @@ public class GeraEntidade extends AbstractMojo {
             getLog().error(ex);
         }
     }
-
+    @Enumerated(EnumType.STRING)
     private Attribute createAttribute(String[] parts) {
         Boolean oneToMany = false;
         Boolean oneToOne = false;
         Boolean manyToOne = false;
         Boolean manyToMany = false;
         Boolean required = false;
+        Boolean enumString = false;
+        Boolean enumOrdinal = false;
 
         if (parts.length > 2) {
             for (int i = 2; i < parts.length; i++) {
@@ -105,11 +109,23 @@ public class GeraEntidade extends AbstractMojo {
                     manyToOne = true;
                 } else if (this.isManyToMany(parts[i])) {
                     manyToMany = true;
+                } else if (this.isEnumString(parts[i])) {
+                    enumString = true;
+                } else if (this.isEnumOrdinal(parts[i])) {
+                    enumOrdinal = true;
                 }
             }
         }
 
-        return new Attribute(parts[0], parts[1], Util.primeiraMaiuscula(parts[0]), oneToMany, oneToOne, manyToOne, manyToMany, required);
+        return new Attribute(parts[0], parts[1], Util.primeiraMaiuscula(parts[0]), oneToMany, oneToOne, manyToOne, manyToMany, required, enumString, enumOrdinal);
+    }
+
+    private boolean isEnumString(String enumString) {
+        return enumString.trim().equalsIgnoreCase("@Enumerated(EnumType.STRING)") ? true : false;
+    }
+
+    private boolean isEnumOrdinal(String enumOrdinal) {
+        return enumOrdinal.trim().equalsIgnoreCase("@Enumerated(EnumType.ORDINAL)") || enumOrdinal.trim().equalsIgnoreCase("@Enumerated") ? true : false;
     }
 
     private boolean isOneToMany(String oneToMany) {

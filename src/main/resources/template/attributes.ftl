@@ -48,6 +48,12 @@
 	<#if "${attribute.manyToMany?c}" == "true">
 	@ManyToMany
 	</#if>
+	<#if "${attribute.enumString?c}" == "true">
+    @Enumerated(EnumType.STRING)
+	</#if>
+	<#if "${attribute.enumOrdinal?c}" == "true">
+    @Enumerated(EnumType.ORDINAL)
+	</#if>
 	<#if "${attribute.type}" != "GumgaAddress" &&
 		 "${attribute.type}" != "GumgaFile" &&
 	     "${attribute.type}" != "GumgaImage" &&

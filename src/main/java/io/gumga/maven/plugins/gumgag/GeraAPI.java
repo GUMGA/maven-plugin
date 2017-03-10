@@ -96,7 +96,7 @@ public class GeraAPI extends AbstractMojo {
 
             List<Attribute> attributesImage = new ArrayList<>();
             for (Field field : gumgaImages) {
-                attributesImage.add(new Attribute(field.getName(), "", Util.primeiraMaiuscula(field.getName()), false, false, false, false, false));
+                attributesImage.add(new Attribute(field.getName(), "", Util.primeiraMaiuscula(field.getName()), false, false, false, false, false, false, false));
             }
             template.add("gumgaImages", attributesImage);
 

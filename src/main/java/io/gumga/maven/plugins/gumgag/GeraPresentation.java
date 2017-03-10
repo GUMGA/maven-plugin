@@ -126,7 +126,6 @@ public class GeraPresentation extends AbstractMojo {
                 }
                 if (atributo.isAnnotationPresent(OneToMany.class)) {
                     dependenciasOneToMany.add(Util.getTipoGenerico(atributo));
-
                 }
                 if (atributo.getType().isEnum()) {
                     dependenciasEnums.add(atributo.getType());
@@ -252,7 +251,7 @@ public class GeraPresentation extends AbstractMojo {
                     }
                     if (atributo.isAnnotationPresent(OneToMany.class)) {
                         dependenciasOneToManyModal.add(Util.getTipoGenerico(atributo));
-                        attributesOneToMany.add(new Attribute(atributo.getName(), "", this.classeEntidade.getSimpleName().toLowerCase(), false, false, false, false, false));
+                        attributesOneToMany.add(new Attribute(atributo.getName(), "", this.classeEntidade.getSimpleName().toLowerCase(), false, false, false, false, false, false, false));
                     }
                     if (atributo.getType().isEnum()) {
                         dependenciasEnumsModal.add(atributo.getType());
@@ -300,7 +299,7 @@ public class GeraPresentation extends AbstractMojo {
 
             List<Attribute> dependenciesManyTo = new ArrayList<>();
             for (Class c : dependenciasManyToX) {
-                dependenciesManyTo.add(new Attribute(c.getSimpleName(), c.getSimpleName().toLowerCase(), Util.primeiroAtributo(c).getName(), false, false, false, false, false));
+                dependenciesManyTo.add(new Attribute(c.getSimpleName(), c.getSimpleName().toLowerCase(), Util.primeiroAtributo(c).getName(), false, false, false, false, false, false, false));
             }
 
             template.add("dependenciesManyTo", dependenciesManyTo);
@@ -316,7 +315,7 @@ public class GeraPresentation extends AbstractMojo {
             List<Attribute> attributes = new ArrayList<>();
             for (Field field : Util.getTodosAtributosMenosIdAutomatico(classeEntidade)) {
                 if (field.getType().equals(Date.class)) {
-                    attributes.add(new Attribute(field.getName(), "opened" + Util.primeiraMaiuscula(field.getName()), this.classeEntidade.getSimpleName().toLowerCase(), false, false, false, false, false));
+                    attributes.add(new Attribute(field.getName(), "opened" + Util.primeiraMaiuscula(field.getName()), this.classeEntidade.getSimpleName().toLowerCase(), false, false, false, false, false, false, false));
                 }
             }
 
@@ -426,8 +425,8 @@ public class GeraPresentation extends AbstractMojo {
             List<Attribute> attributesAdvancedSearchField = new ArrayList<>();
             for (Field field : Util.getTodosAtributosNaoEstaticos(classeEntidade)) {
                 if (!field.getName().equalsIgnoreCase("id")) {
-                    attributesSearchField.add(new Attribute(field.getName(), converteTipoParaAdvanced(field.getType()), field.getName().toLowerCase(), false, false, false, false, false));
-                    attributesAdvancedSearchField.add(new Attribute(field.getName(), converteTipoParaAdvanced(field.getType()), field.getName().toLowerCase(), false, false, false, false, false));
+                    attributesSearchField.add(new Attribute(field.getName(), converteTipoParaAdvanced(field.getType()), field.getName().toLowerCase(), false, false, false, false, false, false, false));
+                    attributesAdvancedSearchField.add(new Attribute(field.getName(), converteTipoParaAdvanced(field.getType()), field.getName().toLowerCase(), false, false, false, false, false, false, false));
                 }
             }
             template.add("attributesSearchField", attributesSearchField);

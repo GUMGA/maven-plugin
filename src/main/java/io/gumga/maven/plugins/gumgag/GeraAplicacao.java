@@ -120,11 +120,11 @@ public class GeraAplicacao extends AbstractMojo {
 
                 if (!attributesToMany.isEmpty()) {
                     for (Field fieldToMany : attributesToMany) {
-                        hibernate01.add(new Attribute(fieldToMany.getName(), "", Util.primeiraMaiuscula(fieldToMany.getName()), false, false, false, false, false));
+                        hibernate01.add(new Attribute(fieldToMany.getName(), "", Util.primeiraMaiuscula(fieldToMany.getName()), false, false, false, false, false, false, false));
 
                         for (Field fieldToMany02 : Util.getTipoGenerico(fieldToMany).getDeclaredFields()) {
                             if (fieldToMany02.isAnnotationPresent(OneToMany.class) || fieldToMany02.isAnnotationPresent(ManyToMany.class)) {
-                                hibernate02.add(new Attribute(Util.getTipoGenerico(fieldToMany).getSimpleName(), Util.primeiraMaiuscula(fieldToMany.getName()), Util.primeiraMaiuscula(fieldToMany02.getName()), false, false, false, false, false));
+                                hibernate02.add(new Attribute(Util.getTipoGenerico(fieldToMany).getSimpleName(), Util.primeiraMaiuscula(fieldToMany.getName()), Util.primeiraMaiuscula(fieldToMany02.getName()), false, false, false, false, false, false, false));
                             }
                         }
                     }
