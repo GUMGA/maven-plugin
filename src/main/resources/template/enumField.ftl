@@ -1,6 +1,12 @@
-	<div gumga-form-class="${attribute.fieldName}">
-		<label gumga-translate-tag="${attribute.entitySimpleNameLowerCase}.${attribute.fieldName}">${attribute.fieldName}</label>
-		<select class="form-control" gumga-error name="${attribute.fieldName}" ng-model="${attribute.entitySimpleNameLowerCase}.data.${attribute.fieldName}">
-			<option  ng-selected="value.value == ${attribute.entitySimpleNameLowerCase}.data.${attribute.fieldName}"  value="{{value.value}}" ng-repeat="value in value${attribute.fieldSimpleNameLowerCase}">{{value.label}}</option>
-		</select>
-	</div>
+	<#--<div gumga-form-class="${attribute.fieldName}">-->
+    <gmd-select
+			ng-model="${attribute.entitySimpleNameLowerCase}.data.${attribute.fieldName}"
+			placeholder="{{'${attribute.fieldName}'|gumgaTranslate:'${attribute.entitySimpleNameLowerCase}'}}">
+        <gmd-option
+				ng-repeat="data in ${attribute.fieldSimpleNameLowerCase}"
+				ng-value="data.value"
+				ng-label="data.label">
+            {{data.label}}
+        </gmd-option>
+    </gmd-select>
+	<#--</div>-->

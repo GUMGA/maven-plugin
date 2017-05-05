@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>br.com.gumga</groupId>
     <artifactId>gumgag</artifactId>
-    <version>1.2.17</version>
+    <version>1.3.6</version>
     <packaging>maven-plugin</packaging>
     
     <name>gumgag Maven Plugin</name>
@@ -14,14 +14,14 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <gumga.framework.version>1.2.17</gumga.framework.version>
+        <gumga.framework.version>1.5.11</gumga.framework.version>
         <github.global.server>github</github.global.server>
     </properties>
 
     <dependencies>
         <!-- DEPENDENCIAS do Framework GUMGA    -->
         <dependency>
-            <groupId>gumga.framework</groupId>
+            <groupId>io.gumga</groupId>
             <artifactId>gumga-domain</artifactId>
             <version>${gumga.framework.version}</version>
         </dependency>
@@ -155,17 +155,6 @@
             </plugin>
         </plugins>
     </build>
-
-    <repositories>
-        <repository>
-            <id>Gumga</id>
-            <url>https://raw.github.com/GUMGA/framework-backend/mvn-repo/</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-        </repository>
-    </repositories>
     
     <distributionManagement>
         <repository>

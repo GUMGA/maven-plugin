@@ -5,39 +5,10 @@
  */
 package br.com.gumga.maven.plugins.gumgag;
 
-import gumga.framework.domain.domains.GumgaAddress;
-import gumga.framework.domain.domains.GumgaBarCode;
-import gumga.framework.domain.domains.GumgaBoolean;
-import gumga.framework.domain.domains.GumgaCEP;
-import gumga.framework.domain.domains.GumgaCNPJ;
-import gumga.framework.domain.domains.GumgaCPF;
-import gumga.framework.domain.domains.GumgaEMail;
-import gumga.framework.domain.domains.GumgaFile;
-import gumga.framework.domain.domains.GumgaGeoLocation;
-import gumga.framework.domain.domains.GumgaIP4;
-import gumga.framework.domain.domains.GumgaIP6;
-import gumga.framework.domain.domains.GumgaImage;
-import gumga.framework.domain.domains.GumgaMoney;
-import gumga.framework.domain.domains.GumgaMultiLineString;
-import gumga.framework.domain.domains.GumgaPhoneNumber;
-import gumga.framework.domain.domains.GumgaTime;
-import gumga.framework.domain.domains.GumgaURL;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import javax.persistence.Column;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.validation.constraints.NotNull;
+import br.com.gumga.freemarker.Attribute;
+import br.com.gumga.freemarker.ConfigurationFreeMarker;
+import br.com.gumga.freemarker.TemplateFreeMarker;
+import io.gumga.domain.domains.*;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -47,19 +18,18 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.w3c.dom.Attr;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.TypeInfo;
-import org.w3c.dom.UserDataHandler;
 
-import br.com.gumga.freemarker.Attribute;
-import br.com.gumga.freemarker.ConfigurationFreeMarker;
-import br.com.gumga.freemarker.TemplateFreeMarker;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.validation.constraints.NotNull;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  *
@@ -176,26 +146,48 @@ public class GeraPresentation extends AbstractMojo {
 
     private void adicionaAoMenu() throws IOException {
 
-        Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/gumga-menu.json", "{",
-                "    {\n"
-                + "        \"label\": \"" + nomeEntidade + "\",\n"
-                + "        \"URL\": \"" + nomeEntidade.toLowerCase() + ".list\",\n"
-                + "        \"key\": \"CRUD-" + nomeEntidade + "\",\n"
-                + "        \"icon\": \"glyphicon glyphicon-user\",\n"
-                + "        \"icon_color\": \"\",\n"
-                + "        \"imageUrl\": \"\",\n"
-                + "        \"imageWidth\": \"\",\n"
-                + "        \"imageHeight\": \"\",\n"
-                + "        \"filhos\": [\n"
-                + "             {\n"
-                + "             \"label\": \" Inserir \",\n"
-                + "             \"URL\": \"" + nomeEntidade.toLowerCase() + ".insert\",\n"
-                + "             \"key\": \"CRUD-" + nomeEntidade + "\",\n"
-                + "             \"icon\": \"glyphicon glyphicon-user\",\n"
-                + "             \"filhos\": []\n"
-                + "             }\n"
-                + "         ]\n"
-                + "    },");
+    	StringBuilder menu = new StringBuilder();
+    	menu.append("	{");
+    	menu.append("		\"type\": \"item\",");
+		menu.append("		\"label\": \""+nomeEntidade+"\",");
+		menu.append("		\"key\": \"CRUD-"+nomeEntidade+"\",");
+		menu.append("		\"children\": [");
+		menu.append("				{");
+		menu.append("					\"type\": \"item\",");
+		menu.append("					\"label\": \"Inserir\",");
+		menu.append("					\"state\": \""+nomeEntidade.toLowerCase()+".insert\",");
+		menu.append("					\"key\": \"CRUD-"+nomeEntidade+"\",");
+		menu.append("				},");
+		menu.append("				{");
+		menu.append("					\"type\": \"item\",");
+		menu.append("					\"label\": \"Listagem\",");
+		menu.append("					\"state\": \""+nomeEntidade.toLowerCase()+".list\",");
+		menu.append("					\"key\": \"CRUD-"+nomeEntidade+"\",");
+		menu.append("				}");
+		menu.append("			]");
+		menu.append("	},");
+
+		Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/gumga-menu.json", "{", menu.toString());
+//        Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/gumga-menu.json", "{",
+//                "    {\n"
+//                + "        \"label\": \"" + nomeEntidade + "\",\n"
+//                + "        \"URL\": \"" + nomeEntidade.toLowerCase() + ".list\",\n"
+//                + "        \"key\": \"CRUD-" + nomeEntidade + "\",\n"
+//                + "        \"icon\": \"glyphicon glyphicon-user\",\n"
+//                + "        \"icon_color\": \"\",\n"
+//                + "        \"imageUrl\": \"\",\n"
+//                + "        \"imageWidth\": \"\",\n"
+//                + "        \"imageHeight\": \"\",\n"
+//                + "        \"filhos\": [\n"
+//                + "             {\n"
+//                + "             \"label\": \" Inserir \",\n"
+//                + "             \"URL\": \"" + nomeEntidade.toLowerCase() + ".insert\",\n"
+//                + "             \"key\": \"CRUD-" + nomeEntidade + "\",\n"
+//                + "             \"icon\": \"glyphicon glyphicon-user\",\n"
+//                + "             \"filhos\": []\n"
+//                + "             }\n"
+//                + "         ]\n"
+//                + "    },");,
 
         Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/app.js", "//FIMROUTE", ""
                 + Util.IDENTACAO04 + Util.IDENTACAO04 + ".state('" + nomeEntidade.toLowerCase() + "', {\n"
@@ -203,7 +195,7 @@ public class GeraPresentation extends AbstractMojo {
                 + Util.IDENTACAO04 + Util.IDENTACAO04 + Util.IDENTACAO04 + "id: 1\n"
                 + Util.IDENTACAO04 + Util.IDENTACAO04 + "}, \n"
                 + Util.IDENTACAO04 + Util.IDENTACAO04 + Util.IDENTACAO04 + "url: '/" + nomeEntidade.toLowerCase() + "',\n"
-                + Util.IDENTACAO04 + Util.IDENTACAO04 + Util.IDENTACAO04 + "templateUrl: 'app/modules/" + nomeEntidade.toLowerCase() + "/views/base.html'\n"
+                + Util.IDENTACAO04 + Util.IDENTACAO04 + Util.IDENTACAO04 + "templateUrl: tempĺateBase\n"
                 + Util.IDENTACAO04 + Util.IDENTACAO04 + "})\n"
                 + "");
 
@@ -587,13 +579,14 @@ public class GeraPresentation extends AbstractMojo {
 
     private void geraViews() {
         try {
-        	
+        	/* 05/05/2017
         	ConfigurationFreeMarker config = new ConfigurationFreeMarker();
 			TemplateFreeMarker template = new TemplateFreeMarker("baseViewPresentation.ftl", config);
 			template.add("entityName", this.nomeEntidade);
 			template.add("entityNameLowerCase", this.nomeEntidade.toLowerCase());
 			
-        	template.generateTemplate(this.pastaViews + "/base.html");  
+        	template.generateTemplate(this.pastaViews + "/base.html");
+        	*/
 
         	
 //            File arquivoModule = new File(pastaViews + "/base.html");

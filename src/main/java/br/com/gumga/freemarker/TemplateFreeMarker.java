@@ -1,18 +1,14 @@
 package br.com.gumga.freemarker;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.util.HashMap;
-import java.util.Map;
-
 import freemarker.core.ParseException;
 import freemarker.template.MalformedTemplateNameException;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateNotFoundException;
+
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TemplateFreeMarker {
 

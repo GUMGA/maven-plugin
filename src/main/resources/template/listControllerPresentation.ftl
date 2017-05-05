@@ -9,6 +9,24 @@ define([], function() {
     ${entityName}Service.resetDefaultState();
     $scope.${entityNameLowerCase}.execute('get');
 
+    $scope.actions = [
+      { key: 'option1', label: 'option1' },
+      { key: 'option2', label: 'option2' }
+    ];
+
+    $scope.search = function(field, param) {
+      $scope.query = { searchFields: [field], q: param }
+      $scope.${entityNameLowerCase}.methods.search(field,param)
+    }
+
+    $scope.advancedSearch = function(param) {
+      $scope.${entityNameLowerCase}.methods.advancedSearch(param)
+    }
+
+    $scope.action = function(queryaction) {
+      console.log(queryaction);
+    }
+
     $scope.tableConfig = {
       columns: '${firstAttribute} ,button',
       checkbox: true,
