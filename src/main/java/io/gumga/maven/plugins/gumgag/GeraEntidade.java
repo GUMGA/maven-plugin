@@ -1,13 +1,15 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package br.com.gumga.maven.plugins.gumgag;
+package io.gumga.maven.plugins.gumgag;
 
-import br.com.gumga.freemarker.Attribute;
-import br.com.gumga.freemarker.ConfigurationFreeMarker;
-import br.com.gumga.freemarker.TemplateFreeMarker;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -16,12 +18,9 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import io.gumga.freemarker.Attribute;
+import io.gumga.freemarker.ConfigurationFreeMarker;
+import io.gumga.freemarker.TemplateFreeMarker;
 
 /**
  *
@@ -65,53 +64,19 @@ public class GeraEntidade extends AbstractMojo {
 
 		getLog().info("Iniciando plugin Gerador de Entidade GUMGA ");
 		getLog().info("Gerando " + nomePacote + "." + nomeEntidade);
-		 File f = new File(pastaClasse);
-		 f.mkdirs();
-		// File arquivoClasse = new File(pastaClasse + "/" + nomeEntidade +
-		// ".java");
+		File f = new File(pastaClasse);
+		f.mkdirs();
 		try {
-			/*
-			 * FileWriter fw = new FileWriter(arquivoClasse);
-			 * Util.escreveCabecario(fw); fw.write("" + "\n" + "package " +
-			 * nomePacote + ";\n\n"); fw.write(
-			 * "import gumga.framework.domain.GumgaModel;\n" //TODO RETIRAR OS
-			 * IMPORTS DESNECESSÁRIOS +
-			 * "import gumga.framework.domain.GumgaMultitenancy;\n" +
-			 * "import java.io.Serializable;\n" + "import java.util.*;\n" +
-			 * "import java.math.BigDecimal;\n" +
-			 * "import javax.persistence.*;\n" +
-			 * "import javax.validation.constraints.*;\n" +
-			 * "import gumga.framework.domain.domains.*;\n" +
-			 * "import org.hibernate.annotations.Columns;\n" +
-			 * "import org.hibernate.search.annotations.Field;\n" +
-			 * "import org.hibernate.search.annotations.Indexed;\n" +
-			 * "import org.hibernate.envers.Audited;\n" +
-			 * "import com.fasterxml.jackson.annotation.JsonIgnore;\n" + "\n");
-			 * 
-			 * fw.write("@GumgaMultitenancy\n"); fw.write(
-			 * "@SequenceGenerator(name = GumgaModel.SEQ_NAME, sequenceName = \"SEQ_"
-			 * + nomeEntidade.toUpperCase() + "\")\n");
-			 * fw.write("//@Indexed\n"); fw.write("@Audited\n");
-			 * fw.write("@Entity\n"); fw.write("public class " + nomeEntidade +
-			 * " extends " + superClasse + " {\n" + "\n"); if
-			 * ("GumgaModel<Long>".equals(superClasse)) { fw.write("" +
-			 * "    @Version\n" + "    private Integer version;\n"); }else{
-			 * fw.write("" + "\n"); } escreveAtributos(fw);
-			 * 
-			 * fw.write("}\n"); fw.close();
-			 */
-
 			ConfigurationFreeMarker config = new ConfigurationFreeMarker();
 			TemplateFreeMarker template = new TemplateFreeMarker("entity.ftl", config);
 			template.add("package", this.nomePacote);
 			template.add("entityName", this.nomeEntidade);
-			template.add("superClass", this.superClasse);		
-			
+			template.add("superClass", this.superClasse);
 
 			List<Attribute> attributes = new ArrayList<>();
 			for (String attribute : this.getAttributes()) {
 				String[] parts = attribute.split(":");
-				
+
 				attributes.add(createAttribute(parts));
 			}
 
@@ -122,31 +87,45 @@ public class GeraEntidade extends AbstractMojo {
 			getLog().error(ex);
 		}
 	}
-
-	
+	@Enumerated(EnumType.STRING)
 	private Attribute createAttribute(String[] parts) {
 		Boolean oneToMany = false;
 		Boolean oneToOne = false;
 		Boolean manyToOne = false;
 		Boolean manyToMany = false;
 		Boolean required = false;
-		
+		Boolean enumString = false;
+		Boolean enumOrdinal = false;
+
 		if (parts.length > 2) {
 			for (int i = 2; i < parts.length; i++) {
-				if (this.isRequired(parts[i]))
+				if (this.isRequired(parts[i])) {
 					required = Boolean.valueOf(parts[i]);
-				else if (this.isOneToMany(parts[i]))
+				} else if (this.isOneToMany(parts[i])) {
 					oneToMany = true;
-				else if (this.isOneToOne(parts[i]))
+				} else if (this.isOneToOne(parts[i])) {
 					oneToOne = true;
-				else if (this.isManyToOne(parts[i]))
+				} else if (this.isManyToOne(parts[i])) {
 					manyToOne = true;
-				else if (this.isManyToMany(parts[i]))
+				} else if (this.isManyToMany(parts[i])) {
 					manyToMany = true;
+				} else if (this.isEnumString(parts[i])) {
+					enumString = true;
+				} else if (this.isEnumOrdinal(parts[i])) {
+					enumOrdinal = true;
+				}
 			}
-		}		
-		
-		return new Attribute(parts[0],  parts[1], Util.primeiraMaiuscula(parts[0]), oneToMany, oneToOne, manyToOne, manyToMany, required);
+		}
+
+		return new Attribute(parts[0], parts[1], Util.primeiraMaiuscula(parts[0]), oneToMany, oneToOne, manyToOne, manyToMany, required, enumString, enumOrdinal);
+	}
+
+	private boolean isEnumString(String enumString) {
+		return enumString.trim().equalsIgnoreCase("@Enumerated(EnumType.STRING)") ? true : false;
+	}
+
+	private boolean isEnumOrdinal(String enumOrdinal) {
+		return enumOrdinal.trim().equalsIgnoreCase("@Enumerated(EnumType.ORDINAL)") || enumOrdinal.trim().equalsIgnoreCase("@Enumerated") ? true : false;
 	}
 
 	private boolean isOneToMany(String oneToMany) {
@@ -155,10 +134,12 @@ public class GeraEntidade extends AbstractMojo {
 
 	private boolean isOneToOne(String oneToOne) {
 		return oneToOne.trim().equalsIgnoreCase("@OneToOne") ? true : false;
-	}	
+	}
+
 	private boolean isManyToOne(String manyToOne) {
 		return manyToOne.trim().equalsIgnoreCase("@ManyToOne") ? true : false;
 	}
+
 	private boolean isManyToMany(String manyToMany) {
 		return manyToMany.trim().equalsIgnoreCase("@ManyToMany") ? true : false;
 	}
@@ -176,8 +157,9 @@ public class GeraEntidade extends AbstractMojo {
 	}
 
 	private String[] getAttributes() {
-		if (this.parametroAtributos == null || this.parametroAtributos.isEmpty())
-			return new String[] {};
+		if (this.parametroAtributos == null || this.parametroAtributos.isEmpty()) {
+			return new String[]{};
+		}
 
 		return this.parametroAtributos.split(",");
 	}
@@ -205,7 +187,7 @@ public class GeraEntidade extends AbstractMojo {
 
 	public void declaraAtributos(String[] atributos, FileWriter fw) throws IOException {
 		for (String atributo : atributos) {
-                    System.out.println("---->"+atributo);
+			System.out.println("---->" + atributo);
 			fw.write(Util.IDENTACAO04 + "//@Field //Descomente para ser utilizado na busca multientidades\n");
 			String partes[] = atributo.split(":");
 			if (partes[1].trim().endsWith("GumgaAddress")) {
@@ -218,12 +200,7 @@ public class GeraEntidade extends AbstractMojo {
 						+ "     @Column(name = \"" + partes[0] + "_country\")\n" + "     })" + "\n");
 			}
 			if (partes[1].trim().endsWith("GumgaTime")) {
-				// fw.write(" @Columns(columns = {\n"
-				// + " @Column(name = \"" + partes[0] + "_hour\"),\n"
-				// + " @Column(name = \"" + partes[0] + "_minute\"),\n"
-				// + " @Column(name = \"" + partes[0] + "_second\")\n"
-				// + " })"
-				// + "\n");
+
 			}
 			if (partes[1].trim().endsWith("GumgaGeoLocation")) {
 				fw.write("     @Columns(columns = {\n" + "     @Column(name = \"" + partes[0] + "_latitude\"),\n"

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.com.gumga.maven.plugins.gumgag;
+package io.gumga.maven.plugins.gumgag;
 
 import java.util.List;
 

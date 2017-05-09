@@ -1,4 +1,4 @@
-package br.com.gumga.freemarker;
+package io.gumga.freemarker;
 
 import freemarker.template.Configuration;
 import freemarker.template.TemplateExceptionHandler;

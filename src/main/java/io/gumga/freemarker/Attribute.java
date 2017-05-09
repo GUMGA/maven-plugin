@@ -1,4 +1,4 @@
-package br.com.gumga.freemarker;
+package io.gumga.freemarker;
 
 public class Attribute {
 
@@ -10,9 +10,11 @@ public class Attribute {
 	private final boolean manyToOne;
 	private final boolean manyToMany;
 	private final boolean required;
+	private final boolean enumString;
+	private final boolean enumOrdinal;
 
 	public Attribute(String name, String type, String nameGettterAndSetter, boolean oneToMany, boolean oneToOne,
-			boolean manyToOne, boolean manyToMany, boolean required) {
+					 boolean manyToOne, boolean manyToMany, boolean required, boolean enumString, boolean enumOrdinal) {
 		this.name = name;
 		this.type = type;
 		this.oneToMany = oneToMany;
@@ -21,6 +23,8 @@ public class Attribute {
 		this.manyToMany = manyToMany;
 		this.required = required;
 		this.nameGettterAndSetter = nameGettterAndSetter;
+		this.enumString = enumString;
+		this.enumOrdinal = enumOrdinal;
 	}
 
 	public String getNameGettterAndSetter() {
@@ -57,5 +61,13 @@ public class Attribute {
 
 	public boolean isOneToOne() {
 		return this.oneToOne;
+	}
+
+	public boolean isEnumString() {
+		return enumString;
+	}
+
+	public boolean isEnumOrdinal() {
+		return enumOrdinal;
 	}
 }

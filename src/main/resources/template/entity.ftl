@@ -1,12 +1,12 @@
 package ${package};
-import gumga.framework.domain.GumgaModel; //TODO RETIRAR OS IMPORTS DESNECESSÁRIOS
-import gumga.framework.domain.GumgaMultitenancy;
+import io.gumga.domain.GumgaModel; //TODO RETIRAR OS IMPORTS DESNECESSÁRIOS
+import io.gumga.domain.GumgaMultitenancy;
 import java.io.Serializable;
 import java.util.*;
 import java.math.BigDecimal;
 import javax.persistence.*;
 import javax.validation.constraints.*;
-import gumga.framework.domain.domains.*;
+import io.gumga.domain.domains.*;
 import org.hibernate.annotations.Columns;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
@@ -14,19 +14,22 @@ import org.hibernate.envers.Audited;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @GumgaMultitenancy
-@SequenceGenerator(name = GumgaModel.SEQ_NAME, sequenceName = "SEQ_${entityName}")
-//@Indexed
 @Audited
-@Entity
+@Entity(name = "${entityName}")
+@Table(name = "${entityName}", indexes = {
+    @Index(name = "${entityName}_gum_oi", columnList = "oi")
+})
+@SequenceGenerator(name = GumgaModel.SEQ_NAME, sequenceName = "SEQ_${entityName}")
 public class ${entityName} extends ${superClass} {
 
 <#if "GumgaModel<Long>" == "${superClass}">
     @Version
+    @Column(name = "version")
     private Integer version;
 </#if>
 <#include "attributes.ftl">
 
-	public ${entityName}() {
-	}
+    public ${entityName}() {
+    }
 <#include "generatorGettersAndSetters.ftl">
 }

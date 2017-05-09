@@ -1,4 +1,4 @@
-package br.com.gumga.maven.plugins.gumgag;
+package io.gumga.maven.plugins.gumgag;
 
 /*
  * Copyright 2001-2005 The Apache Software Foundation.
@@ -15,24 +15,36 @@ package br.com.gumga.maven.plugins.gumgag;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
 
-import javax.persistence.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
-
-import org.apache.maven.plugins.annotations.Parameter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
 
 @Mojo(name = "diagrama", requiresDependencyResolution = ResolutionScope.RUNTIME)
 public class GeraDiagrama extends AbstractMojo {
@@ -84,24 +96,22 @@ public class GeraDiagrama extends AbstractMojo {
         for (File f : pasta.listFiles()) {
             if (f.isDirectory()) {
                 aRetornar.addAll(pesquisaClasses(f));
-            } else {
-                if (f.getName().endsWith(".class")) {
-                    if (f.getName().endsWith("Coisa.class")) {  //PUlA COISA
-                        continue;
+            } else if (f.getName().endsWith(".class")) {
+                if (f.getName().endsWith("Coisa.class")) {  //PUlA COISA
+                    continue;
+                }
+
+                String nomeClasse = transformaEmNomeDeClasse(f);
+                try {
+                    //Class classe = Class.forName(nomeClasse);
+                    Class classe = classLoader.loadClass(nomeClasse);
+
+                    if (classe.isAnnotationPresent(Entity.class)) {
+                        aRetornar.add(classe);
                     }
+                } catch (Exception ex) {
 
-                    String nomeClasse = transformaEmNomeDeClasse(f);
-                    try {
-                        //Class classe = Class.forName(nomeClasse);
-                        Class classe = classLoader.loadClass(nomeClasse);
-
-                        if (classe.isAnnotationPresent(Entity.class)) {
-                            aRetornar.add(classe);
-                        }
-                    } catch (Exception ex) {
-
-                        getLog().error(PREFIXO + " Erro carregando classe " + nomeClasse);
-                    }
+                    getLog().error(PREFIXO + " Erro carregando classe " + nomeClasse);
                 }
             }
         }
@@ -314,7 +324,7 @@ public class GeraDiagrama extends AbstractMojo {
                 }
                 associacoes.add("edge [arrowhead = \"none\" headlabel = \"1\" taillabel = \"1@\"] " + entidade.getSimpleName() + " -> " + tipo + " [label = \"" + nomeAtributo + "\"]");
 
-            } //else 
+            } //else
             {
                 fw.write(nomeAtributo + ":" + tipo + "\\l");
             }

@@ -1,4 +1,4 @@
-package br.com.gumga.freemarker;
+package io.gumga.freemarker;
 
 public class ValueEnum {
 
