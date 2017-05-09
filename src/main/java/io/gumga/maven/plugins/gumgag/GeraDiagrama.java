@@ -324,7 +324,7 @@ public class GeraDiagrama extends AbstractMojo {
                 }
                 associacoes.add("edge [arrowhead = \"none\" headlabel = \"1\" taillabel = \"1@\"] " + entidade.getSimpleName() + " -> " + tipo + " [label = \"" + nomeAtributo + "\"]");
 
-            } //else 
+            } //else
             {
                 fw.write(nomeAtributo + ":" + tipo + "\\l");
             }

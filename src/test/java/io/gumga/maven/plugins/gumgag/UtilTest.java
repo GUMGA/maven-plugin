@@ -3,7 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.com.gumga.maven.plugins.gumgag;
+package io.gumga.maven.plugins.gumgag;
+
+import org.junit.Test;
 
 import io.gumga.maven.plugins.gumgag.Util;
 import java.lang.reflect.Field;
@@ -11,12 +13,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.project.MavenProject;
+
 import static org.junit.Assert.assertEquals;
-import org.junit.Test;
 
 /**
  *

@@ -1,5 +1,5 @@
 
-	<div gumga-form-class="${attribute.fieldName}">
+	<#--<div gumga-form-class="${attribute.fieldName}">-->
 		<label gumga-translate-tag="${attribute.entitySimpleNameLowerCase}.${attribute.fieldName}">${attribute.fieldName}</label>
 	    <gumga-many-to-one
 	            name="${attribute.fieldName}"
@@ -9,4 +9,4 @@
 	            authorize-add="true"
 	            add-method="${attribute.fieldSimpleNameLowerCase}.methods.asyncPost(value, '${firstAttributeOfField}')">
 	    </gumga-many-to-one>
-	</div>
+	<#--</div>-->

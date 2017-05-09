@@ -14,19 +14,21 @@ import org.hibernate.envers.Audited;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @GumgaMultitenancy
-@SequenceGenerator(name = GumgaModel.SEQ_NAME, sequenceName = "SEQ_${entityName}")
 @Audited
-@Entity
-@Table(name = "${entityName}")
+@Entity(name = "${entityName}")
+@Table(name = "${entityName}", indexes = {
+    @Index(name = "${entityName}_gum_oi", columnList = "oi")
+})
+@SequenceGenerator(name = GumgaModel.SEQ_NAME, sequenceName = "SEQ_${entityName}")
 public class ${entityName} extends ${superClass} {
 
 <#if "GumgaModel<Long>" == "${superClass}">
     @Version
+    @Column(name = "version")
     private Integer version;
 </#if>
 <#include "attributes.ftl">
 
-	public ${entityName}() {
-	}
+    public ${entityName}() {}
 <#include "generatorGettersAndSetters.ftl">
 }

@@ -157,26 +157,48 @@ public class GeraPresentation extends AbstractMojo {
 
     private void adicionaAoMenu() throws IOException {
 
-        Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/gumga-menu.json", "{",
-                "    {\n"
-                + "        \"label\": \"" + nomeEntidade + "\",\n"
-                + "        \"URL\": \"" + nomeEntidade.toLowerCase() + ".list\",\n"
-                + "        \"key\": \"CRUD-" + nomeEntidade + "\",\n"
-                + "        \"icon\": \"glyphicon glyphicon-user\",\n"
-                + "        \"icon_color\": \"\",\n"
-                + "        \"imageUrl\": \"\",\n"
-                + "        \"imageWidth\": \"\",\n"
-                + "        \"imageHeight\": \"\",\n"
-                + "        \"filhos\": [\n"
-                + "             {\n"
-                + "             \"label\": \" Inserir \",\n"
-                + "             \"URL\": \"" + nomeEntidade.toLowerCase() + ".insert\",\n"
-                + "             \"key\": \"CRUD-" + nomeEntidade + "\",\n"
-                + "             \"icon\": \"glyphicon glyphicon-user\",\n"
-                + "             \"filhos\": []\n"
-                + "             }\n"
-                + "         ]\n"
-                + "    },");
+        StringBuilder menu = new StringBuilder();
+        menu.append("	{\n");
+        menu.append("		\"type\": \"item\",\n");
+        menu.append("		\"label\": \""+nomeEntidade+"\",\n");
+        menu.append("		\"key\": \"CRUD-"+nomeEntidade+"\",\n");
+        menu.append("		\"children\": [\n");
+        menu.append("				{\n");
+        menu.append("					\"type\": \"item\",\n");
+        menu.append("					\"label\": \"Inserir\",\n");
+        menu.append("					\"state\": \""+nomeEntidade.toLowerCase()+".insert\",\n");
+        menu.append("					\"key\": \"CRUD-"+nomeEntidade+"\"\n");
+        menu.append("				},\n");
+        menu.append("				{\n");
+        menu.append("					\"type\": \"item\",\n");
+        menu.append("					\"label\": \"Listagem\",\n");
+        menu.append("					\"state\": \""+nomeEntidade.toLowerCase()+".list\",\n");
+        menu.append("					\"key\": \"CRUD-"+nomeEntidade+"\"\n");
+        menu.append("				}\n");
+        menu.append("			]\n");
+        menu.append("	},\n");
+
+        Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/gumga-menu.json", "{", menu.toString());
+//        Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/gumga-menu.json", "{",
+//                "    {\n"
+//                + "        \"label\": \"" + nomeEntidade + "\",\n"
+//                + "        \"URL\": \"" + nomeEntidade.toLowerCase() + ".list\",\n"
+//                + "        \"key\": \"CRUD-" + nomeEntidade + "\",\n"
+//                + "        \"icon\": \"glyphicon glyphicon-user\",\n"
+//                + "        \"icon_color\": \"\",\n"
+//                + "        \"imageUrl\": \"\",\n"
+//                + "        \"imageWidth\": \"\",\n"
+//                + "        \"imageHeight\": \"\",\n"
+//                + "        \"filhos\": [\n"
+//                + "             {\n"
+//                + "             \"label\": \" Inserir \",\n"
+//                + "             \"URL\": \"" + nomeEntidade.toLowerCase() + ".insert\",\n"
+//                + "             \"key\": \"CRUD-" + nomeEntidade + "\",\n"
+//                + "             \"icon\": \"glyphicon glyphicon-user\",\n"
+//                + "             \"filhos\": []\n"
+//                + "             }\n"
+//                + "         ]\n"
+//                + "    },");,
 
         Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/app.js", "//FIMROUTE", ""
                 + Util.IDENTACAO04 + Util.IDENTACAO04 + ".state('" + nomeEntidade.toLowerCase() + "', {\n"
@@ -184,7 +206,7 @@ public class GeraPresentation extends AbstractMojo {
                 + Util.IDENTACAO04 + Util.IDENTACAO04 + Util.IDENTACAO04 + "id: 1\n"
                 + Util.IDENTACAO04 + Util.IDENTACAO04 + "}, \n"
                 + Util.IDENTACAO04 + Util.IDENTACAO04 + Util.IDENTACAO04 + "url: '/" + nomeEntidade.toLowerCase() + "',\n"
-                + Util.IDENTACAO04 + Util.IDENTACAO04 + Util.IDENTACAO04 + "templateUrl: 'app/modules/" + nomeEntidade.toLowerCase() + "/views/base.html'\n"
+                + Util.IDENTACAO04 + Util.IDENTACAO04 + Util.IDENTACAO04 + "templateUrl: tempĺateBase\n"
                 + Util.IDENTACAO04 + Util.IDENTACAO04 + "})\n"
                 + "");
 
@@ -388,18 +410,18 @@ public class GeraPresentation extends AbstractMojo {
     }
 
     private void geraViews() {
-        try {
-
-            ConfigurationFreeMarker config = new ConfigurationFreeMarker();
-            TemplateFreeMarker template = new TemplateFreeMarker("baseViewPresentation.ftl", config);
-            template.add("entityName", this.nomeEntidade);
-            template.add("entityNameLowerCase", this.nomeEntidade.toLowerCase());
-
-            template.generateTemplate(this.pastaViews + "/base.html");
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+//		try {
+//
+//			ConfigurationFreeMarker config = new ConfigurationFreeMarker();
+//			TemplateFreeMarker template = new TemplateFreeMarker("baseViewPresentation.ftl", config);
+//			template.add("entityName", this.nomeEntidade);
+//			template.add("entityNameLowerCase", this.nomeEntidade.toLowerCase());
+//
+//			template.generateTemplate(this.pastaViews + "/base.html");
+//
+//		} catch (Exception ex) {
+//			ex.printStackTrace();
+//		}
         try {
             ConfigurationFreeMarker config = new ConfigurationFreeMarker();
             TemplateFreeMarker template = new TemplateFreeMarker("formViewPresentation.ftl", config);
@@ -877,13 +899,13 @@ public class GeraPresentation extends AbstractMojo {
             )) {
                 fw.write(
                         ""
-                        + "        <div class=\"col-md-6\">\n"
-                        + "            <label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + Util.getTipoGenerico(atributo).getSimpleName().toLowerCase() + ".title\"></label>\n"
-                        + "        </div>\n"
-                        + "        <div class=\"col-md-6\">\n"
-                        + "            <label for=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\" gumga-translate-tag=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\"></label>\n"
-                        + "        </div>"
-                        + "\n");
+                                + "        <div class=\"col-md-6\">\n"
+                                + "            <label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + Util.getTipoGenerico(atributo).getSimpleName().toLowerCase() + ".title\"></label>\n"
+                                + "        </div>\n"
+                                + "        <div class=\"col-md-6\">\n"
+                                + "            <label for=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\" gumga-translate-tag=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\"></label>\n"
+                                + "        </div>"
+                                + "\n");
 
                 fw.write(Util.IDENTACAO08
                         + "<div class=\"full-width-without-padding\">\n"
@@ -910,13 +932,13 @@ public class GeraPresentation extends AbstractMojo {
                         + Util.IDENTACAO04 + "<label for=\"" + atributo.getName() + "\"  gumga-translate-tag=\"" + classeEntidade.getSimpleName().toLowerCase() + "." + atributo.getName() + "\"></label>\n");
                 fw.write(
                         "<gumga-one-to-many\n"
-                        + "     children=\"entity." + atributo.getName() + "\"\n"
-                        + "     template-url=\"app/modules/" + atributo.getDeclaringClass().getSimpleName().toLowerCase() + "/views/modal" + Util.getTipoGenerico(atributo).getSimpleName() + ".html\"\n"
-                        + "     displayable-property=\"" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName().toLowerCase() + "\"\n"
-                        + "     controller=\"Modal" + Util.getTipoGenerico(atributo).getSimpleName() + "Controller\">"
-                        + "</gumga-one-to-many>\n"
-                        + "</div>"
-                        + "\n");
+                                + "     children=\"entity." + atributo.getName() + "\"\n"
+                                + "     template-url=\"app/modules/" + atributo.getDeclaringClass().getSimpleName().toLowerCase() + "/views/modal" + Util.getTipoGenerico(atributo).getSimpleName() + ".html\"\n"
+                                + "     displayable-property=\"" + Util.primeiroAtributo(Util.getTipoGenerico(atributo)).getName().toLowerCase() + "\"\n"
+                                + "     controller=\"Modal" + Util.getTipoGenerico(atributo).getSimpleName() + "Controller\">"
+                                + "</gumga-one-to-many>\n"
+                                + "</div>"
+                                + "\n");
 
             } else if ("gumgaCustomFields".equals(atributo.getName())) {
                 fw.write(""
@@ -1107,9 +1129,9 @@ public class GeraPresentation extends AbstractMojo {
         if (atributo.isAnnotationPresent(NotNull.class
         )
                 || atributo.isAnnotationPresent(NotEmpty.class
-                )
+        )
                 || atributo.isAnnotationPresent(NotBlank.class
-                )) {
+        )) {
             if (!GumgaBoolean.class.equals(atributo.getType())) {
                 aRetornar += " gumga-required ";
             }

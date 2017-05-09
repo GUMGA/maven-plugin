@@ -1,11 +1,15 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package io.gumga.maven.plugins.gumgag;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.project.MavenProject;
+
+import javax.persistence.GeneratedValue;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -13,15 +17,7 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.persistence.GeneratedValue;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.project.MavenProject;
+import java.util.*;
 
 /**
  *
@@ -74,7 +70,7 @@ public class Util {
         if (aRemoverVersion != null) {
             todosAtributos.remove(aRemoverVersion);
         }
-        if (aRemoverGumgaCustomFields != null) {
+        if (aRemoverGumgaCustomFields!=null){
             todosAtributos.remove(aRemoverGumgaCustomFields);
             todosAtributos.add(aRemoverGumgaCustomFields);
             System.out.println(todosAtributos);
@@ -211,53 +207,12 @@ public class Util {
                 + "\n");
     }
 
-    public static String dependenciasSeparadasPorVirgula(Set<Class> dependencias, String sufixo, boolean apostrofe) {
+    public static String dependenciasSeparadasPorVirgula(Set<Class> dependencias,String sufixo,boolean apostrofe) {
         StringBuilder sb = new StringBuilder();
-        for (Class clazz : dependencias) {
-            sb.append(", " + (apostrofe ? "'" : "") + clazz.getSimpleName() + sufixo + (apostrofe ? "'" : ""));
+        for (Class clazz:dependencias) {
+            sb.append(", "+(apostrofe?"'":"")+clazz.getSimpleName()+sufixo+(apostrofe?"'":"") );
         }
         return sb.toString();
     }
 
 }
-
-/*
-
- mvn archetype:generate -DinteractiveMode=false -DarchetypeGroupId=ex.empresa  -DarchetypeArtifactId=sistema-archetype  -DgroupId=br.com.gumga -DartifactId=exemplodominios -Dversion=0.1
- cd exemplodominios
- mvn clean install
- cd exemplodominios-domain 
- mvn br.com.gumga:gumgag:entidade -Dentidade=br.com.gumga.exemplodominios.domain.model.Teste -Datributos="nome:String,logico:io.gumga.domain.domains.GumgaBoolean,cep:io.gumga.domain.domains.GumgaCEP,cnpj:io.gumga.domain.domains.GumgaCNPJ,cpf:io.gumga.domain.domains.GumgaCPF,email:io.gumga.domain.domains.GumgaEMail,ip4:io.gumga.domain.domains.GumgaIP4,ip6:io.gumga.domain.domains.GumgaIP6,money:io.gumga.domain.domains.GumgaMoney,multiLine:io.gumga.domain.domains.GumgaMultiLineString,telefone:io.gumga.domain.domains.GumgaPhoneNumber,url:io.gumga.domain.domains.GumgaURL"
- mvn br.com.gumga:gumgag:entidade -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteAddress -Datributos="residencial:io.gumga.domain.domains.GumgaAddress,comercial:io.gumga.domain.domains.GumgaAddress"
- mvn br.com.gumga:gumgag:entidade -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteGeo     -Datributos="location:io.gumga.domain.domains.GumgaGeoLocation"
- mvn br.com.gumga:gumgag:entidade -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteFile    -Datributos="file:io.gumga.domain.domains.GumgaFile"
- mvn br.com.gumga:gumgag:entidade -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteImage   -Datributos="image:io.gumga.domain.domains.GumgaImage"
- mvn br.com.gumga:gumgag:entidade -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteTime    -Datributos="horario:io.gumga.domain.domains.GumgaTime"
- mvn br.com.gumga:gumgag:entidade -Dentidade=br.com.gumga.exemplodominios.domain.model.Usuario      -Datributos="nome:String"
- mvn br.com.gumga:gumgag:entidade -Dentidade=br.com.gumga.exemplodominios.domain.model.GrupoUsuario -Datributos="nome:String,usuarios:List<Usuario>:@ManyToMany"
-
- mvn clean install
- cd ..
- cd exemplodominios-application
- mvn br.com.gumga:gumgag:aplicacao -Dentidade=br.com.gumga.exemplodominios.domain.model.Teste
- mvn br.com.gumga:gumgag:aplicacao -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteAddress 
- mvn br.com.gumga:gumgag:aplicacao -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteGeo 
- mvn br.com.gumga:gumgag:aplicacao -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteFile 
- mvn br.com.gumga:gumgag:aplicacao -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteImage  
- mvn br.com.gumga:gumgag:aplicacao -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteTime  
- mvn br.com.gumga:gumgag:aplicacao -Dentidade=br.com.gumga.exemplodominios.domain.model.Usuario      
- mvn br.com.gumga:gumgag:aplicacao -Dentidade=br.com.gumga.exemplodominios.domain.model.GrupoUsuario 
-
- cd ..
- cd exemplodominios-presentation
- mvn br.com.gumga:gumgag:apresentacao -Dentidade=br.com.gumga.exemplodominios.domain.model.Teste
- mvn br.com.gumga:gumgag:apresentacao -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteAddress 
- mvn br.com.gumga:gumgag:apresentacao -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteGeo 
- mvn br.com.gumga:gumgag:apresentacao -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteFile
- mvn br.com.gumga:gumgag:apresentacao -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteImage  
- mvn br.com.gumga:gumgag:apresentacao -Dentidade=br.com.gumga.exemplodominios.domain.model.TesteTime  
- mvn br.com.gumga:gumgag:apresentacao -Dentidade=br.com.gumga.exemplodominios.domain.model.Usuario  
- mvn br.com.gumga:gumgag:apresentacao -Dentidade=br.com.gumga.exemplodominios.domain.model.GrupoUsuario  
- cd ..
- mvn clean install
- */

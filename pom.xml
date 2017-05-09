@@ -4,7 +4,8 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.gumga</groupId>
     <artifactId>gumgag</artifactId>
-    <version>1.3.5</version>
+    <version>1.3.6</version>
+
     <packaging>maven-plugin</packaging>
 
     <name>gumgag Maven Plugin</name>
@@ -276,5 +277,5 @@
         </plugins>
     -->
 
-
 </project>
+
