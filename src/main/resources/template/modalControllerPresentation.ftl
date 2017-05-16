@@ -12,9 +12,8 @@ define([], function() {
   	  </#list>
   
   	  <#list dpManyToOne as dp>
-
-      gumgaController.createRestMethods($scope, ${dp.simpleName}Service, '${dp.simpleName?lower_case}');
-      $scope.${dp.simpleName?lower_case}.methods.search('','')
+      gumgaController.createRestMethods($scope, ${dp.nameGettterAndSetter}Service, '${dp.nameGettterAndSetter?lower_case}');
+      $scope.${dp.nameGettterAndSetter?lower_case}.methods.search('${dp.name}','')
 
 	  </#list>
   

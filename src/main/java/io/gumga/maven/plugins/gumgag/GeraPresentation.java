@@ -252,7 +252,7 @@ public class GeraPresentation extends AbstractMojo {
             }
 
             for (Class classe : dependenciasOneToMany) {
-                Set<Class> dependenciasManyToOneModal = new HashSet<>();
+                Set<Attribute> dependenciasManyToOneModal = new HashSet<>();
                 Set<Class> dependenciasOneToManyModal = new HashSet<>();
                 Set<Class> dependenciasManyToManyModal = new HashSet<>();
                 Set<Field> atributosGumgaImageModal = new HashSet<>();
@@ -261,12 +261,19 @@ public class GeraPresentation extends AbstractMojo {
                 String fieldName = "";
                 String entitySimpleNameLowerCase = "";
 
+
+
                 for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classe)) {
+
                     if (atributo.isAnnotationPresent(OneToOne.class)) {
-                        dependenciasManyToOneModal.add(atributo.getType());
+                        Field field = Util.primeiroAtributo(atributo.getType());
+                        dependenciasManyToOneModal.add(new Attribute(field.getName(), "", atributo.getType().getSimpleName(), false, false, false, false, false, false, false));
+//                        dependenciasManyToOneModal.add(atributo.getType());
                     }
                     if (atributo.isAnnotationPresent(ManyToOne.class)) {
-                        dependenciasManyToOneModal.add(atributo.getType());
+                        Field field = Util.primeiroAtributo(atributo.getType());
+                        dependenciasManyToOneModal.add(new Attribute(field.getName(), "", atributo.getType().getSimpleName(), false, false, false, false, false, false, false));
+//                        dependenciasManyToOneModal.add(atributo.getType());
                     }
                     if (atributo.isAnnotationPresent(ManyToMany.class)) {
                         dependenciasManyToManyModal.add(Util.getTipoGenerico(atributo));
@@ -285,9 +292,9 @@ public class GeraPresentation extends AbstractMojo {
 
                 String injectManyToOne = "";
                 String injectControllerManyToOne = "";
-                for (Class dp : dependenciasManyToOneModal) {
-                    injectManyToOne += ",'" + dp.getSimpleName() + "Service'";
-                    injectControllerManyToOne += "," + dp.getSimpleName() + "Service";
+                for (Attribute dp : dependenciasManyToOneModal) {
+                    injectManyToOne += ",'" + dp.getNameGetterAndSetter() + "Service'";
+                    injectControllerManyToOne += "," + dp.getNameGetterAndSetter() + "Service";
                 }
 
                 config = new ConfigurationFreeMarker();

@@ -51,28 +51,17 @@
 
                 <div class="row">
                     <div class="col-sm-12">
-                        <gumga-list sort="${entityNameLowerCase}.methods.sort(field, dir)"
-                                    class="table-striped table-condensed"
+                        <gumga-list class="table-striped table-condensed"
+                                    sort="${entityNameLowerCase}.methods.sort(field, dir)"
                                     data="${entityNameLowerCase}.data"
-                                    configuration="tableConfig">
+                                    configuration="tableConfig"
+                                    page-size="${entityNameLowerCase}.pageSize"
+                                    page-position="bottom"
+                                    page-align="flex-end"
+                                    count="${entityNameLowerCase}.count"
+                                    page-model="page"
+                                    on-page-change="${entityNameLowerCase}.methods.get(page, pageSize)">
                         </gumga-list>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-sm-12">
-                        <ul uib-pagination
-                            ng-model="page"
-                            max-size="10"
-                            boundary-links="true"
-                            previous-text="‹"
-                            next-Text="›"
-                            first-text="«"
-                            last-text="»"
-                            items-per-page="${entityNameLowerCase}.pageSize"
-                            total-items="${entityNameLowerCase}.count"
-                            ng-change="${entityNameLowerCase}.methods.get(page)">
-                        </ul>
                     </div>
                 </div>
             </div>

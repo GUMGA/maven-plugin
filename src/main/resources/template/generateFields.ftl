@@ -1,4 +1,7 @@
 <#list attributes as attribute>
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group">
 	<#switch attribute.type>
 		<#case "manyToOne">
 		
@@ -92,4 +95,7 @@
 		
 		<#include "defaultField.ftl">
 	</#switch>
+        </div>
+    </div>
+</div>
 </#list>

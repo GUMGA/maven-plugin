@@ -7,7 +7,7 @@
 	    </div>
 	    <div class="clearfix"></div>
 	    <div class="modal-footer">
-	        <button type="button" class="btn btn-primary" ng-click="ok(${entityName}.data)" ng-disabled="Modal.$invalid">OK</button>
-	        <button type="button" class="btn btn-warning" ng-click="cancel()">Cancel</button>
+	        <button type="button" class="btn gmd raised btn-primary" ng-click="ok(${entityName}.data)" ng-disabled="Modal.$invalid">OK</button>
+	        <button type="button" class="btn gmd raised btn-warning" ng-click="cancel()">Cancel</button>
 	    </div>
 	</form>

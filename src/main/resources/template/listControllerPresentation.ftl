@@ -9,6 +9,10 @@ define([], function() {
     ${entityName}Service.resetDefaultState();
     $scope.${entityNameLowerCase}.execute('get');
 
+    $scope.${entityNameLowerCase}.on('deleteSuccess', function() {
+      $scope.${entityNameLowerCase}.execute('get');
+    });
+
     $scope.actions = [
       { key: 'option1', label: 'option1' },
       { key: 'option2', label: 'option2' }
@@ -30,6 +34,9 @@ define([], function() {
     $scope.tableConfig = {
       columns: '${firstAttribute} ,button',
       checkbox: true,
+      selection: 'multi',
+      materialTheme: true,
+      itemsPerPage: [5, 10, 15, 30],
       columnsConfig: [{
         name: '${firstAttribute}',
         title: '<span gumga-translate-tag="${entityNameLowerCase}.${firstAttribute}"> ${firstAttribute} </span>',
