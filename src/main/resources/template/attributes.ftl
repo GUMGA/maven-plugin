@@ -10,7 +10,11 @@
     @Column(name = "${attribute.name}_neighbourhood"),
     @Column(name = "${attribute.name}_localization"),
     @Column(name = "${attribute.name}_state"),
-    @Column(name = "${attribute.name}_country")
+    @Column(name = "${attribute.name}_country"),
+    @Column(name = "${attribute.name}_latitude"),
+    @Column(name = "${attribute.name}_longitude"),
+    @Column(name = "${attribute.name}_formal_code"),
+    @Column(name = "${attribute.name}_state_code")
     })
 	</#if>
 	<#if "${attribute.type}" == "GumgaFile" || "${attribute.type}" == "GumgaImage">

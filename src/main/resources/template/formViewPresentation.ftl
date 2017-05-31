@@ -8,6 +8,7 @@
                     <#include "generateFields.ftl">
                     <gumga-errors label="Lista de erros" title="Lista de erros"></gumga-errors>
                     <gumga-form-buttons
+                            class="gmd raised"
                             back="${entityNameLowerCase}.list"
                             submit="${entityNameLowerCase}.methods.put(${entityNameLowerCase}.data)"
                             position="right"

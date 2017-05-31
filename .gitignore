@@ -9,3 +9,4 @@
 nb_jr_remoting.cfg
 nbactions.xml
 rebel.xml
+src/main/resources/rebel.xml
