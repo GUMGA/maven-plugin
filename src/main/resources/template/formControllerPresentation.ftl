@@ -13,7 +13,9 @@ define([], function() {
 
 	    <#list dependenciesManyTo as d>
 	    gumgaController.createRestMethods($scope, ${d.name}Service, '${d.type}');
-	    $scope.${d.type}.methods.search('${d.nameGettterAndSetter}','');    
+	    $scope.${d.type}.methods.search('${d.nameGettterAndSetter}','');
+
+        $scope.${d.type}Config = {};
 	    </#list>
 
 	    <#list attributesNotStatic as attribute>
@@ -30,6 +32,18 @@ define([], function() {
 		</#list>      
 		<#list oneToManys as oneToMany>
 		$scope.${entityNameLowerCase}.data.${oneToMany} = $scope.${entityNameLowerCase}.data.${oneToMany} || [];
+
+        $scope.${oneToMany}Config = {
+			ngModel: '${entityNameLowerCase}.data.${oneToMany}',
+			options: {
+				type: 'array',
+				message: 'Its not array',
+				empty: {
+					value: false,
+					message: 'Is Empty'
+				}
+			}
+        };
 		</#list>
 		$scope.continue = {};
 	

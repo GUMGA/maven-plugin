@@ -9,6 +9,7 @@
 	            field="${attribute.firstAttributeOfField}"
 	            authorize-add="false"
 	            display-info="false"
+                gumga-model-error="${attribute.fieldSimpleNameLowerCase}Config"
 	            post-method="${attribute.fieldSimpleNameLowerCase}.methods.asyncPost(value, '${attribute.firstAttributeOfField}')">
 	    </gumga-many-to-one>
 	<#--</div>-->

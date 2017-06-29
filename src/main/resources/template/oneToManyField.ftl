@@ -6,6 +6,7 @@
 		        children="${attribute.entitySimpleNameLowerCase}.data.${attribute.fieldName}"
 		        template-url="app/modules/${attribute.declaringClassSimpleNameLowerCase}/views/modal${attribute.typeGenericSimpleNameOfField}.html"
 		        displayable-property="${attribute.firstAttributeTypeGenericNameLowerCase}"
+                gumga-model-error="${attribute.fieldName}Config"
 		        controller="Modal${attribute.typeGenericSimpleNameOfField}Controller">
 		</gumga-one-to-many>
 	</div>

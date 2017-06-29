@@ -9,11 +9,12 @@
 
 	<div class="full-width-without-padding">
 	    <gumga-many-to-many 
-	            left-list="${attribute.typeGenericSimpleNameOfFieldLowerCase}.data" 
-	            right-list="${attribute.entitySimpleNameLowerCase}.data.${attribute.fieldName}" 
+	            left-list="${attribute.typeGenericSimpleNameOfFieldLowerCase}.data"
+	            right-list="${attribute.entitySimpleNameLowerCase}.data.${attribute.fieldName}"
 	            left-search="${attribute.typeGenericSimpleNameOfFieldLowerCase}.methods.asyncSearch('${attribute.firstAttributeTypeGeneric}', param)"
 	            filter-parameters="${attribute.firstAttributeTypeGeneric}"
 	            post-method="${attribute.typeGenericSimpleNameOfFieldLowerCase}.methods.save(value)"
+                gumga-model-error="${attribute.typeGenericSimpleNameOfFieldLowerCase}Config"
 	            authorize-add="true">
 	        <left-field>{{$value.${attribute.firstAttributeTypeGeneric}}}</left-field>
 	        <right-field>{{$value.${attribute.firstAttributeTypeGeneric}}}</right-field>
