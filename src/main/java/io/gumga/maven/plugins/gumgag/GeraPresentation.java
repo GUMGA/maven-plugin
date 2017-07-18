@@ -80,6 +80,8 @@ public class GeraPresentation extends AbstractMojo {
     private String pastaViews;
     private String pastaI18n;
 
+    private Boolean isWebpack;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         Util.geraGumga(getLog());
@@ -92,6 +94,10 @@ public class GeraPresentation extends AbstractMojo {
 
             pastaApp = Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/modules/" + (nomeEntidade.toLowerCase());
 
+            isWebpack = pastaApp.indexOf("presentation-webpack") != -1;
+
+            System.out.println("WEBPACK: "+isWebpack);
+            
             getLog().info("Iniciando plugin Gerador de Html e JavaScript de Apresentação oi");
             getLog().info("Gerando para " + nomeEntidade);
 
@@ -210,7 +216,11 @@ public class GeraPresentation extends AbstractMojo {
                 + Util.IDENTACAO04 + Util.IDENTACAO04 + "})\n"
                 + "");
 
-        Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/app.js", "//FIMREQUIRE", Util.IDENTACAO04 + "require('app/modules/" + nomeEntidade.toLowerCase() + "/module');");
+        if(isWebpack){
+            Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/import-modules.js", "//FIMREQUIRE", "require('./modules/" + nomeEntidade.toLowerCase() + "/module');");
+        }else{
+            Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/app.js", "//FIMREQUIRE", Util.IDENTACAO04 + "require('app/modules/" + nomeEntidade.toLowerCase() + "/module');");
+        }
 
         Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/app.js", "//FIMINJECTIONS", Util.IDENTACAO04 + Util.IDENTACAO04 + ",'app." + nomeEntidade.toLowerCase() + "'");
 
@@ -221,7 +231,7 @@ public class GeraPresentation extends AbstractMojo {
     private void geraControllers() {
         try {
             ConfigurationFreeMarker config = new ConfigurationFreeMarker();
-            TemplateFreeMarker template = new TemplateFreeMarker("moduleControllerPresentation.ftl", config);
+            TemplateFreeMarker template = new TemplateFreeMarker(isWebpack ? "moduleControllerPresentationWebpack.ftl" : "moduleControllerPresentation.ftl", config);
             template.add("entityName", this.nomeEntidade);
             template.add("entityNameLowerCase", this.nomeEntidade.toLowerCase());
             List<String> controllers = new ArrayList<>();
@@ -236,7 +246,7 @@ public class GeraPresentation extends AbstractMojo {
         }
         try {
             ConfigurationFreeMarker config = new ConfigurationFreeMarker();
-            TemplateFreeMarker template = new TemplateFreeMarker("listControllerPresentation.ftl", config);
+            TemplateFreeMarker template = new TemplateFreeMarker(isWebpack ? "listControllerPresentationWebpack.ftl" : "listControllerPresentation.ftl", config);
             template.add("entityName", this.nomeEntidade);
             template.add("entityNameLowerCase", this.nomeEntidade.toLowerCase());
             template.add("firstAttribute", Util.primeiroAtributo(classeEntidade).getName());
@@ -245,9 +255,8 @@ public class GeraPresentation extends AbstractMojo {
             for (Field field : Util.getTodosAtributosMenosIdAutomatico(this.classeEntidade)) {
                 if (getAttributeType(field).equals("oneToMany")) {
                     config = new ConfigurationFreeMarker();
-                    template = new TemplateFreeMarker("modalControllerPresentation.ftl", config);
+                    template = new TemplateFreeMarker(isWebpack ? "modalControllerPresentationWebpack.ftl" : "modalControllerPresentation.ftl", config);
                     template.add("entityName", Util.getTipoGenerico(field).getSimpleName().trim());
-
                 }
             }
 
@@ -298,7 +307,7 @@ public class GeraPresentation extends AbstractMojo {
                 }
 
                 config = new ConfigurationFreeMarker();
-                template = new TemplateFreeMarker("modalControllerPresentation.ftl", config);
+                template = new TemplateFreeMarker(isWebpack ? "modalControllerPresentationWebpack.ftl" : "modalControllerPresentation.ftl", config);
                 template.add("entityName", classe.getSimpleName().trim());
                 template.add("dpManyToOne", dependenciasManyToOneModal);
                 template.add("injectManyToOne", injectManyToOne);
@@ -320,7 +329,7 @@ public class GeraPresentation extends AbstractMojo {
             dependenciasManyToX.addAll(dependenciasManyToOne);
 
             ConfigurationFreeMarker config = new ConfigurationFreeMarker();
-            TemplateFreeMarker template = new TemplateFreeMarker("formControllerPresentation.ftl", config);
+            TemplateFreeMarker template = new TemplateFreeMarker(isWebpack ? "formControllerPresentationWebpack.ftl" : "formControllerPresentation.ftl", config);
             template.add("entityName", this.nomeEntidade);
             template.add("entityNameLowerCase", this.nomeEntidade.toLowerCase());
             template.add("dependenciesInject", Util.dependenciasSeparadasPorVirgula(dependenciasManyToX, "Service", true));
@@ -393,7 +402,7 @@ public class GeraPresentation extends AbstractMojo {
     private void geraServices() {
         try {
             ConfigurationFreeMarker config = new ConfigurationFreeMarker();
-            TemplateFreeMarker template = new TemplateFreeMarker("moduleServicePresentation.ftl", config);
+            TemplateFreeMarker template = new TemplateFreeMarker(isWebpack ? "moduleServicePresentationWebpack.ftl" : "moduleServicePresentation.ftl", config);
             template.add("entityName", this.nomeEntidade);
             template.add("entityNameLowerCase", this.nomeEntidade.toLowerCase());
 
@@ -404,7 +413,7 @@ public class GeraPresentation extends AbstractMojo {
         }
         try {
             ConfigurationFreeMarker config = new ConfigurationFreeMarker();
-            TemplateFreeMarker template = new TemplateFreeMarker("servicePresentation.ftl", config);
+            TemplateFreeMarker template = new TemplateFreeMarker(isWebpack ? "servicePresentationWebpack.ftl" : "servicePresentation.ftl", config);
             template.add("entityName", this.nomeEntidade);
             template.add("entityNameLowerCase", this.nomeEntidade.toLowerCase());
 
@@ -1150,12 +1159,10 @@ public class GeraPresentation extends AbstractMojo {
     private void geraModule() {
         try {
             ConfigurationFreeMarker config = new ConfigurationFreeMarker();
-            TemplateFreeMarker template = new TemplateFreeMarker("modulePresentation.ftl", config);
+            TemplateFreeMarker template = new TemplateFreeMarker(isWebpack ? "modulePresentationWebpack.ftl" : "modulePresentation.ftl", config);
             template.add("entityName", this.nomeEntidade);
             template.add("entityNameLowerCase", this.nomeEntidade.toLowerCase());
-
             template.generateTemplate(this.pastaApp + "/module.js");
-
         } catch (Exception ex) {
             ex.printStackTrace();
         }
