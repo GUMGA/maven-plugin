@@ -26,7 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("${uriBase}")
 @Transactional
-public class ${entityName}API extends GumgaAPI<${entityName}, Long> {
+public class ${entityName}API extends GumgaAPI<${entityName}, String> {
 
 <#if "${gumgaImage?c}" == "true">
 @Autowired

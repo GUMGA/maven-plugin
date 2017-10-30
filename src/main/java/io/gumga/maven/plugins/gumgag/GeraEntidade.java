@@ -41,7 +41,8 @@ public class GeraEntidade extends AbstractMojo {
 	@Parameter(property = "atributos", defaultValue = "")
 	private String parametroAtributos;
 
-	@Parameter(property = "super", defaultValue = "GumgaModel<Long>")
+//	@Parameter(property = "super", defaultValue = "GumgaModel<Long>")
+	@Parameter(property = "super", defaultValue = "GumgaModelUUID")
 	private String superClasse;
 	private String nomeEntidade;
 	private String nomePacote;

@@ -91,7 +91,7 @@ public class GeraGateway extends AbstractMojo {
                     + "import io.gumga.presentation.GumgaGateway;\n"
                     + "\n"
                     + "@Component\n"
-                    + "public class " + nomeEntidade + "Gateway extends GumgaGateway<" + nomeCompletoEntidade + ", Long, " + nomePacoteDto + "." + nomeEntidade + "DTO> {\n"
+                    + "public class " + nomeEntidade + "Gateway extends GumgaGateway<" + nomeCompletoEntidade + ", String, " + nomePacoteDto + "." + nomeEntidade + "DTO> {\n"
                     + "\n"
                     + "}\n"
                     + "\n");
@@ -208,7 +208,7 @@ public class GeraGateway extends AbstractMojo {
                     + "import " + nomePacoteDto + "." + nomeEntidade + "DTO;\n"
                     + "\n"
                     + "@Component\n"
-                    + "public class " + nomeEntidade + "Translator extends GumgaTranslator<" + nomeEntidade + ", " + nomeEntidade + "DTO> {\n"
+                    + "public class " + nomeEntidade + "Translator extends GumgaTranslator<" + nomeEntidade + ", " + nomeEntidade + "DTO, String> {\n"
                     + "\n"
                     + "    @Override\n"
                     + "    public " + nomeEntidade + " to(" + nomeEntidade + "DTO dto) {\n"

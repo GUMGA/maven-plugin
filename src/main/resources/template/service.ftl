@@ -18,15 +18,15 @@ ${import}
 
 @Service
 @Transactional
-public class ${serviceName}Service extends GumgaService<${serviceName}, Long> {
+public class ${serviceName}Service extends GumgaService<${serviceName}, String> {
 
     private final static Logger LOG = LoggerFactory.getLogger(${serviceName}Service.class);
-    private final ${serviceName}Repository repository;
+    private final ${serviceName}Repository repository${serviceName};
 
     @Autowired
     public ${serviceName}Service(${serviceName}Repository repository) {
         super(repository);
-        this.repository = repository;
+        this.repository${serviceName} = repository;
     }
 
 <#if "${attributesToMany?c}" == "true">
