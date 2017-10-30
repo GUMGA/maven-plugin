@@ -2,5 +2,7 @@ package ${package};
 
 import io.gumga.domain.repository.GumgaCrudRepository;
 import ${packageEntity};
+import org.springframework.stereotype.Repository;
 
-public interface ${repositoryName}Repository extends GumgaCrudRepository<${repositoryName}, Long> {}
+@Repository
+public interface ${repositoryName}Repository extends GumgaCrudRepository<${repositoryName}, String> {}
