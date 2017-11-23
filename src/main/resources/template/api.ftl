@@ -34,13 +34,13 @@ private GumgaTempFileService gumgaTempFileService;
 </#if>
 
 @Autowired
-public ${entityName}API(GumgaService<${entityName}, Long> service) {
+public ${entityName}API(GumgaService<${entityName}, String> service) {
     super(service);
 }
 
 <#list attributes as attribute>
 @Override
-public ${entityName} load(@PathVariable Long id) {
+public ${entityName} load(@PathVariable String id) {
     return ((${entityName}Service)service).load${entityName}Fat(id);
 }
 
@@ -84,7 +84,7 @@ return super.save(obj, result);
 @Override
 @Transactional
 @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = "application/json")
-public RestResponse<${entityName}> update(Long id, @RequestBody @Valid ${entityName} obj, BindingResult result) {
+public RestResponse<${entityName}> update(String id, @RequestBody @Valid ${entityName} obj, BindingResult result) {
     <#list gumgaImages as gumgaImage>
     if (obj.getFoto()!= null) {
         if ("null".equals(obj.get${gumgaImage.nameGettterAndSetter}().getName())) {
