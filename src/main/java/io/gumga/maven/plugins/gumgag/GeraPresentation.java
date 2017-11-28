@@ -174,26 +174,7 @@ public class GeraPresentation extends AbstractMojo {
         menu.append("	},\n");
 
         Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/gumga-menu.json", "{", menu.toString());
-//        Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/gumga-menu.json", "{",
-//                "    {\n"
-//                + "        \"label\": \"" + nomeEntidade + "\",\n"
-//                + "        \"URL\": \"" + nomeEntidade.toLowerCase() + ".list\",\n"
-//                + "        \"key\": \"CRUD-" + nomeEntidade + "\",\n"
-//                + "        \"icon\": \"glyphicon glyphicon-user\",\n"
-//                + "        \"icon_color\": \"\",\n"
-//                + "        \"imageUrl\": \"\",\n"
-//                + "        \"imageWidth\": \"\",\n"
-//                + "        \"imageHeight\": \"\",\n"
-//                + "        \"filhos\": [\n"
-//                + "             {\n"
-//                + "             \"label\": \" Inserir \",\n"
-//                + "             \"URL\": \"" + nomeEntidade.toLowerCase() + ".insert\",\n"
-//                + "             \"key\": \"CRUD-" + nomeEntidade + "\",\n"
-//                + "             \"icon\": \"glyphicon glyphicon-user\",\n"
-//                + "             \"filhos\": []\n"
-//                + "             }\n"
-//                + "         ]\n"
-//                + "    },");,
+
 
         Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/app.js", "//FIMROUTE", ""
                 + Util.IDENTACAO04 + Util.IDENTACAO04 + ".state('" + nomeEntidade.toLowerCase() + "', {\n"
