@@ -163,6 +163,7 @@ public class GeraPresentation extends AbstractMojo {
 
     private void adicionaAoMenu() throws IOException {
 
+
         StringBuilder menu = new StringBuilder();
         menu.append("	{\n");
         menu.append("		\"type\": \"item\",\n");
@@ -174,7 +175,6 @@ public class GeraPresentation extends AbstractMojo {
         menu.append("	},\n");
 
         Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/gumga-menu.json", "{", menu.toString());
-
 
         Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/app.js", "//FIMROUTE", ""
                 + Util.IDENTACAO04 + Util.IDENTACAO04 + ".state('" + nomeEntidade.toLowerCase() + "', {\n"
