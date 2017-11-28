@@ -43,7 +43,7 @@ function ${entityName}ListController($scope, ${entityName}Service, gumgaControll
     }, {
       name: 'button',
       title: ' ',
-      content: '<span class="pull-right"><a class="btn btn-primary btn-sm" ui-sref="${entityNameLowerCase}.edit({id: {{$value.id}} })"><i class="glyphicon glyphicon-pencil"></i></a></span>'
+      content: '<span class="pull-right"><a class="btn btn-primary btn-sm" ui-sref="${entityNameLowerCase}.edit({id: $value.id })"><i class="glyphicon glyphicon-pencil"></i></a></span>'
     }]
   };
 
