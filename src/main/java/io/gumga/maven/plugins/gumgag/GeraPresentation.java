@@ -168,20 +168,9 @@ public class GeraPresentation extends AbstractMojo {
         menu.append("		\"type\": \"item\",\n");
         menu.append("		\"label\": \""+nomeEntidade+"\",\n");
         menu.append("		\"key\": \"CRUD-"+nomeEntidade+"\",\n");
-        menu.append("		\"children\": [\n");
-        menu.append("				{\n");
-        menu.append("					\"type\": \"item\",\n");
-        menu.append("					\"label\": \"Inserir\",\n");
-        menu.append("					\"state\": \""+nomeEntidade.toLowerCase()+".insert\",\n");
-        menu.append("					\"key\": \"CRUD-"+nomeEntidade+"\"\n");
-        menu.append("				},\n");
-        menu.append("				{\n");
-        menu.append("					\"type\": \"item\",\n");
-        menu.append("					\"label\": \"Listagem\",\n");
-        menu.append("					\"state\": \""+nomeEntidade.toLowerCase()+".list\",\n");
-        menu.append("					\"key\": \"CRUD-"+nomeEntidade+"\"\n");
-        menu.append("				}\n");
-        menu.append("			]\n");
+        menu.append("		\"icon\":  \"label\", \n ");
+        menu.append("		\"state\": \""+nomeEntidade.toLowerCase()+".list\",\n");
+        menu.append("		\"children\": []\n");
         menu.append("	},\n");
 
         Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/gumga-menu.json", "{", menu.toString());
