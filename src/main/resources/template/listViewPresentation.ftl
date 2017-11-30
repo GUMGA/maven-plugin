@@ -1,24 +1,10 @@
 <div class="row">
     <div class="col-md-10 col-md-offset-1">
         <div class="panel gmd">
-            <div class="panel-heading"><label class="control-label" gumga-translate-tag="${entityNameLowerCase}"></label>
-            </div>
             <div class="panel-body">
                 <div class="row">
 
-                    <div class="col-sm-5">
-                        <a ui-sref="${entityNameLowerCase}.insert" class="btn gmd raised btn-primary">
-                            <i class="glyphicon glyphicon-plus"></i>Novo
-                        </a>
-
-                        <button type="button" class="btn gmd raised btn-danger"
-                                ng-click="${entityNameLowerCase}.methods.delete(selectedValues)"
-                                gumga-confirm="Deseja remover?">
-                            <i class="glyphicon glyphicon-trash"></i>Remover
-                        </button>
-                    </div>
-
-                    <div class="col-sm-7">
+                    <div class="col-sm-7 col-sm-offset-5">
                         <gumga-query search="${entityNameLowerCase}.methods.search(field,param)"
                                      advanced-search="${entityNameLowerCase}.methods.advancedSearch(param)"
                                      saved-filters="${entityNameLowerCase}.methods.getQuery(page)">
@@ -68,3 +54,22 @@
         </div>
     </div>
 </div>
+
+<gmd-fab force-click="false" fixed opened="selectedValues.length > 0">
+    <button ng-if="selectedValues.length == 0" class="btn-primary gmd-ripple" ui-sref="${entityNameLowerCase}.insert">
+        <span class="material-icons">add</span>
+    </button>
+    <button ng-if="selectedValues.length > 0" class="btn-warning gmd-ripple">
+        <span class="material-icons">view_headline</span>
+    </button>
+    <ul ng-class="{'disabled-fab': selectedValues.length <= 0}">
+        <li class="btn-danger" ng-click="${entityNameLowerCase}.methods.delete(selectedValues)">
+            <span class="visible">Remover</span>
+            <i class="material-icons gmd-ripple">delete</i>
+        </li>
+        <li class="btn-primary" ui-sref="${entityNameLowerCase}.insert">
+            <span class="visible">Novo</span>
+            <i class="material-icons gmd-ripple">add</i>
+        </li>
+    </ul>
+</gmd-fab>
