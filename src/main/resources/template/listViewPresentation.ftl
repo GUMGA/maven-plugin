@@ -21,19 +21,6 @@
                 </div>
 
                 <br>
-                <div class="row">
-                    <div class="col-sm-6">
-                        <gumga-query-action
-                                entity="${entityNameLowerCase}"
-                                selected="selectedValues"
-                                query="query"
-                                beyond="beyond"
-                                actions="actions"
-                                on-action="action(queryaction)">
-                        </gumga-query-action>
-                    </div>
-                </div>
-                <br>
 
                 <div class="row">
                     <div class="col-sm-12">
