@@ -48,7 +48,7 @@ public class Util {
         Field aRemoverVersion = null;
         Field aRemoverGumgaCustomFields = null;
         for (Field f : todosAtributos) {
-            if (f.isAnnotationPresent(GeneratedValue.class)) {
+            if ("id".equals(f.getName())) {
                 aRemover = f;
             }
             if ("oi".equals(f.getName())) {
