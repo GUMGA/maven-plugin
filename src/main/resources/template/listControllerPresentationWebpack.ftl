@@ -36,6 +36,9 @@ function ${entityName}ListController($scope, ${entityName}Service, gumgaControll
     selection: 'multi',
     materialTheme: true,
     itemsPerPage: [5, 10, 15, 30],
+    empty: {
+      enabled: true
+    },
     columnsConfig: [{
       name: '${firstAttribute}',
       title: '<span gumga-translate-tag="${entityNameLowerCase}.${firstAttribute}"> ${firstAttribute} </span>',
