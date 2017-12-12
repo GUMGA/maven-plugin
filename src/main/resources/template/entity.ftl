@@ -10,6 +10,7 @@ import javax.validation.constraints.*;
 import io.gumga.domain.domains.*;
 import org.hibernate.envers.Audited;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.Columns;
 
 @GumgaMultitenancy
 @Audited
