@@ -4,7 +4,8 @@
         <div class="row">
 
             <div class="col-sm-7 col-sm-offset-5">
-                <gumga-query use-gquery="true"
+                <gumga-query class="gmd"
+                             use-gquery="true"
                              search="${entityNameLowerCase}.methods.searchWithGQuery(field,param)"
                              advanced-search="${entityNameLowerCase}.methods.searchWithGQuery(param)"
                              saved-filters="${entityNameLowerCase}.methods.getQuery(page)">
