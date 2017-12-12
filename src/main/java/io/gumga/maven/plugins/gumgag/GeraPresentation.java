@@ -154,11 +154,21 @@ public class GeraPresentation extends AbstractMojo {
             if (!override) {
                 getLog().info("menu");
                 adicionaAoMenu();
+                adicionaAoStateLabel();
             }
         } catch (Exception ex) {
             getLog().error(ex);
         }
 
+    }
+
+    private void adicionaAoStateLabel() throws IOException {
+        StringBuilder menu = new StringBuilder();
+        menu.append("	{\n");
+        menu.append(" \"" + nomeEntidade.toLowerCase() + ".list\": \"" +nomeEntidade+ "\",\n");
+        menu.append(" \"" + nomeEntidade.toLowerCase() + ".insert\": \"" +nomeEntidade+ "\",\n");
+
+        Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/state-label.json", "{", menu.toString());
     }
 
     private void adicionaAoMenu() throws IOException {
@@ -174,8 +184,8 @@ public class GeraPresentation extends AbstractMojo {
         menu.append("		\"children\": []\n");
         menu.append("	},\n");
 
-        Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/gumga-menu.json", "{", menu.toString());
 
+        Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/gumga-menu.json", "{", menu.toString());
         Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/app/app.js", "//FIMROUTE", ""
                 + Util.IDENTACAO04 + Util.IDENTACAO04 + ".state('" + nomeEntidade.toLowerCase() + "', {\n"
                 + Util.IDENTACAO04 + Util.IDENTACAO04 + "data: {\n"
