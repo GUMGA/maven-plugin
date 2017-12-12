@@ -31,20 +31,20 @@ public class ${serviceName}Service extends GumgaService<${serviceName}, String> 
 
 <#if "${attributesToMany?c}" == "true">
     @Transactional
-    public ${serviceName} load${serviceName}Fat(Long id) {
-    ${serviceName} obj = view(id);
+    public ${serviceName} load${serviceName}Fat(String id) {
+        ${serviceName} obj = view(id);
 
-        <#list hibernate01 as h1>
-        Hibernate.initialize(obj.get${h1.nameGettterAndSetter}());
-        </#list>
+            <#list hibernate01 as h1>
+            Hibernate.initialize(obj.get${h1.nameGettterAndSetter}());
+            </#list>
 
-        <#list hibernate02 as h2>
-        for(${h2.name} subObj:obj.get${h2.type}()) {
-        Hibernate.initialize(subObj.get${h2.nameGettterAndSetter}());
-        }
-        </#list>
+            <#list hibernate02 as h2>
+            for(${h2.name} subObj:obj.get${h2.type}()) {
+            Hibernate.initialize(subObj.get${h2.nameGettterAndSetter}());
+            }
+            </#list>
 
-    return obj;
+        return obj;
     }
 </#if>
 }
