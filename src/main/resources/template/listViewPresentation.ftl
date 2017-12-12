@@ -5,8 +5,9 @@
                 <div class="row">
 
                     <div class="col-sm-7 col-sm-offset-5">
-                        <gumga-query search="${entityNameLowerCase}.methods.search(field,param)"
-                                     advanced-search="${entityNameLowerCase}.methods.advancedSearch(param)"
+                        <gumga-query use-gquery="true"
+                                     search="${entityNameLowerCase}.methods.searchWithGQuery(field,param)"
+                                     advanced-search="${entityNameLowerCase}.methods.searchWithGQuery(param)"
                                      saved-filters="${entityNameLowerCase}.methods.getQuery(page)">
                         <#list attributesSearchField as attribute>
                             <search-field label="${attribute.name}"
@@ -24,16 +25,16 @@
 
                 <div class="row">
                     <div class="col-sm-12">
-                        <gumga-list class="table-striped table-condensed"
-                                    sort="${entityNameLowerCase}.methods.sort(field, dir)"
+                        <gumga-list sort="${entityNameLowerCase}.methods.sort(field, dir)"
+                                    class="table-hover table-condensed"
                                     data="${entityNameLowerCase}.data"
-                                    configuration="tableConfig"
-                                    page-size="${entityNameLowerCase}.pageSize"
-                                    page-position="bottom"
                                     page-align="flex-end"
-                                    count="${entityNameLowerCase}.count"
+                                    page-position="bottom"
+                                    configuration="tableConfig"
                                     page-model="page"
-                                    on-page-change="${entityNameLowerCase}.methods.get(page, pageSize)">
+                                    page-size="${entityNameLowerCase}.pageSize"
+                                    count="${entityNameLowerCase}.count"
+                                    on-page-change="${entityNameLowerCase}.methods.searchWithGQuery(${entityNameLowerCase}.lastGQuery, page)">
                         </gumga-list>
                     </div>
                 </div>

@@ -12,9 +12,10 @@
                             back="${entityNameLowerCase}.list"
                             submit="${entityNameLowerCase}.methods.put(${entityNameLowerCase}.data)"
                             position="right"
+                            should-continue="shouldContinue"
                             valid="${entityName}Form.$valid"
                             confirm-dirty="true"
-                            continue="continue">
+                            continue="true">
                     </gumga-form-buttons>
                 </form>
             </div>
