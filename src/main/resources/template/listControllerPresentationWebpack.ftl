@@ -1,13 +1,14 @@
-${entityName}ListController.$inject = ['$scope', '${entityName}Service', 'gumgaController'];
+${entityName}ListController.$inject = ['$scope', '${entityName}Service', 'gumgaController', '$gmdAlert'];
 
-function ${entityName}ListController($scope, ${entityName}Service, gumgaController) {
-
+function ${entityName}ListController($scope, ${entityName}Service, gumgaController, $gmdAlert) {
+  ${entityName}Service.resetDefaultState();
   gumgaController.createRestMethods($scope, ${entityName}Service, '${entityNameLowerCase}');
 
-  ${entityName}Service.resetDefaultState();
+
   $scope.${entityNameLowerCase}.execute('get');
 
   $scope.${entityNameLowerCase}.on('deleteSuccess', function() {
+    $gmdAlert.success('Sucesso!', 'Seu registro foi removido!', 2000);
     $scope.${entityNameLowerCase}.execute('get');
   });
 

@@ -15,7 +15,7 @@
                             should-continue="shouldContinue"
                             valid="${entityName}Form.$valid"
                             confirm-dirty="true"
-                            continue="true">
+                            continue="continue">
                     </gumga-form-buttons>
                 </form>
             </div>
