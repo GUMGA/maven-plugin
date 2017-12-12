@@ -1,45 +1,43 @@
 <div class="row">
     <div class="col-md-10 col-md-offset-1">
-        <div class="panel gmd">
-            <div class="panel-body">
-                <div class="row">
 
-                    <div class="col-sm-7 col-sm-offset-5">
-                        <gumga-query use-gquery="true"
-                                     search="${entityNameLowerCase}.methods.searchWithGQuery(field,param)"
-                                     advanced-search="${entityNameLowerCase}.methods.searchWithGQuery(param)"
-                                     saved-filters="${entityNameLowerCase}.methods.getQuery(page)">
-                        <#list attributesSearchField as attribute>
-                            <search-field label="${attribute.name}"
-                                          field="${attribute.nameGettterAndSetter}"></search-field>
-                        </#list>
-                        <#list attributesAdvancedSearchField as attribute>
-                            <advanced-search-field type="${attribute.type}" label="${attribute.name}"
-                                                   field="${attribute.nameGettterAndSetter}"></advanced-search-field>
-                        </#list>
-                        </gumga-query>
-                    </div>
-                </div>
+        <div class="row">
 
-                <br>
-
-                <div class="row">
-                    <div class="col-sm-12">
-                        <gumga-list sort="${entityNameLowerCase}.methods.sort(field, dir)"
-                                    class="table-hover table-condensed"
-                                    data="${entityNameLowerCase}.data"
-                                    page-align="flex-end"
-                                    page-position="bottom"
-                                    configuration="tableConfig"
-                                    page-model="page"
-                                    page-size="${entityNameLowerCase}.pageSize"
-                                    count="${entityNameLowerCase}.count"
-                                    on-page-change="${entityNameLowerCase}.methods.searchWithGQuery(${entityNameLowerCase}.lastGQuery, page)">
-                        </gumga-list>
-                    </div>
-                </div>
+            <div class="col-sm-7 col-sm-offset-5">
+                <gumga-query use-gquery="true"
+                             search="${entityNameLowerCase}.methods.searchWithGQuery(field,param)"
+                             advanced-search="${entityNameLowerCase}.methods.searchWithGQuery(param)"
+                             saved-filters="${entityNameLowerCase}.methods.getQuery(page)">
+                <#list attributesSearchField as attribute>
+                    <search-field label="${attribute.name}"
+                                  field="${attribute.nameGettterAndSetter}"></search-field>
+                </#list>
+                <#list attributesAdvancedSearchField as attribute>
+                    <advanced-search-field type="${attribute.type}" label="${attribute.name}"
+                                           field="${attribute.nameGettterAndSetter}"></advanced-search-field>
+                </#list>
+                </gumga-query>
             </div>
         </div>
+
+        <br>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <gumga-list sort="${entityNameLowerCase}.methods.sort(field, dir)"
+                            class="table-hover table-condensed"
+                            data="${entityNameLowerCase}.data"
+                            page-align="flex-end"
+                            page-position="bottom"
+                            configuration="tableConfig"
+                            page-model="page"
+                            page-size="${entityNameLowerCase}.pageSize"
+                            count="${entityNameLowerCase}.count"
+                            on-page-change="${entityNameLowerCase}.methods.searchWithGQuery(${entityNameLowerCase}.lastGQuery, page)">
+                </gumga-list>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -54,10 +52,6 @@
         <li class="btn-danger" ng-click="${entityNameLowerCase}.methods.delete(selectedValues)">
             <span class="visible">Remover</span>
             <i class="material-icons gmd-ripple">delete</i>
-        </li>
-        <li class="btn-primary" ui-sref="${entityNameLowerCase}.insert">
-            <span class="visible">Novo</span>
-            <i class="material-icons gmd-ripple">add</i>
         </li>
     </ul>
 </gmd-fab>
