@@ -164,11 +164,10 @@ public class GeraPresentation extends AbstractMojo {
 
     private void adicionaAoStateLabel() throws IOException {
         StringBuilder menu = new StringBuilder();
-        menu.append("	{\n");
         menu.append(" \"" + nomeEntidade.toLowerCase() + ".list\": \"" +nomeEntidade+ "\",\n");
         menu.append(" \"" + nomeEntidade.toLowerCase() + ".insert\": \"" +nomeEntidade+ "\",\n");
 
-        Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/state-label.json", "{", menu.toString());
+        Util.adicionaLinha(Util.windowsSafe(project.getFile().getParent()) + "/src/main/webapp/state-label.json", ",", menu.toString());
     }
 
     private void adicionaAoMenu() throws IOException {
