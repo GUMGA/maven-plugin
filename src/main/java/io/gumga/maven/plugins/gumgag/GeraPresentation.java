@@ -11,10 +11,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -228,7 +225,17 @@ public class GeraPresentation extends AbstractMojo {
             TemplateFreeMarker template = new TemplateFreeMarker(isWebpack ? "listControllerPresentationWebpack.ftl" : "listControllerPresentation.ftl", config);
             template.add("entityName", this.nomeEntidade);
             template.add("entityNameLowerCase", this.nomeEntidade.toLowerCase());
-            template.add("firstAttribute", Util.primeiroAtributo(classeEntidade).getName());
+            Field primeiroAtributo = Util.primeiroAtributo(classeEntidade);
+
+
+            String basic = primeiroAtributo.getName();
+            Class classe2 = primeiroAtributo.getType();
+            if(classe2.isAnnotationPresent(Entity.class)){
+                basic += "." + Util.primeiroAtributo(classe2).getName();
+            }
+
+            template.add("firstAttribute", primeiroAtributo.getName());
+            template.add("firstAttributeFirst", basic);
             template.generateTemplate(this.pastaControllers + "/" + this.nomeEntidade + "ListController.js");
 
             for (Field field : Util.getTodosAtributosMenosIdAutomatico(this.classeEntidade)) {
@@ -252,7 +259,6 @@ public class GeraPresentation extends AbstractMojo {
 
 
                 for (Field atributo : Util.getTodosAtributosMenosIdAutomatico(classe)) {
-
                     if (atributo.isAnnotationPresent(OneToOne.class)) {
                         Field field = Util.primeiroAtributo(atributo.getType());
                         dependenciasManyToOneModal.add(new Attribute(field.getName(), "", atributo.getType().getSimpleName(), false, false, false, false, false, false, false));
@@ -268,9 +274,6 @@ public class GeraPresentation extends AbstractMojo {
                     }
                     if (atributo.isAnnotationPresent(OneToMany.class)) {
                         dependenciasOneToManyModal.add(Util.getTipoGenerico(atributo));
-                        getLog().info("OneToMany-->" + atributo.getName());
-                        Field field = Util.primeiroAtributo(atributo.getType());
-                        getLog().info("OneToMany2-->" + field.getName());
                         attributesOneToMany.add(new Attribute(atributo.getName(), "", this.classeEntidade.getSimpleName().toLowerCase(), false, false, false, false, false, false, false));
                     }
                     if (atributo.getType().isEnum()) {
@@ -367,7 +370,7 @@ public class GeraPresentation extends AbstractMojo {
 
             for (Field field : Util.getTodosAtributosMenosIdAutomatico(this.classeEntidade)) {
                 if (field.isAnnotationPresent(OneToMany.class)) {
-                    oneToManys.add(field.getName().toLowerCase());
+                    oneToManys.add(field.getName());
                 }
             }
 
