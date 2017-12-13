@@ -47,6 +47,8 @@ public class GeraEntidade extends AbstractMojo {
 	private String nomeEntidade;
 	private String nomePacote;
 	private String pastaClasse;
+	@Parameter(property = "extends", defaultValue = "NO")
+	private String isExtends;
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
@@ -73,6 +75,7 @@ public class GeraEntidade extends AbstractMojo {
 			template.add("package", this.nomePacote);
 			template.add("entityName", this.nomeEntidade);
 			template.add("superClass", this.superClasse);
+			template.add("isExtends", this.isExtends);
 
 			List<Attribute> attributes = new ArrayList<>();
 			for (String attribute : this.getAttributes()) {
