@@ -1,7 +1,8 @@
-${entityName}FormController.$inject = ['${entityName}Service', '$state', 'entity', '$scope', 'gumgaController'${dependenciesInject}];
+${entityName}FormController.$inject = ['${entityName}Service', '$state', 'entity', '$scope', 'gumgaController'${dependenciesInject}, '$gmdAlert'];
 
-function ${entityName}FormController(${entityName}Service, $state, entity, $scope, gumgaController${dependenciesParam}) {
-
+function ${entityName}FormController(${entityName}Service, $state, entity, $scope, gumgaController${dependenciesParam},$gmdAlert) {
+	$scope.continue = !$state.params.id
+	${entityName}Service.resetDefaultState();
 	gumgaController.createRestMethods($scope, ${entityName}Service, '${entityNameLowerCase}');
 
 	<#list dependenciesEnums as enum>
@@ -19,7 +20,7 @@ function ${entityName}FormController(${entityName}Service, $state, entity, $scop
 	$scope.${attribute}Options=[];
 	</#list>
 
-	$scope.${entityNameLowerCase}.data = entity.data || {};
+	$scope.${entityNameLowerCase}.data = angular.copy(entity.data) || {};
 	<#list attributes as attribute>
 	$scope.${attribute.nameGettterAndSetter}.data.${attribute.name} = ($scope.${attribute.nameGettterAndSetter}.data.${attribute.name} == undefined || $scope.${attribute.nameGettterAndSetter}.data.${attribute.name} == "") ? new Date() : new Date($scope.${attribute.nameGettterAndSetter}.data.${attribute.name});
 	$scope.open${attribute.name} = function() {
@@ -42,10 +43,18 @@ function ${entityName}FormController(${entityName}Service, $state, entity, $scop
 		}
 	};
 	</#list>
-	$scope.continue = {};
 
-	$scope.${entityNameLowerCase}.on('putSuccess',function(data){
-		$state.go('${entityNameLowerCase}.list');
+	$scope.${entityNameLowerCase}.on('putSuccess',function(data) {
+		$gmdAlert.success('Sucesso!', 'Seu registro foi adicionado!', 3000);
+		if($scope.shouldContinue) {
+			$scope.${entityNameLowerCase}.data  = {};
+		} else {
+			$state.go('${entityNameLowerCase}.list');
+		}
+	});
+
+	$scope.${entityNameLowerCase}.on('putError',function(data) {
+		$gmdAlert.error('Ops!', 'Acho que algo deu errado!', 3000);
 	});
 }
 

@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.gumga</groupId>
     <artifactId>gumgag</artifactId>
-    <version>1.4.0</version>
+    <version>1.5.0</version>
 
     <packaging>maven-plugin</packaging>
 
@@ -22,7 +22,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <io.gumga.version>[1.5.0,)</io.gumga.version>
+        <io.gumga.version>3.0.5</io.gumga.version>
         <java.versao>1.8</java.versao>
     </properties>
 
