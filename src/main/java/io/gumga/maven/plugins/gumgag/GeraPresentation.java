@@ -268,9 +268,9 @@ public class GeraPresentation extends AbstractMojo {
                     }
                     if (atributo.isAnnotationPresent(OneToMany.class)) {
                         dependenciasOneToManyModal.add(Util.getTipoGenerico(atributo));
-                        System.out.println("OneToMany-->" + atributo.getName());
+                        getLog().info("OneToMany-->" + atributo.getName());
                         Field field = Util.primeiroAtributo(atributo.getType());
-                        System.out.println("OneToMany2-->" + field.getName());
+                        getLog().info("OneToMany2-->" + field.getName());
                         attributesOneToMany.add(new Attribute(atributo.getName(), "", this.classeEntidade.getSimpleName().toLowerCase(), false, false, false, false, false, false, false));
                     }
                     if (atributo.getType().isEnum()) {
