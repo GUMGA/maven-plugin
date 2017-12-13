@@ -42,8 +42,8 @@ function ${entityName}ListController($scope, ${entityName}Service, gumgaControll
     columnsConfig: [{
       name: '${firstAttribute}',
       title: '<span gumga-translate-tag="${entityNameLowerCase}.${firstAttribute}"> ${firstAttribute} </span>',
-      content: '{{$value.${firstAttribute} }}',
-      sortField: '${firstAttribute}'
+      content: '{{$value.${firstAttributeFirst} }}',
+      sortField: '${firstAttributeFirst}'
     }, {
       name: 'button',
       title: ' ',

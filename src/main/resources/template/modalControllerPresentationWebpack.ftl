@@ -9,9 +9,21 @@ function Modal${entityName}Controller($scope, gumgaController, $uibModal, $uibMo
     $scope.${attr.nameGettterAndSetter}.data.${attr.name} = $scope.${attr.nameGettterAndSetter}.data.${attr.name} || [];
   </#list>
 
+
   <#list dpManyToOne as dp>
   gumgaController.createRestMethods($scope, ${dp.nameGettterAndSetter}Service, '${dp.nameGettterAndSetter?lower_case}');
   $scope.${dp.nameGettterAndSetter?lower_case}.methods.search('${dp.name}','')
+
+  $scope.${dp.nameGettterAndSetter?lower_case}Config = {
+      ngModel: '${entity}.data.${dp.nameGettterAndSetter?lower_case}',
+      options: {
+          type: 'object',
+          message: '${dp.nameGettterAndSetter?lower_case} não pode ser nulo.',
+          empty: {
+            value: true
+          }
+      }
+  }
 
   </#list>
 

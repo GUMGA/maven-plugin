@@ -13,7 +13,17 @@ function ${entityName}FormController(${entityName}Service, $state, entity, $scop
 	gumgaController.createRestMethods($scope, ${d.name}Service, '${d.type}');
 	$scope.${d.type}.methods.search('${d.nameGettterAndSetter}','');
 
-	$scope.${d.type}Config = {};
+    $scope.${d.type}Config = {
+		ngModel: '${entityNameLowerCase}.data.${d.type}',
+		options: {
+			type: 'object',
+			message: '${d.type} não pode ser nulo.',
+            empty: {
+                value: true
+            }
+		}
+	}
+
 	</#list>
 
 	<#list attributesNotStatic as attribute>
@@ -35,13 +45,13 @@ function ${entityName}FormController(${entityName}Service, $state, entity, $scop
 		ngModel: '${entityNameLowerCase}.data.${oneToMany}',
 		options: {
 			type: 'array',
-			message: 'Its not array',
+			message: '${oneToMany} não é um array',
 			empty: {
 				value: false,
-				message: 'Is Empty'
+				message: '${oneToMany} não pode ser vazio'
 			}
 		}
-	};
+	}
 	</#list>
 
 	$scope.${entityNameLowerCase}.on('putSuccess',function(data) {
