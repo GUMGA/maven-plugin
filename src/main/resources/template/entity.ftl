@@ -14,12 +14,18 @@ import org.hibernate.annotations.Columns;
 
 @GumgaMultitenancy
 @Audited
+<#if "YES" == "${isExtends}">
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name="${entityName}TYPE")
+</#if>
 @Entity(name = "${entityName}")
 @Table(name = "${entityName}", indexes = {
     @Index(name = "${entityName}_gum_oi", columnList = "oi")
 })
 <#if "GumgaModel<Long>" == "${superClass}">
 @SequenceGenerator(name = GumgaModel.SEQ_NAME, sequenceName = "SEQ_${entityName}")
+<#elseif "GumgaModelUUID" != "${superClass}">
+@DiscriminatorValue("${entityName}")
 </#if>
 public class ${entityName} extends ${superClass} {
 
