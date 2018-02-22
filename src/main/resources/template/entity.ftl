@@ -15,7 +15,7 @@ import org.hibernate.annotations.Columns;
 @GumgaMultitenancy
 @Audited
 <#if "YES" == "${isExtends}">
-@Inheritance(strategy = InheritanceType.JOINED)
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @DiscriminatorColumn(name="${entityName}TYPE")
 </#if>
 @Entity(name = "${entityName}")
