@@ -86,7 +86,7 @@ public class ${entityName}API extends GumgaAPI<${entityName}, String> {
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = "application/json")
     public RestResponse<${entityName}> update(String id, @RequestBody @Valid ${entityName} obj, BindingResult result) {
         <#list gumgaImages as gumgaImage>
-        if (obj.getFoto()!= null) {
+        if (obj.get${gumgaImage.nameGettterAndSetter}()!= null) {
             if ("null".equals(obj.get${gumgaImage.nameGettterAndSetter}().getName())) {
                 obj.set${gumgaImage.nameGettterAndSetter}(null);
             }else if (obj.get${gumgaImage.nameGettterAndSetter}().getSize() == 0) {
